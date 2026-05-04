@@ -4,21 +4,19 @@ import 'package:tourist_app/core/utils/app_colors.dart';
 import 'app_styles.dart';
 
 class AppTheme {
-  static ThemeData darkTheme = ThemeData(
-    dialogTheme: DialogThemeData(
-        backgroundColor: AppColors.darkGrayColor
-    ),
+  static ThemeData lightTheme = ThemeData(
+    dialogTheme: DialogThemeData(),
+    scaffoldBackgroundColor: AppColors.whiteColor,
     bottomNavigationBarTheme: BottomNavigationBarThemeData(
-        type: BottomNavigationBarType.fixed
+        type: BottomNavigationBarType.fixed,
+      backgroundColor: AppColors.whiteColor,
+      selectedItemColor: AppColors.yellowColor,
+      unselectedItemColor: AppColors.lightGrayColor,
+      selectedLabelStyle:AppStyles.primary12Medium.copyWith(color: AppColors.yellowColor),
+      unselectedLabelStyle:AppStyles.lightGray12Regular,
     ),
-    scaffoldBackgroundColor: AppColors.blackColor,
-    appBarTheme: AppBarTheme(
-      backgroundColor: AppColors.blackColor,
-      elevation: 0,
-      centerTitle: true,
-      iconTheme: IconThemeData(color: AppColors.yellowColor),
-      titleTextStyle: AppStyles.robotoRegular16Yellow,
-    ),
+
     bottomSheetTheme: BottomSheetThemeData(backgroundColor: Colors.transparent),
   );
 }
+
