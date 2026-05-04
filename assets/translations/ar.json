@@ -30,5 +30,21 @@
   "please_enter_name_validation": "الرجاء إدخال اسمك",
   "please_enter_phone": "الرجاء إدخال رقم هاتفك",
   "please_enter_address": "الرجاء إدخال عنوانك",
-  "password_not_match": "كلمة المرور غير متطابقة"
+  "password_not_match": "كلمة المرور غير متطابقة",
+  "welcome_back": "مرحباً بك مرة أخرى،",
+  "search_hint": "ابحث عن وجهات، جولات...",
+  "historical": "تاريخي",
+  "cruises": "رحلات بحرia",
+  "beaches": "شواطئ",
+  "events": "فعاليات",
+  "recommended": "موصى به",
+  "popular_places": "أماكن مشهورة",
+  "see_all": "عرض الكل",
+  "home": "الرئيسية",
+  "explore": "استكشف",
+  "map": "الخريطة",
+  "saved": "المحفوظات",
+  "profile": "الملف الشخصي",
+  "welcome,": "مرحبا,"
+
 }

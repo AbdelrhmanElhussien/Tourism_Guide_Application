@@ -1,7 +1,8 @@
 import 'dart:ui';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:tourist_app/features/auth_screen/signUp.dart';
+import 'package:tourist_app/core/utils/app_routes.dart';
+import 'package:tourist_app/features/AppScreens/auth_screen/signUp.dart';
 class Loginscreen extends StatefulWidget {
   static const String routName = 'Loginscreen';
   const Loginscreen({super.key});
@@ -12,8 +13,8 @@ class Loginscreen extends StatefulWidget {
 
 class _LoginscreenState extends State<Loginscreen> {
   bool _obscurePassword = true;
-  final _passController        = TextEditingController();
-  final _emailController       = TextEditingController();
+  final _passController        = TextEditingController(text: '01155773544');
+  final _emailController       = TextEditingController(text: 'abdo@gmail.com');
   final _formKey = GlobalKey<FormState>();
 
 
@@ -157,6 +158,7 @@ class _LoginscreenState extends State<Loginscreen> {
                                           if (_formKey.currentState!.validate()) {
                                             print('Sign up successful');
                                             // TODO: call your API / auth logic here
+                                            Navigator.pushReplacementNamed(context, AppRoutes.HomeRouteName);
                                           }
                                           print('sign in succeffuly');
                                         },
