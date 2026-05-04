@@ -2,7 +2,7 @@ import 'dart:ui';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:tourist_app/core/utils/validation.dart';
-import 'package:tourist_app/features/auth_screen/loginScreen.dart';
+import 'package:tourist_app/features/AppScreens/auth_screen/loginScreen.dart';
 import 'package:tourist_app/features/widget/coustomTxtItem.dart';
 
 class SignUpScreen extends StatefulWidget {

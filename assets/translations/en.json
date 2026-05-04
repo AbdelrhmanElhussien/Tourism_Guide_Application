@@ -30,5 +30,20 @@
   "please_enter_name_validation": "Please enter your name",
   "please_enter_phone": "Please enter your phone number",
   "please_enter_address": "Please enter your address",
-  "password_not_match": "Re-password doesn't match password"
+  "password_not_match": "Re-password doesn't match password",
+  "welcome_back": "Welcome back,",
+  "search_hint": "Search destinations, tours...",
+  "historical": "Historical",
+  "cruises": "Cruises",
+  "beaches": "Beaches",
+  "events": "Events",
+  "recommended": "Recommended",
+  "popular_places": "Popular Places",
+  "see_all": "See All",
+  "home": "Home",
+  "explore": "Explore",
+  "map": "Map",
+  "saved": "Saved",
+  "profile": "Profile",
+  "welcome,": "Welcome,"
 }

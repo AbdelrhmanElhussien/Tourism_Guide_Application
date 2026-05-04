@@ -2,8 +2,13 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 import 'package:tourist_app/core/utils/app_loclization.dart';
-import 'package:tourist_app/features/auth_screen/loginScreen.dart';
-import 'package:tourist_app/features/auth_screen/signUp.dart';
+import 'package:tourist_app/core/utils/app_routes.dart';
+import 'package:tourist_app/core/utils/app_theme.dart';
+import 'package:tourist_app/features/AppScreens/HomeScreens/homeScreen.dart';
+import 'package:tourist_app/features/AppScreens/HomeScreens/homeTap/detailedScreen.dart';
+import 'package:tourist_app/features/AppScreens/auth_screen/loginScreen.dart';
+import 'package:tourist_app/features/AppScreens/auth_screen/signUp.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -33,11 +38,14 @@ class MyApp extends StatelessWidget {
       supportedLocales: context.supportedLocales,
       locale: context.locale,
       routes: {
-        Loginscreen.routName: (context) => Loginscreen(),
-        SignUpScreen.routName: (context) => SignUpScreen(),
+       AppRoutes.loginRouteName:(context)=>Loginscreen(),
+        AppRoutes.signUpRouteName:(context)=>SignUpScreen(),
+        AppRoutes.HomeRouteName:(context)=>Homescreen(),
+        AppRoutes.DetailScreenRouteName:(context)=>DetailScreen(),
       },
-      initialRoute: Loginscreen.routName,
-      home: Loginscreen(),
+      initialRoute: AppRoutes.DetailScreenRouteName,
+      theme: AppTheme.lightTheme,
+      themeMode: ThemeMode.light,
     );
   }
 }
