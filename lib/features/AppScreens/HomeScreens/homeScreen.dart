@@ -4,11 +4,13 @@ import 'package:tourist_app/core/utils/app_colors.dart';
 import 'package:tourist_app/features/AppScreens/HomeScreens/exploreTap/exploreTap.dart';
 import 'package:tourist_app/features/AppScreens/HomeScreens/homeTap/homeTap.dart';
 import 'package:tourist_app/features/AppScreens/HomeScreens/mapTap/mapTap.dart';
+import 'package:tourist_app/features/AppScreens/HomeScreens/mapTap/provider/map_provider.dart';
 import 'package:tourist_app/features/AppScreens/HomeScreens/profileTap/profileTap.dart';
 import 'package:tourist_app/features/AppScreens/HomeScreens/savedTap/savedTap.dart';
+import 'package:provider/provider.dart';
 
 class Homescreen extends StatefulWidget {
-  Homescreen({super.key});
+  const Homescreen({super.key});
 
   @override
   State<Homescreen> createState() => _HomescreenState();
@@ -16,7 +18,13 @@ class Homescreen extends StatefulWidget {
 
 class _HomescreenState extends State<Homescreen> {
   int selectedIndex = 0;
-  List<Widget>tabsList = [hometap(),exploreTap(),mapTap(),savedTap(),profileTap()];
+  List<Widget> tabsList = [
+    hometap(),
+    exploreTap(),
+    ChangeNotifierProvider(create: (context) => MapProvider(), child: MapTap()),
+    savedTap(),
+    profileTap(),
+  ];
   @override
   Widget build(BuildContext context) {
     return Scaffold(

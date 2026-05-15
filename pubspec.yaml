@@ -46,6 +46,9 @@ dependencies:
   bloc: ^9.2.0
   shared_preferences: ^2.3.2
   fluttertoast: ^8.2.8
+  google_maps_flutter: ^2.14.2
+  location: ^8.0.1
+  provider: ^6.1.5+1
 
 dev_dependencies:
   flutter_test:
