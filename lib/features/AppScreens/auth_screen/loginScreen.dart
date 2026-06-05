@@ -1,404 +1,235 @@
-import 'dart:ui';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:tourist_app/core/provider/themeProvider.dart';
+import 'package:tourist_app/core/utils/app_colors.dart';
 import 'package:tourist_app/core/utils/app_routes.dart';
-import 'package:tourist_app/features/AppScreens/auth_screen/signUp.dart';
-class Loginscreen extends StatefulWidget {
-  static const String routName = 'Loginscreen';
-  const Loginscreen({super.key});
+import 'package:tourist_app/core/utils/app_styles.dart';
+import 'package:tourist_app/features/AppScreens/auth_screen/widgets/FieldLabel.dart';
+import 'package:tourist_app/features/AppScreens/auth_screen/widgets/GoogleIcon.dart';
+import 'package:tourist_app/features/AppScreens/auth_screen/widgets/InputField.dart';
+import 'package:tourist_app/features/AppScreens/auth_screen/widgets/SocialButton.dart';
+
+class LoginScreen extends StatefulWidget {
+  static const String routeName = 'LoginScreen';
+  const LoginScreen({super.key});
 
   @override
-  State<Loginscreen> createState() => _LoginscreenState();
+  State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginscreenState extends State<Loginscreen> {
+@override
+class _LoginScreenState extends State<LoginScreen> {
   bool _obscurePassword = true;
-  final _passController        = TextEditingController(text: '01155773544');
-  final _emailController       = TextEditingController(text: 'abdo@gmail.com');
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
-
-  @override
   void dispose() {
-    _passController.dispose();
     _emailController.dispose();
+    _passwordController.dispose();
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
+    var themeProvider = Provider.of<Themeprovider>(context);
+    var size = MediaQuery.of(context).size;
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
-          child: Stack(
-            children: [
-              // 1. Background image
-              SizedBox(
-                height: size.height,
-                width: double.infinity,
-                child: Image.asset(
-                  'assets/images/auth.jpg',
-                  fit: BoxFit.cover,
+          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 40),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(height: size.height * 0.05),
+                // ── Header ──────────────────────────────
+                Text(
+                  'Welcome Back',
+                  style: themeProvider.apptheme == ThemeMode.dark
+                      ? AppStyles.semiBold30Bagi
+                      : AppStyles.semiBold30Black,
                 ),
-              ),
-          
-              // 2. Gradient overlay
-              Container(
-                height: size.height,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.black.withOpacity(0.2),
-                      Colors.black.withOpacity(0.9),
-                    ],
-                    stops: const [0.3, 0.95],
+                const SizedBox(height: 6),
+                Text(
+                  'Sign in to continue your journey',
+                  style:themeProvider.apptheme == ThemeMode.dark ?AppStyles.regular16lightBlue:AppStyles.regular16balck,
+
+                ),
+                const SizedBox(height: 36),
+
+                // ── Email ────────────────────────────────
+                FieldLabel(text: 'Email'),
+                SizedBox(height: size.height * 0.009),
+                InputField(
+                  controller: _emailController,
+                  hint: 'Enter your email',
+                  keyboardType: TextInputType.emailAddress,
+                  prefixIcondata: Icons.email_outlined,
+                  validator: (v) {
+                    if (v == null || v.trim().isEmpty)
+                      return 'Email is required';
+                    final re = RegExp(r'^[\w.+-]+@[\w-]+\.[a-zA-Z]+$');
+                    if (!re.hasMatch(v)) return 'Enter a valid email';
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 20),
+
+                // ── Password ─────────────────────────────
+                FieldLabel(text: 'Password'),
+
+                InputField(
+                  controller: _passwordController,
+                  hint: 'Enter your password',
+                  obscureText: _obscurePassword,
+                  prefixIcondata: Icons.lock_outline,
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscurePassword
+                          ? Icons.visibility_off_outlined
+                          : Icons.visibility_outlined,
+                      color: AppColors.hint,
+                      size: 20,
+                    ),
+                    onPressed: () =>
+                        setState(() => _obscurePassword = !_obscurePassword),
                   ),
+                  validator: (v) {
+                    if (v == null || v.isEmpty) return 'Password is required';
+                    if (v.length < 8) return 'Minimum 8 characters';
+                    return null;
+                  },
                 ),
-              ),
-          
-              // 3. Liquid glass login card
-              Positioned(
-                bottom: size.height*0.18,
-                left: 24,
-                right: 24,
-                child: Column(
-                  children: [
-                     Text(
-                      'Sign in to continue'.tr(),
+                const SizedBox(height: 8),
+
+                // ── Forgot password ──────────────────────
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () {},
+                    style: TextButton.styleFrom(
+                      padding: EdgeInsets.zero,
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    child: const Text(
+                      'Forgot password?',
                       style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.w600,
+                        color: AppColors.gold,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
-                    const SizedBox(height: 20),
-          
-                    // Glass card
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(27),
-                      child: BackdropFilter(
-                        filter: ImageFilter.blur(sigmaX: 2.5, sigmaY: 0.5),
-                        child: Container(
-                          padding:  EdgeInsets.symmetric(vertical: size.height*0.03 , horizontal: size.width*0.02),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.12),
-                            borderRadius: BorderRadius.circular(28),
-                            border: Border.all(
-                              color: Colors.white.withOpacity(0.25),
-                              width: 1.5,
-                            ),
-                          ),
-                          child: Form(
-                            key: _formKey,
-                            child: Column(
-                              children: [
-                                // Email
-                                GlassField(
-                                  hint: 'Email'.tr(),
-                                  icon: Icons.email_outlined,
-                                  controller: _emailController,
-                                  validation:  (v) {
-                                    if (v == null || v.trim().isEmpty) return 'Email is required';
-                                    final emailRegex = RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+");
-                                    if (!emailRegex.hasMatch(v)) return 'Enter a valid email';
-                                    return null;
-                                  },
-                                ),
-                                 SizedBox(height: size.height*0.015),
-                                // Password
-                                GlassField(
-                                  hint: 'Password'.tr(),
-                                  icon: Icons.lock_outline,
-                                  isPassword: true,
-                                  obscure: _obscurePassword,
-                                  onToggle: () => setState(
-                                        () => _obscurePassword = !_obscurePassword,
-                                  ),
-                                  controller:_passController ,
-                                  validation: (v) {
-                                    if (v == null || v.isEmpty) return 'Password is required';
-                                    if (v.length < 8) return 'Minimum 8 characters';
-                                    return null;
-                                  },
-                                ),
-                                SizedBox(height: size.height*0.001),
-          
-                                // Forgot password
-                                Align(
-                                  alignment: Alignment.centerRight,
-                                  child: TextButton(
-                                    onPressed: () {},
-                                    child:  Text(
-                                      'Forgot Password?'.tr(),
-                                      style: TextStyle(
-                                        decoration: TextDecoration.underline,
-                                        decorationColor: Colors.white,
-                                        color: Colors.white,
-                                        fontSize: 13,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(height: size.height*0.001),
-                                // Sign In button
-                                SizedBox(
-                                  width: double.infinity,
-                                  height: 52,
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(16),
-                                    child: BackdropFilter(
-                                      filter: ImageFilter.blur(
-                                          sigmaX: 10, sigmaY: 10),
-                                      child: ElevatedButton(
-                                        onPressed: () {
-                                          // TODO: handle sign up
-                                          if (_formKey.currentState!.validate()) {
-                                            print('Sign up successful');
-                                            // TODO: call your API / auth logic here
-                                            Navigator.pushReplacementNamed(context, AppRoutes.HomeRouteName);
-                                          }
-                                          print('sign in succeffuly');
-                                        },
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor:
-                                          Colors.white.withOpacity(0.25),
-                                          foregroundColor: Colors.white,
-                                          elevation: 0,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                            BorderRadius.circular(16),
-                                            side: BorderSide(
-                                              color:
-                                              Colors.white.withOpacity(0.4),
-                                            ),
-                                          ),
-                                        ),
-                                        child:  Text(
-                                          'Sign In'.tr(),
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 20),
-          
-                                // Divider
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: Divider(
-                                        color: Colors.white.withOpacity(0.3),
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 10),
-                                      child: Text(
-                                        'Or continue with'.tr(),
-                                        style: TextStyle(
-                                          color: Colors.white.withOpacity(0.7),
-                                          fontSize: 12,
-                                        ),
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: Divider(
-                                        color: Colors.white.withOpacity(0.3),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 16),
-          
-                                // Google & Apple
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: _SocialButton(
-                                        label: 'Google',
-                                        icon: Icons.g_mobiledata_rounded,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                      child: _SocialButton(
-                                        label: 'Apple',
-                                        icon: Icons.apple,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 20),
-          
-                                // Sign up
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      "Don't have an account? ".tr(),
-                                      style: TextStyle(
-                                        color: Colors.white.withOpacity(0.8),
-                                        fontSize: 13,
-                                      ),
-                                    ),
-                                    GestureDetector(
-                                      onTap: () {
-                                        print('sign up');
-                                        Navigator.pushReplacementNamed(context, SignUpScreen.routName);
-                                      },
-                                      child:Text(
-                                        'Sign Up'.tr(),
-                                        style: TextStyle(
-                                          decoration: TextDecoration.underline,
-                                          decorationColor: Colors.white,
-                                          color: Colors.white,
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
+                  ),
+                ),
+                const SizedBox(height: 28),
+
+                // ── Sign In button ───────────────────────
+                SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        // TODO: auth logic
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.gold,
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text(
+                      'Sign In',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.3,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 28),
+
+                // ── OR divider ───────────────────────────
+                Row(
+                  children: [
+                    Expanded(child: Divider(color: themeProvider.apptheme == ThemeMode.dark ?AppColors.blueColor:AppColors.blackColor,)),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: Text(
+                        'OR',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: themeProvider.apptheme == ThemeMode.dark ?AppColors.blueColor:AppColors.blackColor,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
+                    Expanded(child: Divider(color: themeProvider.apptheme == ThemeMode.dark ?AppColors.blueColor:AppColors.blackColor,)),
                   ],
                 ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
+                const SizedBox(height: 20),
 
-// ── Glass text field ──
-class GlassField extends StatelessWidget {
-  String hint;
-  IconData icon;
-  bool isPassword;
-  bool obscure;
-  VoidCallback? onToggle;
-  TextEditingController? controller;
-  TextInputType? keyboardType;
-  validator? validation;
-  OnChanged? onChanged;
-
-
-  GlassField({
-    required this.hint,
-    required this.icon,
-    this.validation,
-    this.isPassword = false,
-    this.obscure = false,
-    this.onToggle,
-    this.controller,
-    this.keyboardType,
-
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(14),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: TextFormField(
-          controller: controller,
-          keyboardType: keyboardType,
-          validator: validation,
-          obscureText: isPassword ? obscure : false,
-          style: const TextStyle(color: Colors.white),
-          decoration: InputDecoration(
-              hintText: hint,
-              hintStyle: TextStyle(color: Colors.white.withOpacity(0.45)),
-              prefixIcon: Icon(
-                icon,
-                color: Colors.white.withOpacity(0.7),
-                size: 20,
-              ),
-              suffixIcon: isPassword
-                  ? IconButton(
-                icon: Icon(
-                  obscure ? Icons.visibility_off : Icons.visibility,
-                  color: Colors.white.withOpacity(0.7),
-                  size: 20,
+                // ── Google ───────────────────────────────
+                SocialButton(
+                  onPressed: () {},
+                  icon: GoogleIcon(),
+                  label: 'Continue with Google',
                 ),
-                onPressed: onToggle,
-              )
-                  : null,
-              filled: true,
-              fillColor: Colors.white.withOpacity(0.1),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
-                borderSide: BorderSide(color: Colors.white.withOpacity(0.2)),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
-                borderSide: BorderSide(color: Colors.white.withOpacity(0.2)),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
-                borderSide: BorderSide(
-                  color: Colors.white.withOpacity(0.6),
-                  width: 1.5,
+                const SizedBox(height: 12),
+
+                // ── Facebook ─────────────────────────────
+                SocialButton(
+                  onPressed: () {},
+                  icon: Icon(
+                    Icons.facebook,
+                    color: Color(0xFF1877F2),
+                    size: 22,
+                  ),
+                  label: 'Continue with Facebook',
                 ),
-              ),
-              errorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
-                borderSide: BorderSide(
-                    color: Colors.red.withOpacity(0.6),
-                    width: 1,
-                    style: BorderStyle.solid
+                const SizedBox(height: 36),
+
+                // ── Sign up link ─────────────────────────
+                Center(
+                  child: RichText(
+                    text: TextSpan(
+                      text: "Don't have an account?  ",
+                      style:  TextStyle(
+                        color: themeProvider.apptheme == ThemeMode.dark ?AppColors.blueColor:AppColors.blackColor,
+                        fontSize: 13,
+                      ),
+                      children: [
+                        WidgetSpan(
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.pushNamed(
+                                context,
+                                AppRoutes.signUpRouteName,
+                              );
+                            },
+                            child: const Text(
+                              'Sign Up',
+                              style: TextStyle(
+                                color: AppColors.gold,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
-              errorStyle: TextStyle(color: Colors.red , fontSize: 10 ,fontWeight: FontWeight.w900 )
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ── Social button ──
-class _SocialButton extends StatelessWidget {
-  final String label;
-  final IconData icon;
-  final VoidCallback? onToggle;
-
-
-  const _SocialButton({required this.label, required this.icon , this.onToggle});
-
-  @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(14),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: OutlinedButton.icon(
-          onPressed:onToggle,
-          icon: Icon(icon, color: Colors.white, size: 20),
-          label: Text(
-            label,
-            style: const TextStyle(color: Colors.white, fontSize: 13),
-          ),
-          style: OutlinedButton.styleFrom(
-            backgroundColor: Colors.white.withOpacity(0.1),
-            side: BorderSide(color: Colors.white.withOpacity(0.25)),
-            padding: const EdgeInsets.symmetric(vertical: 14),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
+              ],
             ),
           ),
         ),

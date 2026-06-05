@@ -9,6 +9,37 @@ class AppStyles {
     fontSize: 24,
     fontWeight: FontWeight.w500,
   );
+  static TextStyle semiBold30Black = GoogleFonts.inter(
+    color: AppColors.blackColor,
+    fontSize: 30,
+    fontWeight: FontWeight.w500,
+  );
+  static TextStyle semiBold30Bagi = GoogleFonts.inter(
+    color: AppColors.begiColor,
+    fontSize: 30,
+    fontWeight: FontWeight.w500,
+  );
+  static TextStyle regular16lightBlue = GoogleFonts.inter(
+    color: AppColors.blueColor,
+    fontSize: 16,
+    fontWeight: FontWeight.w300,
+  );
+  static TextStyle regular16balck= GoogleFonts.inter(
+    color: AppColors.blackColor,
+    fontSize: 16,
+    fontWeight: FontWeight.w200,
+  );
+
+  static TextStyle medium14Bagi = GoogleFonts.inter(
+    color: AppColors.begiColor,
+    fontSize: 14,
+    fontWeight: FontWeight.w500,
+  );
+  static TextStyle medium14black= GoogleFonts.inter(
+    color: AppColors.blackColor,
+    fontSize: 14,
+    fontWeight: FontWeight.w500,
+  );
   static TextStyle lightGray12Regular = GoogleFonts.inter(
     color: AppColors.lightGrayColor,
     fontSize: 12,
@@ -34,13 +65,43 @@ class AppStyles {
     fontSize: 18,
     fontWeight: FontWeight.w500,
   );
+  static TextStyle lightYellow18Medium = GoogleFonts.inter(
+    color: AppColors.lightyellowColor,
+    fontSize: 18,
+    fontWeight: FontWeight.w500,
+  );
   static TextStyle primary24semiBold = GoogleFonts.inter(
     color: AppColors.primaryColor,
     fontSize: 20,
     fontWeight: FontWeight.w600,
   );
+  static TextStyle primary30semiBold = GoogleFonts.inter(
+    color: AppColors.primaryColor,
+    fontSize: 30,
+    fontWeight: FontWeight.w600,
+  );
+  static TextStyle white30semiBold = GoogleFonts.inter(
+    color: AppColors.primaryColor,
+    fontSize: 30,
+    fontWeight: FontWeight.w600,
+  );
+  static TextStyle lightYellow24semiBold = GoogleFonts.inter(
+    color: AppColors.lightyellowColor,
+    fontSize: 20,
+    fontWeight: FontWeight.w600,
+  );
   static TextStyle yellow14mediume = GoogleFonts.inter(
     color: AppColors.yellowColor,
+    fontSize: 14,
+    fontWeight: FontWeight.w500,
+  );
+  static TextStyle blue14mediume = GoogleFonts.inter(
+    color: AppColors.blueColor,
+    fontSize: 14,
+    fontWeight: FontWeight.w500,
+  );
+  static TextStyle black14mediume = GoogleFonts.inter(
+    color: AppColors.blackColor,
     fontSize: 14,
     fontWeight: FontWeight.w500,
   );

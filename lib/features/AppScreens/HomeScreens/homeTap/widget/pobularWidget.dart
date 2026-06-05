@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:tourist_app/core/provider/themeProvider.dart';
 import 'package:tourist_app/core/utils/app_assets.dart';
 import 'package:tourist_app/core/utils/app_colors.dart';
 import 'package:tourist_app/core/utils/app_styles.dart';
@@ -9,23 +11,28 @@ class pobularWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
+    var themeProvider = Provider.of<Themeprovider>(context);
 
     return Container(
-      width: size.width * 0.6,
+      width: size.width * 0.8,
+      height: size.height*0.29,
       decoration: BoxDecoration(
-          color: AppColors.whiteColor,
-          borderRadius: BorderRadius.circular(15),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.15),
-              blurRadius: 15,
-              offset: const Offset(2, 5),
-            ),
-          ],
-          border: Border.all(
-              color: AppColors.blackColor.withOpacity(0.05),
-              width: 1.5
-          )),
+        color: themeProvider.apptheme == ThemeMode.light
+            ? AppColors.whiteColor
+            : AppColors.cardColor,
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.15),
+            blurRadius: 15,
+            offset: const Offset(2, 5),
+          ),
+        ],
+        border: Border.all(
+          color: AppColors.blackColor.withOpacity(0.05),
+          width: 1.5,
+        ),
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min, // Wrap content height
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -48,24 +55,39 @@ class pobularWidget extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('pyramids of Giza', style: AppStyles.primary18Medium),
+                Text(
+                  'pyramids of Giza',
+                  style: themeProvider.apptheme == ThemeMode.light
+                      ? AppStyles.primary18Medium
+                      : AppStyles.lightYellow18Medium,
+                ),
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    Icon(Icons.location_on_outlined, color: AppColors.lightGrayColor, size: 16),
-                    const Text('Giza, Egypt'),
+                    Icon(
+                      Icons.location_on_outlined,
+                      color: AppColors.lightGrayColor,
+                      size: 16,
+                    ),
+                    Text('Giza, Egypt' , style: themeProvider.apptheme == ThemeMode.light
+                        ? AppStyles.black14mediume
+                        : AppStyles.blue14mediume,
+                    ),
                   ],
                 ),
                 const SizedBox(height: 4),
                 Row(
                   children: [
                     Icon(Icons.star, color: AppColors.yellowColor, size: 16),
-                    const Text('4.9 (1253)'),
+                     Text('4.9 (1253)',
+                      style: themeProvider.apptheme == ThemeMode.light
+                          ? AppStyles.black14mediume
+                          : AppStyles.blue14mediume,),
                   ],
-                )
+                ),
               ],
             ),
-          )
+          ),
         ],
       ),
     );

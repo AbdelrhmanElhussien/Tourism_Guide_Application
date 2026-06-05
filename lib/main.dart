@@ -1,5 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:tourist_app/core/provider/themeProvider.dart';
 
 import 'package:tourist_app/core/utils/app_loclization.dart';
 import 'package:tourist_app/core/utils/app_routes.dart';
@@ -21,7 +23,11 @@ void main() async {
       saveLocale: true,
       fallbackLocale: AppLoclization.enLocale,
       startLocale: AppLoclization.enLocale,
-      child: const MyApp(),
+      child: MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (context) => Themeprovider())
+        ],
+          child: const MyApp()),
     ),
   );
 }
@@ -29,23 +35,25 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
+  // todo: This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    var themeProvider = Provider.of<Themeprovider>(context);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       localizationsDelegates: context.localizationDelegates,
       supportedLocales: context.supportedLocales,
       locale: context.locale,
       routes: {
-       AppRoutes.loginRouteName:(context)=>Loginscreen(),
+       AppRoutes.loginRouteName:(context)=>LoginScreen(),
         AppRoutes.signUpRouteName:(context)=>SignUpScreen(),
         AppRoutes.HomeRouteName:(context)=>Homescreen(),
         AppRoutes.DetailScreenRouteName:(context)=>DetailScreen(),
       },
-      initialRoute: AppRoutes.DetailScreenRouteName,
+      initialRoute: AppRoutes.loginRouteName,
       theme: AppTheme.lightTheme,
-      themeMode: ThemeMode.light,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: themeProvider.apptheme,
     );
   }
 }

@@ -9,6 +9,7 @@
   "apple": "Apple",
   "dont_have_account": "Don't have an account?",
   "sign_up": "Sign Up",
+  "welcome_back": "Welcome Back",
 
   "create_account": "Create Account",
   "fill_in_details": "Fill in the details to get started",
@@ -41,9 +42,9 @@
   "popular_places": "Popular Places",
   "see_all": "See All",
   "home": "Home",
-  "explore": "Explore",
+  "Explorer": "Explore",
   "map": "Map",
   "saved": "Saved",
   "profile": "Profile",
-  "welcome,": "Welcome,"
+  "Welcome!": "Welcome,"
 }
