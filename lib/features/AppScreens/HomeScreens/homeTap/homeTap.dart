@@ -1,5 +1,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:tourist_app/core/provider/themeProvider.dart';
 import 'package:tourist_app/core/utils/app_assets.dart';
 import 'package:tourist_app/core/utils/app_colors.dart';
 import 'package:tourist_app/core/utils/app_styles.dart';
@@ -27,6 +29,7 @@ class _hometapState extends State<hometap> {
 
   @override
   Widget build(BuildContext context) {
+    var themeProvider = Provider.of<Themeprovider>(context);
     final size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
@@ -36,25 +39,47 @@ class _hometapState extends State<hometap> {
           children: [
             SizedBox(height: size.height * 0.005),
             Text(
-              'welcome,'.tr(),
+              'Welcome!'.tr(),
               style: AppStyles.mediume24White.copyWith(
                 fontSize: 14,
                 fontWeight: FontWeight.w100,
               ),
             ),
+            SizedBox(height: size.height * 0.005),
             Text('Explorer'.tr(), style: AppStyles.mediume24White),
           ],
         ),
+
         actions: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: AppColors.lightGrayColor.withOpacity(0.6),
-              borderRadius: BorderRadius.circular(30),
+          GestureDetector(
+            onTap: () {
+              themeProvider.apptheme == ThemeMode.dark
+                  ? themeProvider.changeTheme(ThemeMode.light)
+                  : themeProvider.changeTheme(ThemeMode.dark);
+            },
+
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              child: themeProvider.apptheme == ThemeMode.dark
+                  ? Icon(
+                      Icons.wb_sunny_outlined,
+                      color: themeProvider.apptheme == ThemeMode.light
+                          ? Colors.black
+                          : Colors.white,
+                      size: 30,
+                      fontWeight: FontWeight.w700,
+                    )
+                  : Icon(
+                      Icons.nightlight_outlined,
+                      color: themeProvider.apptheme == ThemeMode.light
+                          ? AppColors.yellowColor
+                          : Colors.white,
+                      size: 30,
+                      fontWeight: FontWeight.w700,
+                    ),
             ),
-            child: Image.asset(AppAssets.arrowIcon),
           ),
-          SizedBox(width: size.width * 0.05),
+          SizedBox(width: size.width * 0.03),
         ],
       ),
       body: Column(
@@ -62,8 +87,8 @@ class _hometapState extends State<hometap> {
           // ── Search header (fixed) ──────────────────────────────────────
           Container(
             padding: EdgeInsets.symmetric(
-              vertical: size.height * 0.03,
-              horizontal: size.width * 0.04,
+              vertical: size.height * 0.02,
+              horizontal: size.width * 0.03,
             ),
             width: double.infinity,
             decoration: const BoxDecoration(
@@ -77,19 +102,22 @@ class _hometapState extends State<hometap> {
           ),
           Expanded(
             child: ListView(
-
               padding: EdgeInsets.symmetric(horizontal: size.width * 0.05),
               children: [
                 // Categories
                 SizedBox(height: size.height * 0.015),
-
                 const CategoriesSection(),
 
                 // Recommended header
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('recommended'.tr(), style: AppStyles.primary24semiBold),
+                    Text(
+                      'recommended'.tr(),
+                      style: themeProvider.apptheme == ThemeMode.light
+                          ? AppStyles.primary24semiBold
+                          : AppStyles.lightYellow24semiBold,
+                    ),
                     Text('see_all'.tr(), style: AppStyles.yellow14mediume),
                   ],
                 ),
@@ -112,8 +140,12 @@ class _hometapState extends State<hometap> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('popular_places'.tr(),
-                        style: AppStyles.primary24semiBold),
+                    Text(
+                      'popular_places'.tr(),
+                      style: themeProvider.apptheme == ThemeMode.light
+                          ? AppStyles.primary24semiBold
+                          : AppStyles.lightYellow24semiBold,
+                    ),
                     Text('see_all'.tr(), style: AppStyles.yellow14mediume),
                   ],
                 ),
@@ -122,19 +154,19 @@ class _hometapState extends State<hometap> {
                 // TODO: add popular places list here
                 SizedBox(
                   child: ListView.separated(
-                    physics: const NeverScrollableScrollPhysics(), // Disables scrolling
+                    physics:
+                        const NeverScrollableScrollPhysics(), // Disables scrolling
                     shrinkWrap: true,
                     scrollDirection: Axis.vertical,
                     itemCount: 8,
                     separatorBuilder: (_, __) =>
-                        SizedBox(width: size.width * 0.05),
-                    itemBuilder: (_, __) => const pobularWidget()
+                        SizedBox(height: size.height * 0.009),
+                    itemBuilder: (_, __) => const pobularWidget(),
                   ),
                 ),
                 SizedBox(height: size.height * 0.015),
 
                 CulturalFestivalBanner(),
-
               ],
             ),
           ),

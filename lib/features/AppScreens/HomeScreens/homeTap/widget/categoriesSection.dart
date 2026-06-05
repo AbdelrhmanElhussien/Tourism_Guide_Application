@@ -1,8 +1,11 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:tourist_app/core/provider/themeProvider.dart';
 import 'package:tourist_app/core/utils/app_assets.dart';
 import 'package:tourist_app/core/utils/app_colors.dart';
 import 'package:tourist_app/core/utils/app_styles.dart';
+import 'package:tourist_app/core/utils/app_theme.dart';
 
 class CategoriesSection extends StatefulWidget {
   const CategoriesSection({super.key});
@@ -14,7 +17,7 @@ class CategoriesSection extends StatefulWidget {
 class _CategoriesSectionState extends State<CategoriesSection> {
   int _selectedIndex = 0;
 
-  // ✅ Store paths as Strings — Image.asset() is called inside build()
+  // Store paths as Strings — Image.asset() is called inside build()
   final List<_CategoryItem> _categories = [
     _CategoryItem(imgPath: AppAssets.historicallIcon, labelKey: 'historical'),
     _CategoryItem(imgPath: AppAssets.cruisesIcon, labelKey: 'cruises'),
@@ -25,7 +28,7 @@ class _CategoriesSectionState extends State<CategoriesSection> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-
+    var themeProvider = Provider.of<Themeprovider>(context);
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: size.width * 0.001,
@@ -48,9 +51,13 @@ class _CategoriesSectionState extends State<CategoriesSection> {
                 horizontal: size.width * 0.02,
               ),
               decoration: BoxDecoration(
-                color: isSelected
-                    ? Colors.white
-                    :  AppColors.primaryColor.withOpacity(0.09),
+                color: themeProvider.apptheme == ThemeMode.dark
+                    ? isSelected
+                          ? AppTheme.darkTheme.cardColor
+                          : AppColors.primaryColor.withOpacity(0.09)
+                    : isSelected
+                    ? AppTheme.lightTheme.cardColor
+                    : AppColors.primaryColor.withOpacity(0.09),
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color: isSelected
@@ -79,7 +86,13 @@ class _CategoriesSectionState extends State<CategoriesSection> {
                   Text(
                     item.labelKey.tr(),
                     style: AppStyles.lightGray12Regular.copyWith(
-                      color: Colors.black87,
+                      color: themeProvider.apptheme == ThemeMode.dark
+                          ? isSelected
+                          ? Colors.white
+                          : AppColors.whiteColor
+                          : isSelected
+                          ? AppColors.blackColor
+                          : AppColors.blackColor,
                       fontWeight: isSelected
                           ? FontWeight.w800
                           : FontWeight.w600,
@@ -101,8 +114,5 @@ class _CategoryItem {
   final String imgPath;
   final String labelKey;
 
-  const _CategoryItem({
-    required this.imgPath,
-    required this.labelKey,
-  });
+  const _CategoryItem({required this.imgPath, required this.labelKey});
 }
