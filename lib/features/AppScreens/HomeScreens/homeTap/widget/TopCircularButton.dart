@@ -13,6 +13,6 @@ class Topcircularbutton extends StatelessWidget {
         shape: BoxShape.circle,
       ),
       child: Icon(icon, color: const Color(0xFF1D3557), size: 20),
-    );;
+    );
   }
 }
