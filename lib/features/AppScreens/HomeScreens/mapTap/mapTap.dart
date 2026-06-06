@@ -68,87 +68,42 @@ class MapTap extends StatelessWidget {
                 ),
               ),
 
-              // 3. Search Autocomplete Overlay List
-              if (mapProvider.searchPredictions.isNotEmpty)
+              // 3. Category Filters (hidden when search suggestions are active)
+              if (mapProvider.searchPredictions.isEmpty)
                 Positioned(
                   top: 110,
-                  left: 20,
-                  right: 20,
-                  child: Container(
-                    constraints: const BoxConstraints(maxHeight: 250),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(15),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.1),
-                          blurRadius: 10,
-                          spreadRadius: 2,
-                        ),
-                      ],
-                    ),
+                  left: 0,
+                  right: 0,
+                  child: SizedBox(
+                    height: 50,
                     child: ListView.builder(
-                      shrinkWrap: true,
-                      padding: EdgeInsets.zero,
-                      itemCount: mapProvider.searchPredictions.length,
+                      scrollDirection: Axis.horizontal,
+                      itemCount: mapProvider.categories.length,
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
                       itemBuilder: (context, index) {
-                        final prediction = mapProvider.searchPredictions[index];
-                        return ListTile(
-                          leading: const Icon(Icons.location_on, color: AppColors.primaryColor),
-                          title: Text(
-                            prediction.mainText,
-                            style: const TextStyle(fontWeight: FontWeight.bold),
+                        String category = mapProvider.categories[index];
+                        bool isSelected = mapProvider.selectedCategory == category;
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 5),
+                          child: FilterChip(
+                            label: Text(category),
+                            selected: isSelected,
+                            showCheckmark: false,
+                            onSelected: (selected) {
+                              mapProvider.filterByCategory(category);
+                            },
+                            backgroundColor: AppColors.whiteColor,
+                            selectedColor: AppColors.primaryColor,
+                            labelStyle: TextStyle(
+                              color: isSelected ? Colors.white : Colors.black,
+                            ),
                           ),
-                          subtitle: Text(
-                            prediction.secondaryText,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          onTap: () {
-                            FocusScope.of(context).unfocus();
-                            mapProvider.selectPrediction(prediction);
-                          },
                         );
                       },
                     ),
                   ),
                 ),
 
-              // 4. Category Filters
-              Positioned(
-                top: 110, // Moved down below search bar
-                left: 0,
-                right: 0,
-                child: SizedBox(
-                  height: 50,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: mapProvider.categories.length,
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    itemBuilder: (context, index) {
-                      String category = mapProvider.categories[index];
-                      bool isSelected = mapProvider.selectedCategory == category;
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 5),
-                        child: FilterChip(
-                          label: Text(category),
-                          selected: isSelected,
-                          onSelected: (selected) {
-                            mapProvider.filterByCategory(category);
-                          },
-                          backgroundColor: AppColors.whiteColor,
-                          selectedColor: AppColors.primaryColor,
-                          labelStyle: TextStyle(
-                            color: isSelected ? Colors.white : Colors.black,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ),
-
-              // 5. Place Details Card (Floating at bottom if selected)
               if (mapProvider.selectedPlace != null)
                 Positioned(
                   bottom: 20,
@@ -156,20 +111,65 @@ class MapTap extends StatelessWidget {
                   right: 20,
                   child: _buildPlaceDetailsCard(context, mapProvider),
                 ),
+
+              // 5. Search Autocomplete Overlay — LAST so it renders on top of all other widgets
+              if (mapProvider.searchPredictions.isNotEmpty)
+                Positioned(
+                  top: 110,
+                  left: 20,
+                  right: 20,
+                  child: Material(
+                    elevation: 8,
+                    borderRadius: BorderRadius.circular(15),
+                    child: Container(
+                      constraints: const BoxConstraints(maxHeight: 280),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        padding: EdgeInsets.zero,
+                        itemCount: mapProvider.searchPredictions.length,
+                        itemBuilder: (context, index) {
+                          final prediction = mapProvider.searchPredictions[index];
+                          return ListTile(
+                            leading: const Icon(Icons.location_on, color: AppColors.primaryColor),
+                            title: Text(
+                              prediction.mainText,
+                              style: const TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            subtitle: Text(
+                              prediction.secondaryText,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            onTap: () {
+                              FocusScope.of(context).unfocus();
+                              mapProvider.selectPrediction(prediction);
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ),
             ],
           ),
           floatingActionButtonLocation: FloatingActionButtonLocation.endTop,
-          floatingActionButton: Padding(
-            padding: const EdgeInsets.only(top: 170), // Below search and chips
-            child: FloatingActionButton(
-              onPressed: () {
-                mapProvider.getUserLocation();
-              },
-              backgroundColor: AppColors.whiteColor,
-              foregroundColor: AppColors.primaryColor,
-              child: const Icon(Icons.location_searching_outlined),
-            ),
-          ),
+          floatingActionButton: mapProvider.searchPredictions.isNotEmpty
+              ? null
+              : Padding(
+                  padding: const EdgeInsets.only(top: 170),
+                  child: FloatingActionButton(
+                    onPressed: () {
+                      mapProvider.getUserLocation();
+                    },
+                    backgroundColor: AppColors.whiteColor,
+                    foregroundColor: AppColors.primaryColor,
+                    child: const Icon(Icons.location_searching_outlined),
+                  ),
+                ),
         );
       },
     );
