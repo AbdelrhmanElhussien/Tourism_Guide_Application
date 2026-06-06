@@ -1,21 +1,25 @@
+import 'package:bloc/bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:tourist_app/core/di/di.dart';
 import 'package:tourist_app/core/provider/themeProvider.dart';
+import 'package:tourist_app/core/utils/BlocObserver.dart';
 
 import 'package:tourist_app/core/utils/app_loclization.dart';
 import 'package:tourist_app/core/utils/app_routes.dart';
 import 'package:tourist_app/core/utils/app_theme.dart';
 import 'package:tourist_app/features/AppScreens/HomeScreens/homeScreen.dart';
 import 'package:tourist_app/features/AppScreens/HomeScreens/homeTap/detailedScreen.dart';
-import 'package:tourist_app/features/AppScreens/auth_screen/loginScreen.dart';
-import 'package:tourist_app/features/AppScreens/auth_screen/signUp.dart';
+import 'package:tourist_app/features/AppScreens/auth_screen/Login/loginScreen.dart';
+import 'package:tourist_app/features/AppScreens/auth_screen/signUp/signUp.dart';
 
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
-
+  Bloc.observer = MyBlocObserver();
+   configureDependencies();
   runApp(
     EasyLocalization(
       supportedLocales: [AppLoclization.enLocale, AppLoclization.arLocale],

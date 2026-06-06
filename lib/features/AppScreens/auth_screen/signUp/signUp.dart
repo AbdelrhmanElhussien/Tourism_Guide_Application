@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
+import 'package:tourist_app/core/di/di.dart';
 import 'package:tourist_app/core/provider/themeProvider.dart';
 import 'package:tourist_app/core/utils/app_colors.dart';
+import 'package:tourist_app/core/utils/app_routes.dart';
 import 'package:tourist_app/core/utils/app_styles.dart';
+import 'package:tourist_app/core/utils/dialoge_utils.dart';
+import 'package:tourist_app/features/AppScreens/auth_screen/auth_states.dart';
+import 'package:tourist_app/features/AppScreens/auth_screen/signUp/cubit/regisetrViewModel.dart';
 import 'package:tourist_app/features/AppScreens/auth_screen/widgets/AppTextField.dart';
 import 'package:tourist_app/features/AppScreens/auth_screen/widgets/GoogleIcon.dart';
 import 'package:tourist_app/features/AppScreens/auth_screen/widgets/SocialButton.dart';
@@ -18,7 +24,7 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _CreateAccountScreenState extends State<SignUpScreen> {
-  final _formKey = GlobalKey<FormState>();
+  var _formKey = GlobalKey<FormState>();
 
   // ── Controllers ──────────────────────────────
   final _nameController = TextEditingController();
@@ -27,6 +33,8 @@ class _CreateAccountScreenState extends State<SignUpScreen> {
   final _addressController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmController = TextEditingController();
+
+  RegisetrViewModel viewModel = getIt<RegisetrViewModel>();
 
   @override
   void dispose() {
@@ -42,18 +50,38 @@ class _CreateAccountScreenState extends State<SignUpScreen> {
   void _onSignUp() {
     if (_formKey.currentState?.validate() ?? false) {
       // TODO: connect to your auth service
+      viewModel.register(
+        email: _emailController.text,
+        password: _passwordController.text,
+        name: _nameController.text,
+        rePassword: _confirmController.text,
+        phone: _phoneController.text,
+      );
       debugPrint('Name   : ${_nameController.text}');
       debugPrint('Email  : ${_emailController.text}');
       debugPrint('Phone  : ${_phoneController.text}');
       debugPrint('Address: ${_addressController.text}');
+      Navigator.pushReplacementNamed(context, AppRoutes.HomeRouteName);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     var themeProvider = Provider.of<Themeprovider>(context);
-    return Scaffold(
-
+    return BlocListener<RegisetrViewModel, AuthState>(
+         bloc: viewModel,
+      listener: (context ,state){
+        if(state is AuthLoadingState){
+          DialogeUtils.showLoading(context: context, text: "Waiting...",);
+        }else if (state is AuthErrorState){
+          DialogeUtils.hideLoading(context: context);
+          DialogeUtils.showMassage(context: context, masseage: state.errorMsg.message,posActionName: "Ok", title: "Error",);
+        }else if(state is AuthSuccessState){
+          DialogeUtils.hideLoading(context: context);
+          DialogeUtils.showMassage(context: context, masseage: "Sign in Successfully" ,posActionName: "Ok", title: "Success",);
+        }
+      },
+  child: Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
@@ -63,14 +91,18 @@ class _CreateAccountScreenState extends State<SignUpScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // ── Header ──────────────────────────
-                 Text(
+                Text(
                   'Create Account',
-                  style:themeProvider.apptheme == ThemeMode.dark ?AppStyles.semiBold30Bagi:AppStyles.semiBold30Black
+                  style: themeProvider.apptheme == ThemeMode.dark
+                      ? AppStyles.semiBold30Bagi
+                      : AppStyles.semiBold30Black,
                 ),
                 const SizedBox(height: 4),
-                 Text(
+                Text(
                   'Start exploring Egypt today',
-                  style:themeProvider.apptheme == ThemeMode.dark ?AppStyles.regular16lightBlue:AppStyles.regular16balck,
+                  style: themeProvider.apptheme == ThemeMode.dark
+                      ? AppStyles.regular16lightBlue
+                      : AppStyles.regular16balck,
                 ),
                 const SizedBox(height: 28),
 
@@ -80,8 +112,9 @@ class _CreateAccountScreenState extends State<SignUpScreen> {
                   label: 'Full Name',
                   hint: 'Enter your name',
                   prefixIcon: Icons.person_outline,
-                  validator: (v) =>
-                  (v == null || v.trim().isEmpty) ? 'Name is required' : null,
+                  validator: (v) => (v == null || v.trim().isEmpty)
+                      ? 'Name is required'
+                      : null,
                 ),
                 const SizedBox(height: 16),
 
@@ -92,7 +125,8 @@ class _CreateAccountScreenState extends State<SignUpScreen> {
                   keyboardType: TextInputType.emailAddress,
                   prefixIcon: Icons.email_outlined,
                   validator: (v) {
-                    if (v == null || v.trim().isEmpty) return 'Email is required';
+                    if (v == null || v.trim().isEmpty)
+                      return 'Email is required';
                     if (!v.contains('@')) return 'Enter a valid email';
                     return null;
                   },
@@ -105,8 +139,9 @@ class _CreateAccountScreenState extends State<SignUpScreen> {
                   hint: 'Enter your phone number',
                   keyboardType: TextInputType.phone,
                   prefixIcon: Icons.phone_outlined,
-                  validator: (v) =>
-                  (v == null || v.trim().isEmpty) ? 'Phone is required' : null,
+                  validator: (v) => (v == null || v.trim().isEmpty)
+                      ? 'Phone is required'
+                      : null,
                 ),
                 const SizedBox(height: 16),
 
@@ -115,8 +150,9 @@ class _CreateAccountScreenState extends State<SignUpScreen> {
                   label: 'Address',
                   hint: 'Enter your address',
                   prefixIcon: Icons.location_on_outlined,
-                  validator: (v) =>
-                  (v == null || v.trim().isEmpty) ? 'Address is required' : null,
+                  validator: (v) => (v == null || v.trim().isEmpty)
+                      ? 'Address is required'
+                      : null,
                 ),
                 const SizedBox(height: 16),
 
@@ -141,8 +177,10 @@ class _CreateAccountScreenState extends State<SignUpScreen> {
                   isPassword: true,
                   prefixIcon: Icons.lock_outline,
                   validator: (v) {
-                    if (v == null || v.isEmpty) return 'Please confirm password';
-                    if (v != _passwordController.text) return 'Passwords do not match';
+                    if (v == null || v.isEmpty)
+                      return 'Please confirm password';
+                    if (v != _passwordController.text)
+                      return 'Passwords do not match';
                     return null;
                   },
                 ),
@@ -176,19 +214,33 @@ class _CreateAccountScreenState extends State<SignUpScreen> {
                 // ── Divider ──────────────────────────
                 Row(
                   children: [
-                    Expanded(child: Divider(color: themeProvider.apptheme == ThemeMode.dark ?AppColors.blueColor:AppColors.blackColor,)),
+                    Expanded(
+                      child: Divider(
+                        color: themeProvider.apptheme == ThemeMode.dark
+                            ? AppColors.blueColor
+                            : AppColors.blackColor,
+                      ),
+                    ),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       child: Text(
                         'OR',
                         style: TextStyle(
                           fontSize: 12,
-                          color: themeProvider.apptheme == ThemeMode.dark ?AppColors.blueColor:AppColors.blackColor,
+                          color: themeProvider.apptheme == ThemeMode.dark
+                              ? AppColors.blueColor
+                              : AppColors.blackColor,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
-                    Expanded(child: Divider(color: themeProvider.apptheme == ThemeMode.dark ?AppColors.blueColor:AppColors.blackColor,)),
+                    Expanded(
+                      child: Divider(
+                        color: themeProvider.apptheme == ThemeMode.dark
+                            ? AppColors.blueColor
+                            : AppColors.blackColor,
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 20),
@@ -201,8 +253,11 @@ class _CreateAccountScreenState extends State<SignUpScreen> {
                 ),
                 const SizedBox(height: 12),
                 SocialButton(
-                  icon: const Icon(Icons.facebook,
-                      color: Color(0xFF1877F2), size: 22),
+                  icon: const Icon(
+                    Icons.facebook,
+                    color: Color(0xFF1877F2),
+                    size: 22,
+                  ),
                   label: 'Continue with Facebook',
                   onPressed: () {},
                 ),
@@ -212,10 +267,14 @@ class _CreateAccountScreenState extends State<SignUpScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                     Text(
+                    Text(
                       'Already have an account? ',
-                      style:
-                      TextStyle(fontSize: 13,  color: themeProvider.apptheme == ThemeMode.dark ?AppColors.blueColor:AppColors.blackColor,),
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: themeProvider.apptheme == ThemeMode.dark
+                            ? AppColors.blueColor
+                            : AppColors.blackColor,
+                      ),
                     ),
                     GestureDetector(
                       onTap: () {
@@ -238,6 +297,7 @@ class _CreateAccountScreenState extends State<SignUpScreen> {
           ),
         ),
       ),
-    );
+    ),
+);
   }
 }

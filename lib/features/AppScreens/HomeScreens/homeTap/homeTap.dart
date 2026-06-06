@@ -37,7 +37,7 @@ class _hometapState extends State<hometap> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: size.height * 0.005),
+            SizedBox(height: size.height * 0.015),
             Text(
               'Welcome!'.tr(),
               style: AppStyles.mediume24White.copyWith(
@@ -45,7 +45,7 @@ class _hometapState extends State<hometap> {
                 fontWeight: FontWeight.w100,
               ),
             ),
-            SizedBox(height: size.height * 0.005),
+            SizedBox(height: size.height * 0.001),
             Text('Explorer'.tr(), style: AppStyles.mediume24White),
           ],
         ),
@@ -59,7 +59,7 @@ class _hometapState extends State<hometap> {
             },
 
             child: Container(
-              padding: const EdgeInsets.all(12),
+              padding:  EdgeInsets.all(12),
               child: themeProvider.apptheme == ThemeMode.dark
                   ? Icon(
                       Icons.wb_sunny_outlined,
@@ -87,8 +87,8 @@ class _hometapState extends State<hometap> {
           // ── Search header (fixed) ──────────────────────────────────────
           Container(
             padding: EdgeInsets.symmetric(
-              vertical: size.height * 0.02,
-              horizontal: size.width * 0.03,
+              vertical: size.height * 0.025,
+              horizontal: size.width * 0.035,
             ),
             width: double.infinity,
             decoration: const BoxDecoration(
