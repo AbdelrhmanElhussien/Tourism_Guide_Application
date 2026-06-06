@@ -163,15 +163,21 @@ class MapProvider extends ChangeNotifier {
       // 3. Move camera to destination
       mapController.animateCamera(CameraUpdate.newLatLngZoom(destination, 15));
 
-      // 4. Create and set the selected place
+      // 4. Fetch a real image from Wikipedia for this place
+      final String imageUrl = await _googleMapsService.getPlaceImageUrl(
+        prediction.mainText,
+        osmType: prediction.osmType,
+      );
+
+      // 5. Create and set the selected place
       final selectedPlaceFromSearch = PlaceModel(
         id: prediction.placeId,
         name: prediction.mainText,
         description: prediction.description,
         location: destination,
-        category: 'Search Result',
+        category: prediction.osmType.isNotEmpty ? prediction.osmType.split(' ').last : 'Place',
         rating: 4.5,
-        image: 'https://images.unsplash.com/photo-1572252009286-268acec5a0af?q=80&w=2070&auto=format&fit=crop',
+        image: imageUrl,
         address: prediction.description,
       );
       selectedPlace = selectedPlaceFromSearch;
