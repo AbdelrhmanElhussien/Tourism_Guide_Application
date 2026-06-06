@@ -21,6 +21,7 @@ class MapTap extends StatelessWidget {
                 initialCameraPosition: mapProvider.cameraPosition,
                 mapType: MapType.normal,
                 markers: mapProvider.markers,
+                polylines: mapProvider.polylines,
                 onMapCreated: (controller) {
                   mapProvider.mapController = controller;
                 },
@@ -67,7 +68,53 @@ class MapTap extends StatelessWidget {
                 ),
               ),
 
-              // 3. Category Filters
+              // 3. Search Autocomplete Overlay List
+              if (mapProvider.searchPredictions.isNotEmpty)
+                Positioned(
+                  top: 110,
+                  left: 20,
+                  right: 20,
+                  child: Container(
+                    constraints: const BoxConstraints(maxHeight: 250),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(15),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.1),
+                          blurRadius: 10,
+                          spreadRadius: 2,
+                        ),
+                      ],
+                    ),
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      padding: EdgeInsets.zero,
+                      itemCount: mapProvider.searchPredictions.length,
+                      itemBuilder: (context, index) {
+                        final prediction = mapProvider.searchPredictions[index];
+                        return ListTile(
+                          leading: const Icon(Icons.location_on, color: AppColors.primaryColor),
+                          title: Text(
+                            prediction.mainText,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          subtitle: Text(
+                            prediction.secondaryText,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          onTap: () {
+                            FocusScope.of(context).unfocus();
+                            mapProvider.selectPrediction(prediction);
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ),
+
+              // 4. Category Filters
               Positioned(
                 top: 110, // Moved down below search bar
                 left: 0,
@@ -101,7 +148,7 @@ class MapTap extends StatelessWidget {
                 ),
               ),
 
-              // 3. Place Details Card (Floating at bottom if selected)
+              // 5. Place Details Card (Floating at bottom if selected)
               if (mapProvider.selectedPlace != null)
                 Positioned(
                   bottom: 20,
@@ -228,6 +275,28 @@ class MapTap extends StatelessWidget {
                         ),
                       ],
                     ),
+
+                    // Travel distance and duration info from Directions API
+                    if (mapProvider.routeDistance != null && mapProvider.routeDuration != null) ...[
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          const Icon(Icons.directions_car, color: AppColors.primaryColor, size: 18),
+                          const SizedBox(width: 5),
+                          Text(
+                            mapProvider.routeDistance!,
+                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(width: 15),
+                          const Icon(Icons.access_time, color: Colors.grey, size: 18),
+                          const SizedBox(width: 5),
+                          Text(
+                            mapProvider.routeDuration!,
+                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ],
                   ],
                 ),
               ),
