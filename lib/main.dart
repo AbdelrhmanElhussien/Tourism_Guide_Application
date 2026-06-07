@@ -11,22 +11,14 @@ import 'package:tourist_app/features/AppScreens/HomeScreens/homeTap/detailedScre
 import 'package:tourist_app/features/AppScreens/auth_screen/loginScreen.dart';
 import 'package:tourist_app/features/AppScreens/auth_screen/signUp.dart';
 
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
 
   runApp(
     EasyLocalization(
-      supportedLocales: [
-        AppLoclization.enLocale,
-        AppLoclization.arLocale,
-        AppLoclization.deLocale,
-        AppLoclization.frLocale,
-        AppLoclization.itLocale,
-        AppLoclization.esLocale,
-        AppLoclization.ruLocale,
-        AppLoclization.zhLocale,
-      ],
+      supportedLocales: [AppLoclization.enLocale, AppLoclization.arLocale],
       path: 'assets/translations',
       saveLocale: true,
       fallbackLocale: AppLoclization.enLocale,
