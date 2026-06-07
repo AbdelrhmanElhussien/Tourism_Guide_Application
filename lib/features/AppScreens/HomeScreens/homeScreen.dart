@@ -18,15 +18,16 @@ class Homescreen extends StatefulWidget {
 
 class _HomescreenState extends State<Homescreen> {
   int selectedIndex = 0;
-  List<Widget> tabsList = [
-    hometap(),
-    exploreTap(),
-    ChangeNotifierProvider(create: (context) => MapProvider(), child: MapTap()),
-    savedTap(),
-    profileTap(),
-  ];
+
   @override
   Widget build(BuildContext context) {
+    List<Widget> tabsList = [
+      hometap(),
+      exploreTap(),
+      ChangeNotifierProvider(create: (context) => MapProvider(), child: MapTap()),
+      savedTap(),
+      profileTap(),
+    ];
     return Scaffold(
       body: tabsList[selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
