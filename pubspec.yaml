@@ -41,9 +41,11 @@ dependencies:
   flutter_svg: ^2.2.3
   carousel_slider: ^5.1.2
   google_sign_in: ^7.2.0
-  dio: ^5.9.1
+  dio: ^5.9.0
+
   flutter_bloc: ^9.1.1
-  bloc: ^9.2.1
+  bloc: ^9.2.0
+
   fluttertoast: ^9.0.0
   provider: ^6.1.5+1
   shared_preferences: ^2.5.5
@@ -68,11 +70,6 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
-  retrofit_generator: ^10.2.6
-  build_runner: ^2.15.0
-  json_serializable: ^6.14.0
-  injectable_generator: ^3.0.2
-  lean_builder: ^0.1.10
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

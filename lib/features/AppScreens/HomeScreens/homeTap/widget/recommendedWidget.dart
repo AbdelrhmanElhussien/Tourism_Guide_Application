@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:tourist_app/core/provider/themeProvider.dart';
 import 'package:tourist_app/core/utils/app_assets.dart';
 import 'package:tourist_app/core/utils/app_colors.dart';
 import 'package:tourist_app/core/utils/app_styles.dart';
@@ -53,7 +55,7 @@ class RecommendedWidget extends StatelessWidget {
                 )
               ],
             ),
-          )
+          ),
         ],
       ),
     );
