@@ -11,7 +11,6 @@ import 'package:tourist_app/features/AppScreens/HomeScreens/homeTap/detailedScre
 import 'package:tourist_app/features/AppScreens/auth_screen/loginScreen.dart';
 import 'package:tourist_app/features/AppScreens/auth_screen/signUp.dart';
 
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
@@ -25,9 +24,10 @@ void main() async {
       startLocale: AppLoclization.enLocale,
       child: MultiProvider(
         providers: [
-          ChangeNotifierProvider(create: (context) => Themeprovider())
+          ChangeNotifierProvider(create: (context) => Themeprovider()),
         ],
-          child: const MyApp()),
+        child: const MyApp(),
+      ),
     ),
   );
 }
@@ -41,19 +41,37 @@ class MyApp extends StatelessWidget {
     var themeProvider = Provider.of<Themeprovider>(context);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      scrollBehavior: const _AppScrollBehavior(),
       localizationsDelegates: context.localizationDelegates,
       supportedLocales: context.supportedLocales,
       locale: context.locale,
       routes: {
-       AppRoutes.loginRouteName:(context)=>LoginScreen(),
-        AppRoutes.signUpRouteName:(context)=>SignUpScreen(),
-        AppRoutes.HomeRouteName:(context)=>Homescreen(),
-        AppRoutes.DetailScreenRouteName:(context)=>DetailScreen(),
+        AppRoutes.loginRouteName: (context) => LoginScreen(),
+        AppRoutes.signUpRouteName: (context) => SignUpScreen(),
+        AppRoutes.HomeRouteName: (context) => Homescreen(),
+        AppRoutes.DetailScreenRouteName: (context) => DetailScreen(),
       },
-      initialRoute: AppRoutes.loginRouteName,
+      initialRoute: AppRoutes.HomeRouteName,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: themeProvider.apptheme,
+    );
+  }
+}
+
+class _AppScrollBehavior extends MaterialScrollBehavior {
+  const _AppScrollBehavior();
+
+  @override
+  Widget buildOverscrollIndicator(
+    BuildContext context,
+    Widget child,
+    ScrollableDetails details,
+  ) {
+    return GlowingOverscrollIndicator(
+      axisDirection: details.direction,
+      color: const Color(0x33232B55),
+      child: child,
     );
   }
 }

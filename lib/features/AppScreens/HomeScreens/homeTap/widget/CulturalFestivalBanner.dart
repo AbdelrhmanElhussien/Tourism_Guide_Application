@@ -5,53 +5,57 @@ class CulturalFestivalBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Replicating the gold color and layout from Screenshot 2026-05-01 191141.png
+    final size = MediaQuery.of(context).size;
+    final padding = (size.width * 0.055).clamp(18.0, 24.0);
+    final titleSize = (size.width * 0.055).clamp(19.0, 22.0);
+    final bodySize = (size.width * 0.04).clamp(14.0, 16.0);
+
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.all(padding),
       decoration: BoxDecoration(
-        color: const Color(0xFFC5A352), // Gold background color
-        borderRadius: BorderRadius.circular(25), // Large rounded corners
+        color: const Color(0xFFC5A352),
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text(
+          Text(
             'Cultural Festival',
             style: TextStyle(
               color: Colors.white,
-              fontSize: 22,
+              fontSize: titleSize,
               fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 12),
-          const Text(
+          Text(
             'Experience authentic Egyptian traditions and celebrations',
             style: TextStyle(
               color: Colors.white,
-              fontSize: 16,
+              fontSize: bodySize,
               height: 1.4,
             ),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: (size.height * 0.025).clamp(18.0, 24.0)),
           ElevatedButton(
             onPressed: () {},
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white,
               foregroundColor: const Color(0xFFC5A352),
               elevation: 0,
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              padding: EdgeInsets.symmetric(
+                horizontal: (size.width * 0.055).clamp(18.0, 24.0),
+                vertical: 12,
+              ),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30), // Pill-shaped button
+                borderRadius: BorderRadius.circular(24),
               ),
             ),
             child: const Text(
               'Explore Events',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
           ),
         ],
