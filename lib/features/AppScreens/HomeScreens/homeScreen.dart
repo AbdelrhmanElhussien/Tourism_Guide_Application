@@ -1,6 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:tourist_app/core/utils/app_colors.dart';
 import 'package:tourist_app/features/AppScreens/HomeScreens/exploreTap/exploreTap.dart';
 import 'package:tourist_app/features/AppScreens/HomeScreens/homeTap/homeTap.dart';
 import 'package:tourist_app/features/AppScreens/HomeScreens/mapTap/mapTap.dart';
@@ -18,15 +17,19 @@ class Homescreen extends StatefulWidget {
 
 class _HomescreenState extends State<Homescreen> {
   int selectedIndex = 0;
-  List<Widget> tabsList = [
-    hometap(),
-    exploreTap(),
-    ChangeNotifierProvider(create: (context) => MapProvider(), child: MapTap()),
-    savedTap(),
-    profileTap(),
-  ];
+
   @override
   Widget build(BuildContext context) {
+    List<Widget> tabsList = [
+      HomeTap(),
+      const ExploreTap(),
+      ChangeNotifierProvider(
+        create: (context) => MapProvider(),
+        child: MapTap(),
+      ),
+      const SavedTap(),
+      profileTap(),
+    ];
     return Scaffold(
       body: tabsList[selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
