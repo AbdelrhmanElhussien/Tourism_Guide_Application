@@ -23,7 +23,7 @@ class MapTap extends StatelessWidget {
                 markers: mapProvider.markers,
                 polylines: mapProvider.polylines,
                 onMapCreated: (controller) {
-                  mapProvider.mapController = controller;
+                  mapProvider.onMapCreated(controller);
                 },
                 zoomControlsEnabled: false,
                 myLocationButtonEnabled: false,
@@ -82,7 +82,8 @@ class MapTap extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 10),
                       itemBuilder: (context, index) {
                         String category = mapProvider.categories[index];
-                        bool isSelected = mapProvider.selectedCategory == category;
+                        bool isSelected =
+                            mapProvider.selectedCategory == category;
                         return Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 5),
                           child: FilterChip(
@@ -132,12 +133,18 @@ class MapTap extends StatelessWidget {
                         padding: EdgeInsets.zero,
                         itemCount: mapProvider.searchPredictions.length,
                         itemBuilder: (context, index) {
-                          final prediction = mapProvider.searchPredictions[index];
+                          final prediction =
+                              mapProvider.searchPredictions[index];
                           return ListTile(
-                            leading: const Icon(Icons.location_on, color: AppColors.primaryColor),
+                            leading: const Icon(
+                              Icons.location_on,
+                              color: AppColors.primaryColor,
+                            ),
                             title: Text(
                               prediction.mainText,
-                              style: const TextStyle(fontWeight: FontWeight.bold),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                             subtitle: Text(
                               prediction.secondaryText,
@@ -263,7 +270,11 @@ class MapTap extends StatelessWidget {
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(width: 15),
-                        const Icon(Icons.location_on, color: Colors.grey, size: 20),
+                        const Icon(
+                          Icons.location_on,
+                          color: Colors.grey,
+                          size: 20,
+                        ),
                         const SizedBox(width: 5),
                         Expanded(
                           child: Text(
@@ -277,22 +288,37 @@ class MapTap extends StatelessWidget {
                     ),
 
                     // Travel distance and duration info from Directions API
-                    if (mapProvider.routeDistance != null && mapProvider.routeDuration != null) ...[
+                    if (mapProvider.routeDistance != null &&
+                        mapProvider.routeDuration != null) ...[
                       const SizedBox(height: 8),
                       Row(
                         children: [
-                          const Icon(Icons.directions_car, color: AppColors.primaryColor, size: 18),
+                          const Icon(
+                            Icons.directions_car,
+                            color: AppColors.primaryColor,
+                            size: 18,
+                          ),
                           const SizedBox(width: 5),
                           Text(
                             mapProvider.routeDistance!,
-                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                           const SizedBox(width: 15),
-                          const Icon(Icons.access_time, color: Colors.grey, size: 18),
+                          const Icon(
+                            Icons.access_time,
+                            color: Colors.grey,
+                            size: 18,
+                          ),
                           const SizedBox(width: 5),
                           Text(
                             mapProvider.routeDuration!,
-                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                            style: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ],
                       ),
@@ -311,8 +337,7 @@ class MapTap extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) =>
-                            PlaceDetailsScreen(place: place),
+                        builder: (context) => PlaceDetailsScreen(place: place),
                       ),
                     );
                   },
@@ -322,8 +347,10 @@ class MapTap extends StatelessWidget {
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  child: const Text('View Details',
-                      style: TextStyle(color: Colors.white)),
+                  child: const Text(
+                    'View Details',
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
               ),
               const SizedBox(width: 10),
@@ -333,13 +360,16 @@ class MapTap extends StatelessWidget {
                     final String googleMapsUrl =
                         'https://www.google.com/maps/search/?api=1&query=${place.location.latitude},${place.location.longitude}';
                     if (await canLaunchUrl(Uri.parse(googleMapsUrl))) {
-                      await launchUrl(Uri.parse(googleMapsUrl),
-                          mode: LaunchMode.externalApplication);
+                      await launchUrl(
+                        Uri.parse(googleMapsUrl),
+                        mode: LaunchMode.externalApplication,
+                      );
                     } else {
                       if (!context.mounted) return;
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                            content: Text('Could not open Google Maps')),
+                          content: Text('Could not open Google Maps'),
+                        ),
                       );
                     }
                   },

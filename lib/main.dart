@@ -41,6 +41,7 @@ class MyApp extends StatelessWidget {
     var themeProvider = Provider.of<Themeprovider>(context);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      scrollBehavior: const _AppScrollBehavior(),
       localizationsDelegates: context.localizationDelegates,
       supportedLocales: context.supportedLocales,
       locale: context.locale,
@@ -54,6 +55,23 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: themeProvider.apptheme,
+    );
+  }
+}
+
+class _AppScrollBehavior extends MaterialScrollBehavior {
+  const _AppScrollBehavior();
+
+  @override
+  Widget buildOverscrollIndicator(
+    BuildContext context,
+    Widget child,
+    ScrollableDetails details,
+  ) {
+    return GlowingOverscrollIndicator(
+      axisDirection: details.direction,
+      color: const Color(0x33232B55),
+      child: child,
     );
   }
 }

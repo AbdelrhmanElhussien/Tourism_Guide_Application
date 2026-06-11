@@ -28,79 +28,88 @@ class _CategoriesSectionState extends State<CategoriesSection> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final itemGap = (size.width * 0.025).clamp(8.0, 12.0);
+    final verticalPadding = (size.height * 0.018).clamp(12.0, 16.0);
+    final horizontalPadding = (size.width * 0.018).clamp(6.0, 10.0);
     var themeProvider = Provider.of<Themeprovider>(context);
     return Padding(
       padding: EdgeInsets.symmetric(
-        horizontal: size.width * 0.001,
-        vertical: size.height * 0.015,
+        vertical: (size.height * 0.012).clamp(8.0, 14.0),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: List.generate(_categories.length, (index) {
           final item = _categories[index];
           final isSelected = _selectedIndex == index;
 
-          return GestureDetector(
-            onTap: () => setState(() => _selectedIndex = index),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              curve: Curves.easeInOut,
-              width: size.width * 0.2,
-              padding: EdgeInsets.symmetric(
-                vertical: size.height * 0.025,
-                horizontal: size.width * 0.02,
+          return Expanded(
+            child: Padding(
+              padding: EdgeInsetsDirectional.only(
+                end: index == _categories.length - 1 ? 0 : itemGap,
               ),
-              decoration: BoxDecoration(
-                color: themeProvider.apptheme == ThemeMode.dark
-                    ? isSelected
-                          ? AppTheme.darkTheme.cardColor
-                          : AppColors.primaryColor.withOpacity(0.09)
-                    : isSelected
-                    ? AppTheme.lightTheme.cardColor
-                    : AppColors.primaryColor.withOpacity(0.09),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: isSelected
-                      ? AppColors.blackColor.withOpacity(0.05)
-                      : Colors.transparent,
-                  width: 1.5,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.15),
-                    blurRadius: 15,
-                    offset: const Offset(2, 5),
+              child: GestureDetector(
+                onTap: () => setState(() => _selectedIndex = index),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  curve: Curves.easeInOut,
+                  padding: EdgeInsets.symmetric(
+                    vertical: verticalPadding,
+                    horizontal: horizontalPadding,
                   ),
-                ],
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Image.asset(
-                    item.imgPath,
-                    width: 30,
-                    height: 30,
-                    fit: BoxFit.contain,
-                  ),
-                  SizedBox(height: size.height * 0.008),
-                  Text(
-                    item.labelKey.tr(),
-                    style: AppStyles.lightGray12Regular.copyWith(
-                      color: themeProvider.apptheme == ThemeMode.dark
-                          ? isSelected
-                          ? Colors.white
-                          : AppColors.whiteColor
-                          : isSelected
-                          ? AppColors.blackColor
-                          : AppColors.blackColor,
-                      fontWeight: isSelected
-                          ? FontWeight.w800
-                          : FontWeight.w600,
-                      fontSize: 12,
+                  decoration: BoxDecoration(
+                    color: themeProvider.apptheme == ThemeMode.dark
+                        ? isSelected
+                              ? AppTheme.darkTheme.cardColor
+                              : AppColors.primaryColor.withValues(alpha: 0.09)
+                        : isSelected
+                        ? AppTheme.lightTheme.cardColor
+                        : AppColors.primaryColor.withValues(alpha: 0.09),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: isSelected
+                          ? AppColors.blackColor.withValues(alpha: 0.05)
+                          : Colors.transparent,
+                      width: 1.5,
                     ),
-                    textAlign: TextAlign.center,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.12),
+                        blurRadius: 12,
+                        offset: const Offset(2, 5),
+                      ),
+                    ],
                   ),
-                ],
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Image.asset(
+                        item.imgPath,
+                        width: 30,
+                        height: 30,
+                        fit: BoxFit.contain,
+                      ),
+                      SizedBox(height: (size.height * 0.008).clamp(5.0, 8.0)),
+                      Text(
+                        item.labelKey.tr(),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppStyles.lightGray12Regular.copyWith(
+                          color: themeProvider.apptheme == ThemeMode.dark
+                              ? isSelected
+                                    ? Colors.white
+                                    : AppColors.whiteColor
+                              : isSelected
+                              ? AppColors.blackColor
+                              : AppColors.blackColor,
+                          fontWeight: isSelected
+                              ? FontWeight.w800
+                              : FontWeight.w600,
+                          fontSize: 12,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
           );

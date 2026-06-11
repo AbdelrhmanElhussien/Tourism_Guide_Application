@@ -2,7 +2,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tourist_app/core/provider/themeProvider.dart';
-import 'package:tourist_app/core/utils/app_assets.dart';
 import 'package:tourist_app/core/utils/app_colors.dart';
 import 'package:tourist_app/core/utils/app_styles.dart';
 import 'package:tourist_app/features/AppScreens/HomeScreens/homeTap/widget/CulturalFestivalBanner.dart';
@@ -11,14 +10,14 @@ import 'package:tourist_app/features/AppScreens/HomeScreens/homeTap/widget/pobul
 import 'package:tourist_app/features/AppScreens/HomeScreens/homeTap/widget/recommendedWidget.dart';
 import 'package:tourist_app/features/AppScreens/HomeScreens/homeTap/widget/searcheWidget.dart';
 
-class hometap extends StatefulWidget {
-  const hometap({super.key});
+class HomeTap extends StatefulWidget {
+  const HomeTap({super.key});
 
   @override
-  State<hometap> createState() => _hometapState();
+  State<HomeTap> createState() => _HomeTapState();
 }
 
-class _hometapState extends State<hometap> {
+class _HomeTapState extends State<HomeTap> {
   final TextEditingController _searchController = TextEditingController();
 
   @override
@@ -31,6 +30,12 @@ class _hometapState extends State<hometap> {
   Widget build(BuildContext context) {
     var themeProvider = Provider.of<Themeprovider>(context);
     final size = MediaQuery.of(context).size;
+    final horizontalPadding = (size.width * 0.05).clamp(16.0, 24.0);
+    final headerVerticalPadding = (size.height * 0.02).clamp(14.0, 22.0);
+    final sectionSpacing = (size.height * 0.018).clamp(12.0, 18.0);
+    final recommendedHeight = (size.width * 0.64).clamp(220.0, 270.0);
+    final listGap = (size.width * 0.04).clamp(12.0, 18.0);
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.primaryColor,
@@ -87,8 +92,8 @@ class _hometapState extends State<hometap> {
           // ── Search header (fixed) ──────────────────────────────────────
           Container(
             padding: EdgeInsets.symmetric(
-              vertical: size.height * 0.02,
-              horizontal: size.width * 0.03,
+              vertical: headerVerticalPadding,
+              horizontal: horizontalPadding,
             ),
             width: double.infinity,
             decoration: const BoxDecoration(
@@ -102,10 +107,11 @@ class _hometapState extends State<hometap> {
           ),
           Expanded(
             child: ListView(
-              padding: EdgeInsets.symmetric(horizontal: size.width * 0.05),
+              physics: const ClampingScrollPhysics(),
+              padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
               children: [
                 // Categories
-                SizedBox(height: size.height * 0.015),
+                SizedBox(height: sectionSpacing),
                 const CategoriesSection(),
 
                 // Recommended header
@@ -121,20 +127,21 @@ class _hometapState extends State<hometap> {
                     Text('see_all'.tr(), style: AppStyles.yellow14mediume),
                   ],
                 ),
-                SizedBox(height: size.height * 0.015),
+                SizedBox(height: sectionSpacing),
 
                 SizedBox(
-                  height: size.height * 0.28,
+                  height: recommendedHeight,
                   child: ListView.separated(
+                    physics: const ClampingScrollPhysics(),
                     scrollDirection: Axis.horizontal,
                     itemCount: 8,
-                    separatorBuilder: (_, __) =>
-                        SizedBox(width: size.width * 0.05),
-                    itemBuilder: (_, __) => const RecommendedWidget(),
+                    separatorBuilder: (context, index) =>
+                        SizedBox(width: listGap),
+                    itemBuilder: (context, index) => const RecommendedWidget(),
                   ),
                 ),
 
-                SizedBox(height: size.height * 0.02),
+                SizedBox(height: sectionSpacing + 4),
 
                 // Popular places header
                 Row(
@@ -150,23 +157,21 @@ class _hometapState extends State<hometap> {
                   ],
                 ),
 
-                SizedBox(height: size.height * 0.015),
+                SizedBox(height: sectionSpacing),
                 // TODO: add popular places list here
-                SizedBox(
-                  child: ListView.separated(
-                    physics:
-                        const NeverScrollableScrollPhysics(), // Disables scrolling
-                    shrinkWrap: true,
-                    scrollDirection: Axis.vertical,
-                    itemCount: 8,
-                    separatorBuilder: (_, __) =>
-                        SizedBox(height: size.height * 0.009),
-                    itemBuilder: (_, __) => const pobularWidget(),
-                  ),
+                ListView.separated(
+                  physics: const NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  scrollDirection: Axis.vertical,
+                  itemCount: 8,
+                  separatorBuilder: (context, index) =>
+                      SizedBox(height: listGap),
+                  itemBuilder: (context, index) => const pobularWidget(),
                 ),
-                SizedBox(height: size.height * 0.015),
+                SizedBox(height: sectionSpacing),
 
-                CulturalFestivalBanner(),
+                const CulturalFestivalBanner(),
+                SizedBox(height: sectionSpacing),
               ],
             ),
           ),

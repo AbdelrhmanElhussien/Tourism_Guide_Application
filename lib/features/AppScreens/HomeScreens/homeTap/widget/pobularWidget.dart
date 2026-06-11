@@ -10,12 +10,12 @@ class pobularWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var size = MediaQuery.of(context).size;
+    final size = MediaQuery.of(context).size;
+    final contentPadding = (size.width * 0.035).clamp(12.0, 16.0);
     var themeProvider = Provider.of<Themeprovider>(context);
 
     return Container(
-      width: size.width * 0.8,
-      height: size.height*0.29,
+      width: double.infinity,
       decoration: BoxDecoration(
         color: themeProvider.apptheme == ThemeMode.light
             ? AppColors.whiteColor
@@ -23,35 +23,36 @@ class pobularWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(15),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.15),
-            blurRadius: 15,
+            color: Colors.black.withValues(alpha: 0.12),
+            blurRadius: 12,
             offset: const Offset(2, 5),
           ),
         ],
         border: Border.all(
-          color: AppColors.blackColor.withOpacity(0.05),
+          color: AppColors.blackColor.withValues(alpha: 0.05),
           width: 1.5,
         ),
       ),
       child: Column(
-        mainAxisSize: MainAxisSize.min, // Wrap content height
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ClipRRect(
-            // Only round the top corners so the image fits the container perfectly
             borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(15),
               topRight: Radius.circular(15),
             ),
-            child: Image.asset(
-              AppAssets.pyramidsofGiza,
-              width: double.infinity, // Forces image to fill width
-              height: 150, // Set a fixed height or use AspectRatio
-              fit: BoxFit.cover,
+            child: AspectRatio(
+              aspectRatio: 16 / 8.5,
+              child: Image.asset(
+                AppAssets.pyramidsofGiza,
+                width: double.infinity,
+                fit: BoxFit.cover,
+              ),
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(12.0), // Consistent padding for text
+            padding: EdgeInsets.all(contentPadding),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -69,9 +70,16 @@ class pobularWidget extends StatelessWidget {
                       color: AppColors.lightGrayColor,
                       size: 16,
                     ),
-                    Text('Giza, Egypt' , style: themeProvider.apptheme == ThemeMode.light
-                        ? AppStyles.black14mediume
-                        : AppStyles.blue14mediume,
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        'Giza, Egypt',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: themeProvider.apptheme == ThemeMode.light
+                            ? AppStyles.black14mediume
+                            : AppStyles.blue14mediume,
+                      ),
                     ),
                   ],
                 ),
@@ -79,10 +87,13 @@ class pobularWidget extends StatelessWidget {
                 Row(
                   children: [
                     Icon(Icons.star, color: AppColors.yellowColor, size: 16),
-                     Text('4.9 (1253)',
+                    const SizedBox(width: 4),
+                    Text(
+                      '4.9 (1253)',
                       style: themeProvider.apptheme == ThemeMode.light
                           ? AppStyles.black14mediume
-                          : AppStyles.blue14mediume,),
+                          : AppStyles.blue14mediume,
+                    ),
                   ],
                 ),
               ],

@@ -23,7 +23,7 @@ class MapProvider extends ChangeNotifier {
 
   final Location location = Location();
   final GoogleMapsService _googleMapsService = GoogleMapsService();
-  late GoogleMapController mapController;
+  GoogleMapController? mapController;
   final TextEditingController searchController = TextEditingController();
 
   CameraPosition cameraPosition = const CameraPosition(
@@ -33,7 +33,7 @@ class MapProvider extends ChangeNotifier {
 
   Set<Marker> markers = {};
   Set<Polyline> polylines = {};
-  
+
   List<PlaceModel> allPlaces = [];
   List<PlaceModel> filteredPlaces = [];
   PlaceModel? selectedPlace;
@@ -57,6 +57,25 @@ class MapProvider extends ChangeNotifier {
 
   // Nullable to avoid LateInitializationError if permission is denied before stream starts
   StreamSubscription<LocationData>? _locationStreem;
+  CameraUpdate? _pendingCameraUpdate;
+
+  void onMapCreated(GoogleMapController controller) {
+    mapController = controller;
+    final pendingUpdate = _pendingCameraUpdate;
+    if (pendingUpdate != null) {
+      _pendingCameraUpdate = null;
+      _animateCamera(pendingUpdate);
+    }
+  }
+
+  void _animateCamera(CameraUpdate update) {
+    final controller = mapController;
+    if (controller == null) {
+      _pendingCameraUpdate = update;
+      return;
+    }
+    controller.animateCamera(update);
+  }
 
   void loadTouristPlaces() {
     // Mock Data - In production, this will come from an API
@@ -75,7 +94,10 @@ class MapProvider extends ChangeNotifier {
         transportOptions: [
           TransportOption(type: 'Metro', details: 'Sadat Station - 2 min walk'),
           TransportOption(type: 'Bus', details: 'Lines: 120, 150, 400'),
-          TransportOption(type: 'Uber/Taxi', details: 'Accessible via Tahrir Sq.'),
+          TransportOption(
+            type: 'Uber/Taxi',
+            details: 'Accessible via Tahrir Sq.',
+          ),
         ],
       ),
       PlaceModel(
@@ -91,7 +113,10 @@ class MapProvider extends ChangeNotifier {
         address: 'Salah Salem St, Cairo',
         transportOptions: [
           TransportOption(type: 'Bus', details: 'Line 20 - Drops at main gate'),
-          TransportOption(type: 'Uber/Taxi', details: 'Drop off at Salah Salem gate'),
+          TransportOption(
+            type: 'Uber/Taxi',
+            details: 'Drop off at Salah Salem gate',
+          ),
         ],
       ),
       PlaceModel(
@@ -106,8 +131,14 @@ class MapProvider extends ChangeNotifier {
             'https://images.unsplash.com/photo-1553913861-c0fddf2619ee?q=80&w=2070&auto=format&fit=crop',
         address: 'Salah Salem St, Cairo',
         transportOptions: [
-          TransportOption(type: 'Metro', details: 'Bab El-Shaaria (15 min walk)'),
-          TransportOption(type: 'Taxi', details: 'Directly on Salah Salem Road'),
+          TransportOption(
+            type: 'Metro',
+            details: 'Bab El-Shaaria (15 min walk)',
+          ),
+          TransportOption(
+            type: 'Taxi',
+            details: 'Directly on Salah Salem Road',
+          ),
         ],
       ),
     ];
@@ -131,7 +162,10 @@ class MapProvider extends ChangeNotifier {
 
     try {
       // Call Places API to get real-time suggestion predictions
-      searchPredictions = await _googleMapsService.getAutocompleteSuggestions(query, 'en');
+      searchPredictions = await _googleMapsService.getAutocompleteSuggestions(
+        query,
+        'en',
+      );
       notifyListeners();
     } catch (e) {
       searchPredictions = [];
@@ -152,7 +186,9 @@ class MapProvider extends ChangeNotifier {
       if (prediction.latitude != null && prediction.longitude != null) {
         destination = LatLng(prediction.latitude!, prediction.longitude!);
       } else {
-        destination = await _googleMapsService.getPlaceLatLng(prediction.placeId);
+        destination = await _googleMapsService.getPlaceLatLng(
+          prediction.placeId,
+        );
       }
       if (destination == null) return;
 
@@ -161,7 +197,7 @@ class MapProvider extends ChangeNotifier {
       searchController.text = prediction.mainText;
 
       // 3. Move camera to destination
-      mapController.animateCamera(CameraUpdate.newLatLngZoom(destination, 15));
+      _animateCamera(CameraUpdate.newLatLngZoom(destination, 15));
 
       // 4. Fetch a real image from Wikipedia for this place
       final String imageUrl = await _googleMapsService.getPlaceImageUrl(
@@ -175,7 +211,9 @@ class MapProvider extends ChangeNotifier {
         name: prediction.mainText,
         description: prediction.description,
         location: destination,
-        category: prediction.osmType.isNotEmpty ? prediction.osmType.split(' ').last : 'Place',
+        category: prediction.osmType.isNotEmpty
+            ? prediction.osmType.split(' ').last
+            : 'Place',
         rating: 4.5,
         image: imageUrl,
         address: prediction.description,
@@ -279,9 +317,7 @@ class MapProvider extends ChangeNotifier {
 
   void selectPlace(PlaceModel place) {
     selectedPlace = place;
-    mapController.animateCamera(
-      CameraUpdate.newLatLngZoom(place.location, 15),
-    );
+    _animateCamera(CameraUpdate.newLatLngZoom(place.location, 15));
 
     // Draw route from user to place
     if (currentUserLocation != null) {
@@ -345,7 +381,9 @@ class MapProvider extends ChangeNotifier {
 
   List<LatLng> _decodePolyline(String encodedPoints) {
     List<PointLatLng> decoded = PolylinePoints.decodePolyline(encodedPoints);
-    return decoded.map((point) => LatLng(point.latitude, point.longitude)).toList();
+    return decoded
+        .map((point) => LatLng(point.latitude, point.longitude))
+        .toList();
   }
 
   void _fitRouteBounds(List<LatLng> points) {
@@ -366,7 +404,7 @@ class MapProvider extends ChangeNotifier {
       );
       // Wait slightly for controller to be ready
       Future.delayed(const Duration(milliseconds: 100), () {
-        mapController.animateCamera(CameraUpdate.newLatLngBounds(bounds, 70));
+        _animateCamera(CameraUpdate.newLatLngBounds(bounds, 70));
       });
     }
   }
@@ -395,20 +433,21 @@ class MapProvider extends ChangeNotifier {
       target: LatLng(locationData.latitude ?? 0, locationData.longitude ?? 0),
       zoom: 17,
     );
-    mapController.animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
+    _animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
     updateUserMarker(locationData);
   }
 
   void getUserLocationUpdates() {
     try {
       location.changeSettings(accuracy: LocationAccuracy.high, interval: 5000);
-      _locationStreem = location.onLocationChanged.listen((
-        LocationData currentLocation,
-      ) {
-        updateUserMarker(currentLocation);
-      }, onError: (error) {
-        print("Location stream error: $error");
-      });
+      _locationStreem = location.onLocationChanged.listen(
+        (LocationData currentLocation) {
+          updateUserMarker(currentLocation);
+        },
+        onError: (error) {
+          print("Location stream error: $error");
+        },
+      );
     } catch (e) {
       print("Error starting location updates: $e");
     }
@@ -454,7 +493,9 @@ class MapProvider extends ChangeNotifier {
 
   @override
   void dispose() {
-    _locationStreem?.cancel(); // Null-safe: only cancel if stream was actually started
+    _locationStreem
+        ?.cancel(); // Null-safe: only cancel if stream was actually started
+    mapController?.dispose();
     searchController.dispose();
     super.dispose();
   }

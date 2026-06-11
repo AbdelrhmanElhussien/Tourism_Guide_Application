@@ -1,6 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:tourist_app/core/utils/app_colors.dart';
 import 'package:tourist_app/features/AppScreens/HomeScreens/exploreTap/exploreTap.dart';
 import 'package:tourist_app/features/AppScreens/HomeScreens/homeTap/homeTap.dart';
 import 'package:tourist_app/features/AppScreens/HomeScreens/mapTap/mapTap.dart';
@@ -22,10 +21,13 @@ class _HomescreenState extends State<Homescreen> {
   @override
   Widget build(BuildContext context) {
     List<Widget> tabsList = [
-      hometap(),
-      exploreTap(),
-      ChangeNotifierProvider(create: (context) => MapProvider(), child: MapTap()),
-      savedTap(),
+      HomeTap(),
+      const ExploreTap(),
+      ChangeNotifierProvider(
+        create: (context) => MapProvider(),
+        child: MapTap(),
+      ),
+      const SavedTap(),
       profileTap(),
     ];
     return Scaffold(
