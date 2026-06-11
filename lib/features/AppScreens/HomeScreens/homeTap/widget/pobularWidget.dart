@@ -15,7 +15,8 @@ class pobularWidget extends StatelessWidget {
     var themeProvider = Provider.of<Themeprovider>(context);
 
     return Container(
-      width: double.infinity,
+      width: size.width * 0.8,
+      height: size.height*0.30,
       decoration: BoxDecoration(
         color: themeProvider.apptheme == ThemeMode.light
             ? AppColors.whiteColor
