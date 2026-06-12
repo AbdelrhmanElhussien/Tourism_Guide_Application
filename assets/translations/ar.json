@@ -58,5 +58,16 @@
   "settings": "الإعدادات",
   "help_support": "المساعدة والدعم",
   "light_mode": "الوضع المضيء",
-  "sign_out": "تسجيل الخروج"
+  "sign_out": "تسجيل الخروج",
+  "provider_dashboard": "لوحة تحكم المزود",
+  "total_earnings": "إجمالي الأرباح",
+  "total_bookings": "إجمالي الحجوزات",
+  "this_month": "هذا الشهر",
+  "rating": "التقييم",
+  "add_service": "إضافة خدمة",
+  "my_services": "خدماتي",
+  "recent_bookings": "الحجوزات الأخيرة",
+  "view_earnings": "عرض الأرباح",
+  "confirmed": "مؤكد",
+  "pending": "قيد الانتظار"
 }
