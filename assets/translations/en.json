@@ -47,5 +47,17 @@
   "map": "Map",
   "saved": "Saved",
   "profile": "Profile",
-  "Welcome!": "Welcome,"
+  "Welcome!": "Welcome,",
+  "visited_count": "Visited",
+  "trips_count": "Trips",
+  "saved_count": "Saved",
+  "my_trips": "My Trips",
+  "saved_places": "Saved Places",
+  "visited_places": "Visited Places",
+  "service_provider": "Service Provider",
+  "night_mode": "Night Mode",
+  "settings": "Settings",
+  "help_support": "Help & Support",
+  "light_mode": "Light Mode",
+  "sign_out": "Sign Out"
 }
