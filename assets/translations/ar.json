@@ -46,6 +46,17 @@
   "map": "الخريطة",
   "saved": "المحفوظات",
   "profile": "الملف الشخصي",
-  "Welcome!": "مرحبا,"
-
+  "Welcome!": "مرحبا,",
+  "visited_count": "زارها",
+  "trips_count": "رحلات",
+  "saved_count": "محفوظة",
+  "my_trips": "رحلاتي",
+  "saved_places": "الأماكن المحفوظة",
+  "visited_places": "الأماكن المزارة",
+  "service_provider": "مزود الخدمة",
+  "night_mode": "الوضع الليلي",
+  "settings": "الإعدادات",
+  "help_support": "المساعدة والدعم",
+  "light_mode": "الوضع المضيء",
+  "sign_out": "تسجيل الخروج"
 }
