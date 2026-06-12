@@ -16,6 +16,7 @@ import 'package:tourist_app/features/AppScreens/auth_screen/signUp/signUp.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  configureDependencies();
   await EasyLocalization.ensureInitialized();
 
   runApp(
@@ -54,7 +55,7 @@ class MyApp extends StatelessWidget {
         AppRoutes.HomeRouteName: (context) => Homescreen(),
         AppRoutes.DetailScreenRouteName: (context) => DetailScreen(),
       },
-      initialRoute: AppRoutes.HomeRouteName,
+      initialRoute: AppRoutes.loginRouteName,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
 
