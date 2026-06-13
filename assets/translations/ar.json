@@ -69,5 +69,10 @@
   "recent_bookings": "الحجوزات الأخيرة",
   "view_earnings": "عرض الأرباح",
   "confirmed": "مؤكد",
-  "pending": "قيد الانتظار"
+  "pending": "قيد الانتظار",
+  "services_listed_count": "خدمة مسجلة",
+  "edit": "تعديل",
+  "delete": "حذف",
+  "add_new_service": "إضافة خدمة جديدة",
+  "bookings": "حجز"
 }

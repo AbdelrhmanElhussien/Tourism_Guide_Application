@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:tourist_app/core/provider/themeProvider.dart';
 import 'package:tourist_app/core/utils/app_colors.dart';
+import 'package:tourist_app/core/utils/app_routes.dart';
 
 class ServiceProviderScreen extends StatelessWidget {
   const ServiceProviderScreen({super.key});
@@ -340,7 +341,12 @@ class ServiceProviderScreen extends StatelessWidget {
               color: Colors.transparent,
               child: InkWell(
                 borderRadius: BorderRadius.circular(16),
-                onTap: () {},
+                onTap: () {
+                  Navigator.pushNamed(
+                    context,
+                    AppRoutes.myServicesRouteName,
+                  );
+                },
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
