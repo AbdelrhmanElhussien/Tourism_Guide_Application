@@ -74,5 +74,15 @@
   "edit": "تعديل",
   "delete": "حذف",
   "add_new_service": "إضافة خدمة جديدة",
-  "bookings": "حجز"
+  "bookings": "حجز",
+  "bookings_title": "الحجوزات",
+  "total_bookings_count": "إجمالي الحجوزات",
+  "confirmed_tab": "مؤكد",
+  "pending_tab": "قيد الانتظار",
+  "past_tab": "السابقة",
+  "contact": "اتصال",
+  "complete": "اكتمل",
+  "decline": "رفض",
+  "confirm": "تأكيد",
+  "completed": "مكتمل"
 }

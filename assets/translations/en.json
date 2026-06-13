@@ -75,5 +75,15 @@
   "edit": "Edit",
   "delete": "Delete",
   "add_new_service": "Add New Service",
-  "bookings": "bookings"
+  "bookings": "bookings",
+  "bookings_title": "Bookings",
+  "total_bookings_count": "total bookings",
+  "confirmed_tab": "Confirmed",
+  "pending_tab": "Pending",
+  "past_tab": "Past",
+  "contact": "Contact",
+  "complete": "Complete",
+  "decline": "Decline",
+  "confirm": "Confirm",
+  "completed": "completed"
 }
