@@ -70,7 +70,10 @@ class profileTap extends StatelessWidget {
                         title: 'service_provider'.tr(),
                         isLight: isLight,
                         onTap: () {
-                          // Navigation or action if required in future
+                          Navigator.pushNamed(
+                            context,
+                            AppRoutes.serviceProviderRouteName,
+                          );
                         },
                       ),
                     ],

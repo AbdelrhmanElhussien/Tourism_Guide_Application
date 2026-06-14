@@ -59,5 +59,16 @@
   "settings": "Settings",
   "help_support": "Help & Support",
   "light_mode": "Light Mode",
-  "sign_out": "Sign Out"
+  "sign_out": "Sign Out",
+  "provider_dashboard": "Provider Dashboard",
+  "total_earnings": "Total Earnings",
+  "total_bookings": "Total Bookings",
+  "this_month": "This Month",
+  "rating": "Rating",
+  "add_service": "Add Service",
+  "my_services": "My Services",
+  "recent_bookings": "Recent Bookings",
+  "view_earnings": "View Earnings",
+  "confirmed": "confirmed",
+  "pending": "pending"
 }
