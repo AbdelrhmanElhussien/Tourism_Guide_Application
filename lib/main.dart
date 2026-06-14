@@ -12,6 +12,8 @@ import 'package:tourist_app/core/utils/app_theme.dart';
 import 'package:tourist_app/features/AppScreens/HomeScreens/homeScreen.dart';
 import 'package:tourist_app/features/AppScreens/HomeScreens/homeTap/detailedScreen.dart';
 import 'package:tourist_app/features/AppScreens/HomeScreens/profileTap/provider_dashboard.dart';
+import 'package:tourist_app/features/AppScreens/HomeScreens/profileTap/my_services.dart';
+import 'package:tourist_app/features/AppScreens/HomeScreens/profileTap/bookings_screen.dart';
 import 'package:tourist_app/features/AppScreens/auth_screen/Login/loginScreen.dart';
 import 'package:tourist_app/features/AppScreens/auth_screen/signUp/signUp.dart';
 
@@ -63,6 +65,8 @@ class MyApp extends StatelessWidget {
             AppRoutes.HomeRouteName: (context) => Homescreen(),
             AppRoutes.DetailScreenRouteName: (context) => DetailScreen(),
             AppRoutes.serviceProviderRouteName: (context) => const ServiceProviderScreen(),
+            AppRoutes.myServicesRouteName: (context) => const MyServicesScreen(),
+            AppRoutes.bookingsRouteName: (context) => const BookingsScreen(),
           },
           initialRoute: AppRoutes.HomeRouteName,
           theme: AppTheme.lightTheme,

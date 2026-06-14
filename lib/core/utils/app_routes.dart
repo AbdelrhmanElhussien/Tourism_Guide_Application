@@ -4,4 +4,6 @@ class AppRoutes {
   static const String HomeRouteName = 'Homescreen';
   static const String DetailScreenRouteName = 'DetailScreen';
   static const String serviceProviderRouteName = 'ServiceProviderScreen';
+  static const String myServicesRouteName = 'MyServicesScreen';
+  static const String bookingsRouteName = 'BookingsScreen';
 }
