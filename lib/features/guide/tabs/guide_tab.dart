@@ -21,8 +21,8 @@ class _GuideTabState extends State<GuideTab> {
   final List<Map<String, dynamic>> _guidesList = [
     {
       'name': 'Ahmed Hassan',
-      'speciality': 'Historical Sites',
-      'location': 'Cairo & Giza',
+      'speciality': 'historical_sites',
+      'location': 'cairo_giza',
       'languages': ['English', 'Arabic', 'French'],
       'price': '\$80/day',
       'rating': '4.9',
@@ -33,8 +33,8 @@ class _GuideTabState extends State<GuideTab> {
     },
     {
       'name': 'Fatma El-Zahraa',
-      'speciality': 'Luxor & Karnak',
-      'location': 'Luxor',
+      'speciality': 'luxor_karnak',
+      'location': 'luxor',
       'languages': ['English', 'Arabic', 'German'],
       'price': '\$70/day',
       'rating': '4.8',
@@ -45,8 +45,8 @@ class _GuideTabState extends State<GuideTab> {
     },
     {
       'name': 'Mohamed Salah',
-      'speciality': 'Nile Cruises',
-      'location': 'Aswan & Luxor',
+      'speciality': 'nile_cruises',
+      'location': 'aswan_luxor',
       'languages': ['English', 'Arabic', 'Italian'],
       'price': '\$90/day',
       'rating': '4.7',
@@ -57,8 +57,8 @@ class _GuideTabState extends State<GuideTab> {
     },
     {
       'name': 'Sarah Smith',
-      'speciality': 'Adventure & Hiking',
-      'location': 'Dahab & Sinai',
+      'speciality': 'adventure_hiking',
+      'location': 'dahab_sinai',
       'languages': ['English', 'German', 'Spanish'],
       'price': '\$85/day',
       'rating': '4.9',
@@ -69,8 +69,8 @@ class _GuideTabState extends State<GuideTab> {
     },
     {
       'name': 'Youssef Ali',
-      'speciality': 'Cultural Landmarks',
-      'location': 'Alexandria',
+      'speciality': 'cultural_landmarks',
+      'location': 'alexandria',
       'languages': ['English', 'Arabic', 'French'],
       'price': '\$60/day',
       'rating': '4.6',
@@ -81,8 +81,8 @@ class _GuideTabState extends State<GuideTab> {
     },
     {
       'name': 'Elena Petrova',
-      'speciality': 'Historical Tours',
-      'location': 'Hurghada',
+      'speciality': 'historical_tours',
+      'location': 'hurghada',
       'languages': ['English', 'Russian'],
       'price': '\$95/day',
       'rating': '4.8',
@@ -101,11 +101,11 @@ class _GuideTabState extends State<GuideTab> {
 
   @override
   Widget build(BuildContext context) {
+    final _ = context.locale;
     var themeProvider = Provider.of<Themeprovider>(context);
     final isDark = themeProvider.apptheme == ThemeMode.dark;
     final size = MediaQuery.of(context).size;
     final horizontalPadding = (size.width * 0.055).clamp(20.0, 32.0);
-    final topPadding = (size.width * 0.05).clamp(18.0, 28.0);
 
     // Specialty filter chips list
     final langFilters = [
@@ -191,7 +191,7 @@ class _GuideTabState extends State<GuideTab> {
                 final lang = langFilters[index];
                 final selected = _selectedLang == lang;
                 return ChoiceChip(
-                  label: Text(lang == 'all' ? 'all'.tr() : lang),
+                  label: Text(lang.tr()),
                   selected: selected,
                   onSelected: (_) {
                     setState(() {
@@ -542,10 +542,10 @@ class _GuideTabState extends State<GuideTab> {
   }
 
   Widget _buildEmptyState() {
-    return const Center(
+    return Center(
       child: Text(
-        'No guides found',
-        style: TextStyle(color: Colors.grey, fontSize: 14),
+        'no_guides_found'.tr(),
+        style: const TextStyle(color: Colors.grey, fontSize: 14),
       ),
     );
   }

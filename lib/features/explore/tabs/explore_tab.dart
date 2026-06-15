@@ -224,6 +224,7 @@ class _ExploreTabState extends State<ExploreTab> {
 
   @override
   Widget build(BuildContext context) {
+    final _ = context.locale;
     var themeProvider = Provider.of<Themeprovider>(context);
     final isDark = themeProvider.apptheme == ThemeMode.dark;
 
@@ -464,21 +465,16 @@ class _ExploreTabState extends State<ExploreTab> {
             itemBuilder: (context, index) {
               final selected = _selectedTransportSubcat == index;
               return ChoiceChip(
-                label: Row(
-                  children: [
-                    Icon(
-                      subcatIcons[index],
-                      size: 16,
-                      color: selected
-                          ? Colors.white
-                          : (isDark
-                                ? AppColors.blueColor
-                                : AppColors.primaryColor),
-                    ),
-                    const SizedBox(width: 6),
-                    Text(subcatKeys[index].tr()),
-                  ],
+                avatar: Icon(
+                  subcatIcons[index],
+                  size: 16,
+                  color: selected
+                      ? Colors.white
+                      : (isDark
+                            ? AppColors.blueColor
+                            : AppColors.primaryColor),
                 ),
+                label: Text(subcatKeys[index].tr()),
                 selected: selected,
                 onSelected: (_) {
                   setState(() {
@@ -548,8 +544,14 @@ class _ExploreTabState extends State<ExploreTab> {
     final subcatIcons = [Icons.star, Icons.star, Icons.star, Icons.star];
 
     // Select correct mock list
-    String currentKey = subcatKeys[_selectedHotelSubcat];
-    List<Map<String, dynamic>> rawList = _hotelsList[currentKey] ?? [];
+    List<Map<String, dynamic>> rawList;
+    if (_selectedHotelSubcat == 0) {
+      rawList = [];
+      _hotelsList.values.forEach((list) => rawList.addAll(list));
+    } else {
+      String currentKey = subcatKeys[_selectedHotelSubcat];
+      rawList = _hotelsList[currentKey] ?? [];
+    }
 
     final filteredList = rawList.where((item) {
       return item['title'].toString().toLowerCase().contains(_searchQuery) ||
@@ -569,21 +571,16 @@ class _ExploreTabState extends State<ExploreTab> {
             itemBuilder: (context, index) {
               final selected = _selectedHotelSubcat == index;
               return ChoiceChip(
-                label: Row(
-                  children: [
-                    Icon(
-                      subcatIcons[index],
-                      size: 16,
-                      color: selected
-                          ? Colors.white
-                          : (isDark
-                                ? AppColors.blueColor
-                                : AppColors.primaryColor),
-                    ),
-                    const SizedBox(width: 6),
-                    Text(subcatKeys[index].tr()),
-                  ],
+                avatar: Icon(
+                  subcatIcons[index],
+                  size: 16,
+                  color: selected
+                      ? Colors.white
+                      : (isDark
+                            ? AppColors.blueColor
+                            : AppColors.primaryColor),
                 ),
+                label: Text(subcatKeys[index].tr()),
                 selected: selected,
                 onSelected: (_) {
                   setState(() {
@@ -669,21 +666,16 @@ class _ExploreTabState extends State<ExploreTab> {
             itemBuilder: (context, index) {
               final selected = _selectedProgramChip == index;
               return ChoiceChip(
-                label: Row(
-                  children: [
-                    Icon(
-                      programIcons[index],
-                      size: 16,
-                      color: selected
-                          ? Colors.white
-                          : (isDark
-                                ? AppColors.blueColor
-                                : AppColors.primaryColor),
-                    ),
-                    const SizedBox(width: 6),
-                    Text(programChips[index].tr()),
-                  ],
+                avatar: Icon(
+                  programIcons[index],
+                  size: 16,
+                  color: selected
+                      ? Colors.white
+                      : (isDark
+                            ? AppColors.blueColor
+                            : AppColors.primaryColor),
                 ),
+                label: Text(programChips[index].tr()),
                 selected: selected,
                 onSelected: (_) {
                   setState(() {
