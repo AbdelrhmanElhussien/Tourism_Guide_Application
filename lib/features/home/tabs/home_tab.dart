@@ -46,7 +46,7 @@ class _HomeTabState extends State<HomeTab> {
           children: [
             const SizedBox(height: 8),
             Text(
-              'Welcome!}'.tr(),
+              'Welcome!'.tr(),
               style: AppStyles.mediume24White.copyWith(
                 fontSize: 14,
                 fontWeight: FontWeight.w100,
