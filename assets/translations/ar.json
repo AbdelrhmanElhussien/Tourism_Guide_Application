@@ -122,5 +122,8 @@
   "please_enter_description": "الرجاء إدخال الوصف",
   "all": "الكل",
   "all_guides": "جميع المرشدين",
-  "please_select_category_validation": "الرجاء اختيار الفئة"
+  "please_select_category_validation": "الرجاء اختيار الفئة",
+  "are_you_sure_to_logout": "هل أنت متأكد من رغبتك في تسجيل الخروج؟",
+  "yes_action": "نعم",
+  "cancel_action": "إلغاء"
 }

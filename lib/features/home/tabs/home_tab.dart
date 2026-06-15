@@ -45,7 +45,7 @@ class _HomeTabState extends State<HomeTab> {
           children: [
             const SizedBox(height: 8),
             Text(
-              'Welcome!'.tr(),
+              'Welcome!}'.tr(),
               style: AppStyles.mediume24White.copyWith(
                 fontSize: 14,
                 fontWeight: FontWeight.w100,
@@ -85,66 +85,68 @@ class _HomeTabState extends State<HomeTab> {
         physics: const ClampingScrollPhysics(),
         padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
         children: [
-                // Categories
-                SizedBox(height: sectionSpacing),
-                CategoriesSection(
-                  onCategoryTap: widget.onCategorySelected,
-                ),
+          // Categories
+          SizedBox(height: sectionSpacing),
+          CategoriesSection(onCategoryTap: widget.onCategorySelected),
 
-                // Recommended header
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'recommended'.tr(),
-                      style: isDark ? AppStyles.lightYellow24semiBold : AppStyles.primary24semiBold,
-                    ),
-                    Text('see_all'.tr(), style: AppStyles.yellow14mediume),
-                  ],
-                ),
-                SizedBox(height: sectionSpacing),
+          // Recommended header
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'recommended'.tr(),
+                style: isDark
+                    ? AppStyles.lightYellow24semiBold
+                    : AppStyles.primary24semiBold,
+              ),
+              Text('see_all'.tr(), style: AppStyles.yellow14mediume),
+            ],
+          ),
+          SizedBox(height: sectionSpacing),
 
-                SizedBox(
-                  height: recommendedHeight,
-                  child: ListView.separated(
-                    physics: const ClampingScrollPhysics(),
-                    scrollDirection: Axis.horizontal,
-                    itemCount: 4,
-                    separatorBuilder: (context, index) => SizedBox(width: listGap),
-                    itemBuilder: (context, index) => const RecommendedWidget(),
-                  ),
-                ),
-
-                SizedBox(height: sectionSpacing + 4),
-
-                // Popular places header
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'popular_places'.tr(),
-                      style: isDark ? AppStyles.lightYellow24semiBold : AppStyles.primary24semiBold,
-                    ),
-                    Text('see_all'.tr(), style: AppStyles.yellow14mediume),
-                  ],
-                ),
-
-                SizedBox(height: sectionSpacing),
-                
-                // Popular places list
-                ListView.separated(
-                  physics: const NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  scrollDirection: Axis.vertical,
-                  itemCount: tourismDestinations.length,
-                  separatorBuilder: (context, index) => SizedBox(height: listGap),
-                  itemBuilder: (context, index) {
-                    return PopularWidget(destination: tourismDestinations[index]);
-                  },
-                ),
-                SizedBox(height: sectionSpacing),
-              ],
+          SizedBox(
+            height: recommendedHeight,
+            child: ListView.separated(
+              physics: const ClampingScrollPhysics(),
+              scrollDirection: Axis.horizontal,
+              itemCount: 4,
+              separatorBuilder: (context, index) => SizedBox(width: listGap),
+              itemBuilder: (context, index) => const RecommendedWidget(),
             ),
+          ),
+
+          SizedBox(height: sectionSpacing + 4),
+
+          // Popular places header
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'popular_places'.tr(),
+                style: isDark
+                    ? AppStyles.lightYellow24semiBold
+                    : AppStyles.primary24semiBold,
+              ),
+              Text('see_all'.tr(), style: AppStyles.yellow14mediume),
+            ],
+          ),
+
+          SizedBox(height: sectionSpacing),
+
+          // Popular places list
+          ListView.separated(
+            physics: const NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            scrollDirection: Axis.vertical,
+            itemCount: tourismDestinations.length,
+            separatorBuilder: (context, index) => SizedBox(height: listGap),
+            itemBuilder: (context, index) {
+              return PopularWidget(destination: tourismDestinations[index]);
+            },
+          ),
+          SizedBox(height: sectionSpacing),
+        ],
+      ),
     );
   }
 }
