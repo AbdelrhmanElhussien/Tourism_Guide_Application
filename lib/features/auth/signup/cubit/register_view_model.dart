@@ -14,9 +14,10 @@ class RegisetrViewModel extends Cubit<AuthState> {
   Future<void> register({
     required String email,
     required String password,
-    required String name,
-    required String rePassword,
-    required String phone,
+    required String fullName,
+    required String confirmPassword,
+    required String phoneNumber,
+    required String nationality,
   }) async {
     try {
       emit(AuthLoadingState());
@@ -24,9 +25,10 @@ class RegisetrViewModel extends Cubit<AuthState> {
       RegisterRequest registerRequest = RegisterRequest(
         password: password,
         email: email,
-        name: name,
-        rePassword: rePassword,
-        phone: phone,
+        fullName: fullName,
+        confirmPassword: confirmPassword,
+        phoneNumber: phoneNumber,
+        nationality: nationality,
       );
       var authResponse = await _signUpUseCase.invoke(registerRequest);
       emit(AuthSuccessState(authResponse: authResponse));
