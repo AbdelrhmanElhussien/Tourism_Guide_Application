@@ -21,6 +21,7 @@ class HomeTab extends StatefulWidget {
 class _HomeTabState extends State<HomeTab> {
   @override
   Widget build(BuildContext context) {
+    final _ = context.locale;
     var themeProvider = Provider.of<Themeprovider>(context);
     final isDark = themeProvider.apptheme == ThemeMode.dark;
     final size = MediaQuery.of(context).size;
