@@ -122,5 +122,8 @@
   "please_enter_description": "Please enter a description",
   "all": "All",
   "all_guides": "All Guides",
-  "please_select_category_validation": "Please select a category"
+  "please_select_category_validation": "Please select a category",
+  "are_you_sure_to_logout": "Are you sure you want to sign out?",
+  "yes_action": "Yes",
+  "cancel_action": "Cancel"
 }
