@@ -1,22 +1,19 @@
 import 'package:json_annotation/json_annotation.dart';
-import 'package:tourist_app/domain/entities/response/auth/User.dart';
 
-//todo: pure clases
+//todo: pure classes
 @JsonSerializable()
 class Auth_response {
   final String? message;
-  final User? user;
   final String? token;
+  final String? email;
+  final String? userName;
+  final String? role;
 
   Auth_response({
     this.message,
-    this.user,
     this.token,
+    this.email,
+    this.userName,
+    this.role,
   });
-
-
 }
-
-
-
-

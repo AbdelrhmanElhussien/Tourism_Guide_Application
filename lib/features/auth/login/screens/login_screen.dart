@@ -301,6 +301,9 @@ class _LoginScreenState extends State<LoginScreen> {
             masseage: "login_success_msg".tr(),
             posActionName: "ok_action".tr(),
             title: "success_title".tr(),
+            posFun: () {
+              Navigator.pushReplacementNamed(context, AppRoutes.HomeRouteName);
+            },
           );
         }
       },
@@ -435,13 +438,6 @@ class _LoginScreenState extends State<LoginScreen> {
                             password: _passwordController.text,
                           );
                         }
-                        Future.delayed(
-                          const Duration(seconds: 3),
-                          () => Navigator.pushReplacementNamed(
-                            context,
-                            AppRoutes.HomeRouteName,
-                          ),
-                        );
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.yellowColor,

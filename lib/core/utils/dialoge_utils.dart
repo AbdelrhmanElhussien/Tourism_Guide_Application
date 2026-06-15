@@ -46,14 +46,18 @@ class DialogeUtils {
     if (posActionName != null) {
       actoinsList.add(TextButton(onPressed: () {
         Navigator.pop(context);
-        Navigator.pushReplacementNamed(context, 'HomeScreen.RoutName');
+        if (posFun != null) {
+          posFun();
+        }
       }, child: Text(posActionName ,style: Theme.of(context).textTheme.bodyMedium,)));
 
     }
     if(negActionName != null){
       actoinsList.add(TextButton(onPressed: () {
         Navigator.pop(context);
-        Navigator.pushReplacementNamed(context,' HomeScreen.RoutName');
+        if (negFun != null) {
+          negFun();
+        }
       }, child: Text(negActionName ,style: Theme.of(context).textTheme.bodyMedium,)));
 
     }
