@@ -27,6 +27,7 @@ class _CreateAccountScreenState extends State<SignUpScreen> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
+  final _nationalityController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmController = TextEditingController();
 
@@ -37,6 +38,7 @@ class _CreateAccountScreenState extends State<SignUpScreen> {
     _nameController.dispose();
     _emailController.dispose();
     _phoneController.dispose();
+    _nationalityController.dispose();
     _passwordController.dispose();
     _confirmController.dispose();
     super.dispose();
@@ -47,14 +49,15 @@ class _CreateAccountScreenState extends State<SignUpScreen> {
       viewModel.register(
         email: _emailController.text,
         password: _passwordController.text,
-        name: _nameController.text,
-        rePassword: _confirmController.text,
-        phone: _phoneController.text,
+        fullName: _nameController.text,
+        confirmPassword: _confirmController.text,
+        phoneNumber: _phoneController.text,
+        nationality: _nationalityController.text,
       );
       debugPrint('Name   : ${_nameController.text}');
       debugPrint('Email  : ${_emailController.text}');
       debugPrint('Phone  : ${_phoneController.text}');
-      Navigator.pushReplacementNamed(context, AppRoutes.HomeRouteName);
+      debugPrint('Nationality: ${_nationalityController.text}');
     }
   }
 
@@ -81,6 +84,9 @@ class _CreateAccountScreenState extends State<SignUpScreen> {
             masseage: "signin_success_msg".tr(),
             posActionName: "ok_action".tr(),
             title: "success_title".tr(),
+            posFun: () {
+              Navigator.pushReplacementNamed(context, AppRoutes.HomeRouteName);
+            },
           );
         }
       },
@@ -145,6 +151,17 @@ class _CreateAccountScreenState extends State<SignUpScreen> {
                     prefixIcon: Icons.phone_outlined,
                     validator: (v) => (v == null || v.trim().isEmpty)
                         ? 'please_enter_phone'.tr()
+                        : null,
+                  ),
+                  const SizedBox(height: 16),
+
+                  AppTextField(
+                    controller: _nationalityController,
+                    label: 'nationality'.tr(),
+                    hint: 'enter_nationality'.tr(),
+                    prefixIcon: Icons.flag_outlined,
+                    validator: (v) => (v == null || v.trim().isEmpty)
+                        ? 'please_enter_nationality'.tr()
                         : null,
                   ),
                   const SizedBox(height: 16),

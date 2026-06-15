@@ -5,7 +5,6 @@ import 'package:tourist_app/api/api_constant.dart';
 import 'package:tourist_app/api/model/request/login/login_request_dto.dart';
 import 'package:tourist_app/api/model/request/register/register_request_dto.dart';
 import 'package:tourist_app/api/model/response/auth/auth_response_dto.dart';
-import 'package:tourist_app/domain/entities/response/auth/auth_response.dart';
 
 part 'api_services.g.dart';
 

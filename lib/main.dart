@@ -62,10 +62,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     var themeProvider = Provider.of<Themeprovider>(context);
     return ScreenUtilInit(
-      designSize: const Size(
-        375,
-        812,
-      ), //  (iPhone 13 مثلاً)
+      designSize: const Size(375, 812), //  (iPhone 13 مثلاً)
       minTextAdapt: true,
       builder: (context, child) {
         return MaterialApp(
@@ -79,15 +76,19 @@ class MyApp extends StatelessWidget {
             AppRoutes.signUpRouteName: (context) => SignUpScreen(),
             AppRoutes.HomeRouteName: (context) => Homescreen(),
             AppRoutes.DetailScreenRouteName: (context) => const DetailScreen(),
-            AppRoutes.serviceProviderRouteName: (context) => const ServiceProviderScreen(),
-            AppRoutes.myServicesRouteName: (context) => const MyServicesScreen(),
+            AppRoutes.serviceProviderRouteName: (context) =>
+                const ServiceProviderScreen(),
+            AppRoutes.myServicesRouteName: (context) =>
+                const MyServicesScreen(),
             AppRoutes.bookingsRouteName: (context) => const BookingsScreen(),
             AppRoutes.myTripsRouteName: (context) => const MyTripsScreen(),
-            AppRoutes.savedPlacesRouteName: (context) => const SavedPlacesScreen(),
-            AppRoutes.addServiceRouteName: (context) => const AddServiceScreen(),
+            AppRoutes.savedPlacesRouteName: (context) =>
+                const SavedPlacesScreen(),
+            AppRoutes.addServiceRouteName: (context) =>
+                const AddServiceScreen(),
             AppRoutes.earningsRouteName: (context) => const EarningsScreen(),
           },
-          initialRoute: AppRoutes.HomeRouteName,
+          initialRoute: AppRoutes.loginRouteName,
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,
 

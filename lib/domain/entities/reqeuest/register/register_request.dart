@@ -5,25 +5,25 @@ part 'register_request.g.dart';
 @JsonSerializable()
 class RegisterRequest {
 
-  final String? name;
+  final String? fullName;
 
   final String? email;
 
   final String? password;
 
-  final String? rePassword;
+  final String? confirmPassword;
 
-  final String? phone;
+  final String? phoneNumber;
 
-  RegisterRequest ({
-    this.name,
+  final String? nationality;
+
+  RegisterRequest({
+    this.fullName,
     this.email,
     this.password,
-    this.rePassword,
-    this.phone,
+    this.confirmPassword,
+    this.phoneNumber,
+    this.nationality,
   });
 
-
 }
-
-

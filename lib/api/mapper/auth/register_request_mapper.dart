@@ -7,10 +7,11 @@ extension RegisterRequestMapper on RegisterRequest{
  RegisterRequestDto toRegisterRequestDto(){
    return RegisterRequestDto(
        password: password,
-       email:email ,
-       name: name,
-       phone:phone ,
-       rePassword: rePassword
+       email: email,
+       fullName: fullName,
+       phoneNumber: phoneNumber,
+       confirmPassword: confirmPassword,
+       nationality: nationality,
    );
  }
 
