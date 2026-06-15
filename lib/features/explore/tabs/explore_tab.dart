@@ -5,6 +5,7 @@ import 'package:tourist_app/core/provider/themeProvider.dart';
 import 'package:tourist_app/core/utils/app_theme.dart';
 import 'package:tourist_app/features/explore/provider/hotel_provider.dart';
 import 'package:tourist_app/features/explore/provider/transport_provider.dart';
+import 'package:tourist_app/features/explore/provider/program_provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class ExploreTab extends StatefulWidget {
@@ -31,13 +32,37 @@ class _ExploreTabState extends State<ExploreTab> {
 
   String _searchQuery = '';
 
+  final ScrollController _hotelScrollController = ScrollController();
+  final ScrollController _transportScrollController = ScrollController();
+  final ScrollController _programScrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
     _selectedSegmentIndex = widget.initialSegment;
+
+    _hotelScrollController.addListener(() {
+      if (_hotelScrollController.position.pixels >= _hotelScrollController.position.maxScrollExtent - 200) {
+        context.read<HotelProvider>().fetchMoreHotels();
+      }
+    });
+
+    _transportScrollController.addListener(() {
+      if (_transportScrollController.position.pixels >= _transportScrollController.position.maxScrollExtent - 200) {
+        context.read<TransportProvider>().fetchMoreTransports();
+      }
+    });
+
+    _programScrollController.addListener(() {
+      if (_programScrollController.position.pixels >= _programScrollController.position.maxScrollExtent - 200) {
+        context.read<ProgramProvider>().fetchMorePrograms();
+      }
+    });
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<HotelProvider>().fetchHotels();
       context.read<TransportProvider>().fetchTransports();
+      context.read<ProgramProvider>().fetchPrograms();
     });
   }
 
@@ -52,6 +77,9 @@ class _ExploreTabState extends State<ExploreTab> {
   @override
   void dispose() {
     _searchController.dispose();
+    _hotelScrollController.dispose();
+    _transportScrollController.dispose();
+    _programScrollController.dispose();
     super.dispose();
   }
 
@@ -541,13 +569,20 @@ class _ExploreTabState extends State<ExploreTab> {
                       color: AppColors.yellowColor,
                       onRefresh: () => transportProvider.fetchTransports(forceRefresh: true),
                       child: ListView.separated(
+                        controller: _transportScrollController,
                         padding: EdgeInsets.symmetric(
                           horizontal: horizontalPadding,
                           vertical: 10,
                         ),
-                        itemCount: filteredList.length,
+                        itemCount: filteredList.length + (transportProvider.isFetchingMore ? 1 : 0),
                         separatorBuilder: (_, __) => const SizedBox(height: 16),
                         itemBuilder: (context, index) {
+                          if (index == filteredList.length) {
+                            return const Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Center(child: CircularProgressIndicator(color: AppColors.yellowColor)),
+                            );
+                          }
                           final item = filteredList[index];
                           return _buildTransportCard(
                             title: item.name,
@@ -672,13 +707,20 @@ class _ExploreTabState extends State<ExploreTab> {
                       color: AppColors.yellowColor,
                       onRefresh: () => hotelProvider.fetchHotels(forceRefresh: true),
                       child: ListView.separated(
+                        controller: _hotelScrollController,
                         padding: EdgeInsets.symmetric(
                           horizontal: horizontalPadding,
                           vertical: 10,
                         ),
-                        itemCount: filteredList.length,
+                        itemCount: filteredList.length + (hotelProvider.isFetchingMore ? 1 : 0),
                         separatorBuilder: (_, __) => const SizedBox(height: 16),
                         itemBuilder: (context, index) {
+                          if (index == filteredList.length) {
+                            return const Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Center(child: CircularProgressIndicator(color: AppColors.yellowColor)),
+                            );
+                          }
                           final item = filteredList[index];
                           return _buildHotelCard(
                             title: item.name,
@@ -712,93 +754,145 @@ class _ExploreTabState extends State<ExploreTab> {
       Icons.access_time_outlined,
     ];
 
-    final filteredList = _programsList.where((item) {
-      return item['title'].toString().toLowerCase().contains(_searchQuery);
-    }).toList();
+    return Consumer<ProgramProvider>(
+      builder: (context, programProvider, child) {
+        if (programProvider.isLoading) {
+          return const Center(
+            child: CircularProgressIndicator(color: AppColors.yellowColor),
+          );
+        }
 
-    return Column(
-      children: [
-        // Filter tags chip bar
-        SizedBox(
-          height: 38,
-          child: ListView.separated(
-            padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-            scrollDirection: Axis.horizontal,
-            itemCount: programChips.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 10),
-            itemBuilder: (context, index) {
-              final selected = _selectedProgramChip == index;
-              return ChoiceChip(
-                label: Row(
-                  children: [
-                    Icon(
-                      programIcons[index],
-                      size: 16,
+        if (programProvider.hasError) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.error_outline, size: 50, color: Colors.red),
+                const SizedBox(height: 16),
+                Text(programProvider.errorMessage ?? 'Error', style: TextStyle(color: isDark ? Colors.white : Colors.black)),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () => programProvider.fetchPrograms(forceRefresh: true),
+                  style: ElevatedButton.styleFrom(backgroundColor: AppColors.yellowColor),
+                  child: Text('retry'.tr(), style: const TextStyle(color: Colors.white)),
+                )
+              ],
+            ),
+          );
+        }
+
+        final filteredList = programProvider.programs.where((item) {
+          return item.name.toLowerCase().contains(_searchQuery) ||
+                 item.location.toLowerCase().contains(_searchQuery) ||
+                 item.city.toLowerCase().contains(_searchQuery);
+        }).toList();
+
+        // Implement sorting based on selected chip if needed
+        if (_selectedProgramChip == 2) {
+          // Sort by price
+          filteredList.sort((a, b) => a.price.compareTo(b.price));
+        } else if (_selectedProgramChip == 3) {
+          // Sort by duration
+          filteredList.sort((a, b) => a.duration.compareTo(b.duration));
+        } else if (_selectedProgramChip == 1) {
+          // Sort by rating (recommended)
+          filteredList.sort((a, b) => b.rating.compareTo(a.rating));
+        } else {
+          // Popular - sort by reviews
+          filteredList.sort((a, b) => b.reviewCount.compareTo(a.reviewCount));
+        }
+
+        return Column(
+          children: [
+            SizedBox(
+              height: 38,
+              child: ListView.separated(
+                padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+                scrollDirection: Axis.horizontal,
+                itemCount: programChips.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 10),
+                itemBuilder: (context, index) {
+                  final selected = _selectedProgramChip == index;
+                  return ChoiceChip(
+                    label: Row(
+                      children: [
+                        Icon(
+                          programIcons[index],
+                          size: 16,
+                          color: selected
+                              ? Colors.white
+                              : (isDark ? AppColors.blueColor : AppColors.primaryColor),
+                        ),
+                        const SizedBox(width: 6),
+                        Text(programChips[index].tr()),
+                      ],
+                    ),
+                    selected: selected,
+                    onSelected: (_) {
+                      setState(() {
+                        _selectedProgramChip = index;
+                      });
+                    },
+                    showCheckmark: false,
+                    selectedColor: AppColors.yellowColor,
+                    backgroundColor: isDark ? const Color(0xFF101E2E) : const Color(0xFFFBF6EE),
+                    side: BorderSide.none,
+                    labelStyle: AppStyles.primary12Medium.copyWith(
                       color: selected
                           ? Colors.white
-                          : (isDark
-                                ? AppColors.blueColor
-                                : AppColors.primaryColor),
+                          : (isDark ? AppColors.blueColor : AppColors.primaryColor),
+                      fontWeight: FontWeight.w700,
                     ),
-                    const SizedBox(width: 6),
-                    Text(programChips[index].tr()),
-                  ],
-                ),
-                selected: selected,
-                onSelected: (_) {
-                  setState(() {
-                    _selectedProgramChip = index;
-                  });
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                  );
                 },
-                showCheckmark: false,
-                selectedColor: AppColors.yellowColor,
-                backgroundColor: isDark
-                    ? const Color(0xFF101E2E)
-                    : const Color(0xFFFBF6EE),
-                side: BorderSide.none,
-                labelStyle: AppStyles.primary12Medium.copyWith(
-                  color: selected
-                      ? Colors.white
-                      : (isDark ? AppColors.blueColor : AppColors.primaryColor),
-                  fontWeight: FontWeight.w700,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(18),
-                ),
-              );
-            },
-          ),
-        ),
-        const SizedBox(height: 16),
-        // Item List
-        Expanded(
-          child: filteredList.isEmpty
-              ? _buildEmptyState()
-              : ListView.separated(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: horizontalPadding,
-                    vertical: 10,
-                  ),
-                  itemCount: filteredList.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 16),
-                  itemBuilder: (context, index) {
-                    final item = filteredList[index];
-                    return _buildProgramCard(
-                      title: item['title'],
-                      price: item['price'],
-                      duration: item['duration'],
-                      rating: item['rating'],
-                      reviews: item['reviews'],
-                      image: item['image'],
-                      buttonText: 'book_program'.tr(),
-                      isDark: isDark,
-                    );
-                  },
-                ),
-        ),
-      ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: filteredList.isEmpty
+                  ? _buildEmptyState()
+                  : RefreshIndicator(
+                      color: AppColors.yellowColor,
+                      onRefresh: () => programProvider.fetchPrograms(forceRefresh: true),
+                      child: ListView.separated(
+                        controller: _programScrollController,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: horizontalPadding,
+                          vertical: 10,
+                        ),
+                        itemCount: filteredList.length + (programProvider.isFetchingMore ? 1 : 0),
+                        separatorBuilder: (_, __) => const SizedBox(height: 16),
+                        itemBuilder: (context, index) {
+                          if (index == filteredList.length) {
+                            return const Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Center(child: CircularProgressIndicator(color: AppColors.yellowColor)),
+                            );
+                          }
+                          final item = filteredList[index];
+                          return _buildProgramCard(
+                            title: item.name,
+                            price: '\$${item.price.toStringAsFixed(0)}',
+                            duration: '${item.duration} hrs',
+                            rating: item.rating.toStringAsFixed(1),
+                            reviews: item.reviewCount.toString(),
+                            image: item.imageUrl,
+                            buttonText: 'book_program'.tr(),
+                            isDark: isDark,
+                          );
+                        },
+                      ),
+                    ),
+            ),
+          ],
+        );
+      },
     );
   }
+
 
   // ── Card Styles ──
 
@@ -1142,14 +1236,18 @@ class _ExploreTabState extends State<ExploreTab> {
               width: double.infinity,
               child: Stack(
                 children: [
-                  Image.network(
-                    image,
-                    width: double.infinity,
-                    height: double.infinity,
+                  CachedNetworkImage(
+                    imageUrl: image,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
+                    placeholder: (context, url) => Container(
+                      color: isDark ? AppColors.bottomNavigationColor : Colors.grey[200],
+                      child: const Center(
+                        child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.yellowColor),
+                      ),
+                    ),
+                    errorWidget: (context, url, error) => Container(
                       color: Colors.grey[300],
-                      child: const Icon(Icons.image_not_supported),
+                      child: const Icon(Icons.error_outline, color: Colors.red),
                     ),
                   ),
                   Positioned(

@@ -24,6 +24,7 @@ import 'package:tourist_app/features/profile/service_provider/screens/earnings_s
 import 'package:tourist_app/features/guide/provider/guide_provider.dart';
 import 'package:tourist_app/features/explore/provider/hotel_provider.dart';
 import 'package:tourist_app/features/explore/provider/transport_provider.dart';
+import 'package:tourist_app/features/explore/provider/program_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -53,6 +54,7 @@ void main() async {
           ChangeNotifierProvider(create: (context) => GuideProvider()),
           ChangeNotifierProvider(create: (context) => HotelProvider()),
           ChangeNotifierProvider(create: (context) => TransportProvider()),
+          ChangeNotifierProvider(create: (context) => ProgramProvider()),
         ],
         child: const MyApp(),
       ),
@@ -94,7 +96,7 @@ class MyApp extends StatelessWidget {
                 const AddServiceScreen(),
             AppRoutes.earningsRouteName: (context) => const EarningsScreen(),
           },
-          initialRoute: AppRoutes.loginRouteName,
+          initialRoute: AppRoutes.HomeRouteName,
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,
 

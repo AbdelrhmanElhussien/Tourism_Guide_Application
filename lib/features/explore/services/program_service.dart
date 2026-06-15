@@ -1,11 +1,11 @@
 import 'package:dio/dio.dart';
 import 'package:tourist_app/api/api_constant.dart';
-import 'package:tourist_app/features/explore/models/hotel_model.dart';
+import 'package:tourist_app/features/explore/models/program_model.dart';
 
-class HotelService {
+class ProgramService {
   final Dio _dio;
 
-  HotelService({Dio? dio})
+  ProgramService({Dio? dio})
       : _dio = dio ??
             Dio(BaseOptions(
               baseUrl: ApiConstant.baseUrl,
@@ -13,10 +13,10 @@ class HotelService {
               sendTimeout: const Duration(seconds: 10),
             ));
 
-  Future<List<HotelModel>> fetchHotels({int page = 1, int limit = 10}) async {
+  Future<List<ProgramModel>> fetchPrograms({int page = 1, int limit = 10}) async {
     try {
       final response = await _dio.get(
-        ApiConstant.hotelsEndPoint,
+        ApiConstant.programsEndPoint,
         queryParameters: {'page': page, 'limit': limit},
       );
 
@@ -24,22 +24,22 @@ class HotelService {
         final data = response.data;
 
         if (data is Map<String, dynamic> && data['success'] == true) {
-          final List<dynamic> hotelsJson = data['data'] ?? [];
-          return hotelsJson
-              .map((json) => HotelModel.fromJson(json as Map<String, dynamic>))
+          final List<dynamic> jsonList = data['data'] ?? [];
+          return jsonList
+              .map((json) => ProgramModel.fromJson(json as Map<String, dynamic>))
               .toList();
         }
 
         if (data is List) {
           return data
-              .map((json) => HotelModel.fromJson(json as Map<String, dynamic>))
+              .map((json) => ProgramModel.fromJson(json as Map<String, dynamic>))
               .toList();
         }
 
         throw Exception('Unexpected API response format');
       }
 
-      throw Exception('Failed to load hotels (Status: ${response.statusCode})');
+      throw Exception('Failed to load programs (Status: ${response.statusCode})');
     } on DioException catch (e) {
       final errorData = e.response?.data;
       String message = 'Something went wrong';

@@ -13,9 +13,12 @@ class GuideService {
               sendTimeout: const Duration(seconds: 10),
             ));
 
-  Future<List<GuideModel>> fetchGuides() async {
+  Future<List<GuideModel>> fetchGuides({int page = 1, int limit = 10}) async {
     try {
-      final response = await _dio.get(ApiConstant.guidesEndPoint);
+      final response = await _dio.get(
+        ApiConstant.guidesEndPoint,
+        queryParameters: {'page': page, 'limit': limit},
+      );
 
       if (response.statusCode == 200) {
         final data = response.data;

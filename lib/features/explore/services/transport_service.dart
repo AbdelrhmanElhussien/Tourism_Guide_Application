@@ -13,9 +13,12 @@ class TransportService {
               sendTimeout: const Duration(seconds: 10),
             ));
 
-  Future<List<TransportModel>> fetchTransports() async {
+  Future<List<TransportModel>> fetchTransports({int page = 1, int limit = 10}) async {
     try {
-      final response = await _dio.get(ApiConstant.transportEndPoint);
+      final response = await _dio.get(
+        ApiConstant.transportEndPoint,
+        queryParameters: {'page': page, 'limit': limit},
+      );
 
       if (response.statusCode == 200) {
         final data = response.data;
