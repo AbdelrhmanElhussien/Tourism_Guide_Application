@@ -23,6 +23,7 @@ import 'package:tourist_app/features/map/provider/map_provider.dart';
 import 'package:tourist_app/features/profile/service_provider/screens/earnings_screen.dart';
 import 'package:tourist_app/features/guide/provider/guide_provider.dart';
 import 'package:tourist_app/features/explore/provider/hotel_provider.dart';
+import 'package:tourist_app/features/explore/provider/transport_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -51,6 +52,7 @@ void main() async {
           ChangeNotifierProvider(create: (context) => MapProvider()),
           ChangeNotifierProvider(create: (context) => GuideProvider()),
           ChangeNotifierProvider(create: (context) => HotelProvider()),
+          ChangeNotifierProvider(create: (context) => TransportProvider()),
         ],
         child: const MyApp(),
       ),

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:tourist_app/core/provider/themeProvider.dart';
 import 'package:tourist_app/core/utils/app_theme.dart';
 import 'package:tourist_app/features/explore/provider/hotel_provider.dart';
+import 'package:tourist_app/features/explore/provider/transport_provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class ExploreTab extends StatefulWidget {
@@ -36,6 +37,7 @@ class _ExploreTabState extends State<ExploreTab> {
     _selectedSegmentIndex = widget.initialSegment;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<HotelProvider>().fetchHotels();
+      context.read<TransportProvider>().fetchTransports();
     });
   }
 
@@ -437,104 +439,133 @@ class _ExploreTabState extends State<ExploreTab> {
       Icons.sailing_outlined,
     ];
 
-    // Select correct mock list
-    List<Map<String, dynamic>> rawList;
-    if (_selectedTransportSubcat == 0) {
-      rawList = _carsList;
-    } else if (_selectedTransportSubcat == 1) {
-      rawList = _cruisesList;
-    } else if (_selectedTransportSubcat == 2) {
-      rawList = _carriageList;
-    } else {
-      rawList = _feluccaList;
-    }
+    return Consumer<TransportProvider>(
+      builder: (context, transportProvider, child) {
+        if (transportProvider.isLoading) {
+          return const Center(
+            child: CircularProgressIndicator(color: AppColors.yellowColor),
+          );
+        }
 
-    final filteredList = rawList.where((item) {
-      return item['title'].toString().toLowerCase().contains(_searchQuery) ||
-          item['location'].toString().toLowerCase().contains(_searchQuery);
-    }).toList();
+        if (transportProvider.hasError) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.error_outline, size: 50, color: Colors.red),
+                const SizedBox(height: 16),
+                Text(transportProvider.errorMessage ?? 'Error', style: TextStyle(color: isDark ? Colors.white : Colors.black)),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () => transportProvider.fetchTransports(forceRefresh: true),
+                  style: ElevatedButton.styleFrom(backgroundColor: AppColors.yellowColor),
+                  child: Text('retry'.tr(), style: const TextStyle(color: Colors.white)),
+                )
+              ],
+            ),
+          );
+        }
 
-    return Column(
-      children: [
-        // Subcategory Chip Bar
-        SizedBox(
-          height: 38,
-          child: ListView.separated(
-            padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-            scrollDirection: Axis.horizontal,
-            itemCount: subcatKeys.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 10),
-            itemBuilder: (context, index) {
-              final selected = _selectedTransportSubcat == index;
-              return ChoiceChip(
-                label: Row(
-                  children: [
-                    Icon(
-                      subcatIcons[index],
-                      size: 16,
+        String targetType = '';
+        if (_selectedTransportSubcat == 0) targetType = 'Car';
+        else if (_selectedTransportSubcat == 1) targetType = 'Train'; 
+        else if (_selectedTransportSubcat == 2) targetType = 'Carriage';
+        else if (_selectedTransportSubcat == 3) targetType = 'Boat';
+
+        final filteredList = transportProvider.transports.where((item) {
+          bool matchesType = false;
+          if (_selectedTransportSubcat == 1) {
+            matchesType = item.type == 'Train' || item.type == 'Ferry' || item.type == 'Cruise';
+          } else {
+            matchesType = item.type == targetType;
+          }
+          bool matchesQuery = item.name.toLowerCase().contains(_searchQuery) ||
+              item.departureLocation.toLowerCase().contains(_searchQuery) ||
+              item.arrivalLocation.toLowerCase().contains(_searchQuery);
+          return matchesType && matchesQuery;
+        }).toList();
+
+        return Column(
+          children: [
+            SizedBox(
+              height: 38,
+              child: ListView.separated(
+                padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+                scrollDirection: Axis.horizontal,
+                itemCount: subcatKeys.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 10),
+                itemBuilder: (context, index) {
+                  final selected = _selectedTransportSubcat == index;
+                  return ChoiceChip(
+                    label: Row(
+                      children: [
+                        Icon(
+                          subcatIcons[index],
+                          size: 16,
+                          color: selected
+                              ? Colors.white
+                              : (isDark ? AppColors.blueColor : AppColors.primaryColor),
+                        ),
+                        const SizedBox(width: 6),
+                        Text(subcatKeys[index].tr()),
+                      ],
+                    ),
+                    selected: selected,
+                    onSelected: (_) {
+                      setState(() {
+                        _selectedTransportSubcat = index;
+                      });
+                    },
+                    showCheckmark: false,
+                    selectedColor: AppColors.yellowColor,
+                    backgroundColor: isDark ? const Color(0xFF101E2E) : const Color(0xFFFBF6EE),
+                    side: BorderSide.none,
+                    labelStyle: AppStyles.primary12Medium.copyWith(
                       color: selected
                           ? Colors.white
-                          : (isDark
-                                ? AppColors.blueColor
-                                : AppColors.primaryColor),
+                          : (isDark ? AppColors.blueColor : AppColors.primaryColor),
+                      fontWeight: FontWeight.w700,
                     ),
-                    const SizedBox(width: 6),
-                    Text(subcatKeys[index].tr()),
-                  ],
-                ),
-                selected: selected,
-                onSelected: (_) {
-                  setState(() {
-                    _selectedTransportSubcat = index;
-                  });
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                  );
                 },
-                showCheckmark: false,
-                selectedColor: AppColors.yellowColor,
-                backgroundColor: isDark
-                    ? const Color(0xFF101E2E)
-                    : const Color(0xFFFBF6EE),
-                side: BorderSide.none,
-                labelStyle: AppStyles.primary12Medium.copyWith(
-                  color: selected
-                      ? Colors.white
-                      : (isDark ? AppColors.blueColor : AppColors.primaryColor),
-                  fontWeight: FontWeight.w700,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(18),
-                ),
-              );
-            },
-          ),
-        ),
-        const SizedBox(height: 16),
-        // Item List
-        Expanded(
-          child: filteredList.isEmpty
-              ? _buildEmptyState()
-              : ListView.separated(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: horizontalPadding,
-                    vertical: 10,
-                  ),
-                  itemCount: filteredList.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 16),
-                  itemBuilder: (context, index) {
-                    final item = filteredList[index];
-                    return _buildTransportCard(
-                      title: item['title'],
-                      price: item['price'],
-                      location: item['location'],
-                      rating: item['rating'],
-                      reviews: item['reviews'],
-                      image: item['image'],
-                      buttonText: 'book_now'.tr(),
-                      isDark: isDark,
-                    );
-                  },
-                ),
-        ),
-      ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: filteredList.isEmpty
+                  ? _buildEmptyState()
+                  : RefreshIndicator(
+                      color: AppColors.yellowColor,
+                      onRefresh: () => transportProvider.fetchTransports(forceRefresh: true),
+                      child: ListView.separated(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: horizontalPadding,
+                          vertical: 10,
+                        ),
+                        itemCount: filteredList.length,
+                        separatorBuilder: (_, __) => const SizedBox(height: 16),
+                        itemBuilder: (context, index) {
+                          final item = filteredList[index];
+                          return _buildTransportCard(
+                            title: item.name,
+                            price: '\$${item.price.toStringAsFixed(0)}',
+                            location: '${item.departureLocation} → ${item.arrivalLocation}',
+                            rating: item.rating.toStringAsFixed(1),
+                            reviews: item.reviewCount.toString(),
+                            image: item.imageUrl,
+                            buttonText: 'book_now'.tr(),
+                            isDark: isDark,
+                          );
+                        },
+                      ),
+                    ),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -808,12 +839,18 @@ class _ExploreTabState extends State<ExploreTab> {
             child: SizedBox(
               height: 160,
               width: double.infinity,
-              child: Image.network(
-                image,
+              child: CachedNetworkImage(
+                imageUrl: image,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(
+                placeholder: (context, url) => Container(
+                  color: isDark ? AppColors.bottomNavigationColor : Colors.grey[200],
+                  child: const Center(
+                    child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.yellowColor),
+                  ),
+                ),
+                errorWidget: (context, url, error) => Container(
                   color: Colors.grey[300],
-                  child: const Icon(Icons.image_not_supported),
+                  child: const Icon(Icons.error_outline, color: Colors.red),
                 ),
               ),
             ),

@@ -10,4 +10,5 @@ class ApiConstant {
   static const String testAuthEndPoint = 'Accounts/TestAuth';
   static const String guidesEndPoint = 'Guides';
   static const String hotelsEndPoint = 'Hotels';
+  static const String transportEndPoint = 'Transport';
 }
