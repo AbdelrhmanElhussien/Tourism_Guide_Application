@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tourist_app/core/utils/app_styles.dart';
+import 'package:tourist_app/core/utils/app_theme.dart';
 
 class Customebotton extends StatelessWidget {
   String text;
