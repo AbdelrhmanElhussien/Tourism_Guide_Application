@@ -9,13 +9,18 @@ import 'package:tourist_app/core/utils/BlocObserver.dart';
 import 'package:tourist_app/core/utils/app_loclization.dart';
 import 'package:tourist_app/core/utils/app_routes.dart';
 import 'package:tourist_app/core/utils/app_theme.dart';
-import 'package:tourist_app/features/AppScreens/HomeScreens/homeScreen.dart';
-import 'package:tourist_app/features/AppScreens/HomeScreens/homeTap/detailedScreen.dart';
-import 'package:tourist_app/features/AppScreens/HomeScreens/profileTap/provider_dashboard.dart';
-import 'package:tourist_app/features/AppScreens/HomeScreens/profileTap/my_services.dart';
-import 'package:tourist_app/features/AppScreens/HomeScreens/profileTap/bookings_screen.dart';
-import 'package:tourist_app/features/AppScreens/auth_screen/Login/loginScreen.dart';
-import 'package:tourist_app/features/AppScreens/auth_screen/signUp/signUp.dart';
+import 'package:tourist_app/features/home/screens/home_screen.dart';
+import 'package:tourist_app/features/home/screens/detailed_screen.dart';
+import 'package:tourist_app/features/profile/service_provider/screens/provider_dashboard_screen.dart';
+import 'package:tourist_app/features/profile/service_provider/screens/my_services_screen.dart';
+import 'package:tourist_app/features/profile/service_provider/screens/bookings_screen.dart';
+import 'package:tourist_app/features/profile/service_provider/screens/add_service_screen.dart';
+import 'package:tourist_app/features/profile/screens/my_trips_screen.dart';
+import 'package:tourist_app/features/profile/screens/saved_places_screen.dart';
+import 'package:tourist_app/features/auth/login/screens/login_screen.dart';
+import 'package:tourist_app/features/auth/signup/screens/signup_screen.dart';
+import 'package:tourist_app/features/map/provider/map_provider.dart';
+import 'package:tourist_app/features/profile/service_provider/screens/earnings_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,7 +29,16 @@ void main() async {
 
   runApp(
     EasyLocalization(
-      supportedLocales: [AppLoclization.enLocale, AppLoclization.arLocale],
+      supportedLocales: [
+        AppLoclization.enLocale,
+        AppLoclization.arLocale,
+        AppLoclization.deLocale,
+        AppLoclization.frLocale,
+        AppLoclization.itLocale,
+        AppLoclization.esLocale,
+        AppLoclization.ruLocale,
+        AppLoclization.zhLocale,
+      ],
       path: 'assets/translations',
       saveLocale: true,
       fallbackLocale: AppLoclization.enLocale,
@@ -32,6 +46,7 @@ void main() async {
       child: MultiProvider(
         providers: [
           ChangeNotifierProvider(create: (context) => Themeprovider()),
+          ChangeNotifierProvider(create: (context) => MapProvider()),
         ],
         child: const MyApp(),
       ),
@@ -47,7 +62,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     var themeProvider = Provider.of<Themeprovider>(context);
     return ScreenUtilInit(
-      designSize: Size(
+      designSize: const Size(
         375,
         812,
       ), //  (iPhone 13 مثلاً)
@@ -63,10 +78,14 @@ class MyApp extends StatelessWidget {
             AppRoutes.loginRouteName: (context) => LoginScreen(),
             AppRoutes.signUpRouteName: (context) => SignUpScreen(),
             AppRoutes.HomeRouteName: (context) => Homescreen(),
-            AppRoutes.DetailScreenRouteName: (context) => DetailScreen(),
+            AppRoutes.DetailScreenRouteName: (context) => const DetailScreen(),
             AppRoutes.serviceProviderRouteName: (context) => const ServiceProviderScreen(),
             AppRoutes.myServicesRouteName: (context) => const MyServicesScreen(),
             AppRoutes.bookingsRouteName: (context) => const BookingsScreen(),
+            AppRoutes.myTripsRouteName: (context) => const MyTripsScreen(),
+            AppRoutes.savedPlacesRouteName: (context) => const SavedPlacesScreen(),
+            AppRoutes.addServiceRouteName: (context) => const AddServiceScreen(),
+            AppRoutes.earningsRouteName: (context) => const EarningsScreen(),
           },
           initialRoute: AppRoutes.HomeRouteName,
           theme: AppTheme.lightTheme,
