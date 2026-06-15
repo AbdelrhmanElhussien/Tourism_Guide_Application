@@ -20,6 +20,7 @@ import 'package:tourist_app/features/profile/screens/saved_places_screen.dart';
 import 'package:tourist_app/features/auth/login/screens/login_screen.dart';
 import 'package:tourist_app/features/auth/signup/screens/signup_screen.dart';
 import 'package:tourist_app/features/map/provider/map_provider.dart';
+import 'package:tourist_app/features/guide/provider/guide_provider.dart';
 import 'package:tourist_app/features/profile/service_provider/screens/earnings_screen.dart';
 
 void main() async {
@@ -47,6 +48,7 @@ void main() async {
         providers: [
           ChangeNotifierProvider(create: (context) => Themeprovider()),
           ChangeNotifierProvider(create: (context) => MapProvider()),
+          ChangeNotifierProvider(create: (context) => GuideProvider()),
         ],
         child: const MyApp(),
       ),
@@ -88,7 +90,7 @@ class MyApp extends StatelessWidget {
                 const AddServiceScreen(),
             AppRoutes.earningsRouteName: (context) => const EarningsScreen(),
           },
-          initialRoute: AppRoutes.loginRouteName,
+          initialRoute: AppRoutes.HomeRouteName,
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,
 

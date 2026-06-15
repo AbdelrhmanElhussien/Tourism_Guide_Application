@@ -1,8 +1,11 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:tourist_app/core/provider/themeProvider.dart';
 import 'package:tourist_app/core/utils/app_theme.dart';
+import 'package:tourist_app/features/guide/models/guide_model.dart';
+import 'package:tourist_app/features/guide/provider/guide_provider.dart';
 
 class GuideTab extends StatefulWidget {
   const GuideTab({super.key});
@@ -16,74 +19,14 @@ class _GuideTabState extends State<GuideTab> {
   String _searchQuery = '';
   String _selectedLang = 'all';
 
-  final List<Map<String, dynamic>> _guidesList = [
-    {
-      'name': 'Ahmed Hassan',
-      'speciality': 'Historical Sites',
-      'location': 'Cairo & Giza',
-      'languages': ['English', 'Arabic', 'French'],
-      'price': '\$80/day',
-      'rating': '4.9',
-      'reviews': '234',
-      'image': 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&fit=crop&q=80',
-      'online': true,
-    },
-    {
-      'name': 'Fatma El-Zahraa',
-      'speciality': 'Luxor & Karnak',
-      'location': 'Luxor',
-      'languages': ['English', 'Arabic', 'German'],
-      'price': '\$70/day',
-      'rating': '4.8',
-      'reviews': '187',
-      'image': 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&fit=crop&q=80',
-      'online': true,
-    },
-    {
-      'name': 'Mohamed Salah',
-      'speciality': 'Nile Cruises',
-      'location': 'Aswan & Luxor',
-      'languages': ['English', 'Arabic', 'Italian'],
-      'price': '\$90/day',
-      'rating': '4.7',
-      'reviews': '156',
-      'image': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&fit=crop&q=80',
-      'online': false,
-    },
-    {
-      'name': 'Sarah Smith',
-      'speciality': 'Adventure & Hiking',
-      'location': 'Dahab & Sinai',
-      'languages': ['English', 'German', 'Spanish'],
-      'price': '\$85/day',
-      'rating': '4.9',
-      'reviews': '94',
-      'image': 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&fit=crop&q=80',
-      'online': true,
-    },
-    {
-      'name': 'Youssef Ali',
-      'speciality': 'Cultural Landmarks',
-      'location': 'Alexandria',
-      'languages': ['English', 'Arabic', 'French'],
-      'price': '\$60/day',
-      'rating': '4.6',
-      'reviews': '112',
-      'image': 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&fit=crop&q=80',
-      'online': true,
-    },
-    {
-      'name': 'Elena Petrova',
-      'speciality': 'Historical Tours',
-      'location': 'Hurghada',
-      'languages': ['English', 'Russian'],
-      'price': '\$95/day',
-      'rating': '4.8',
-      'reviews': '138',
-      'image': 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&fit=crop&q=80',
-      'online': false,
-    }
-  ];
+  @override
+  void initState() {
+    super.initState();
+    // Fetch guides when the tab is opened
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<GuideProvider>().fetchGuides();
+    });
+  }
 
   @override
   void dispose() {
@@ -97,19 +40,9 @@ class _GuideTabState extends State<GuideTab> {
     final isDark = themeProvider.apptheme == ThemeMode.dark;
     final size = MediaQuery.of(context).size;
     final horizontalPadding = (size.width * 0.055).clamp(20.0, 32.0);
-    final topPadding = (size.width * 0.05).clamp(18.0, 28.0);
 
     // Specialty filter chips list
-    final langFilters = ['all', 'English', 'Arabic', 'French', 'German', 'Russian', 'Spanish'];
-
-    // Filtering logic
-    final filteredGuides = _guidesList.where((guide) {
-      final matchesQuery = guide['name'].toString().toLowerCase().contains(_searchQuery) ||
-          guide['speciality'].toString().toLowerCase().contains(_searchQuery);
-      final matchesLang = _selectedLang == 'all' ||
-          (guide['languages'] as List<String>).contains(_selectedLang);
-      return matchesQuery && matchesLang;
-    }).toList();
+    final langFilters = ['all', 'English', 'Arabic', 'French', 'German', 'Russian', 'Spanish', 'Italian'];
 
     return Scaffold(
       backgroundColor: isDark ? AppColors.darkBlueColor : const Color(0xffF8FAFC),
@@ -190,37 +123,82 @@ class _GuideTabState extends State<GuideTab> {
           ),
           const SizedBox(height: 16),
 
-          // Number of Guides Label
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-            child: Text(
-              'guides_available'.tr(args: [filteredGuides.length.toString()]),
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: isDark ? AppColors.blueColor : AppColors.lightGrayColor,
-              ),
-            ),
-          ),
-          const SizedBox(height: 10),
-
-          // Guide Cards List
+          // ── Main Content Area (Loading / Error / Empty / Data) ──
           Expanded(
-            child: filteredGuides.isEmpty
-                ? _buildEmptyState()
-                : ListView.separated(
-                    padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 10),
-                    itemCount: filteredGuides.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 16),
-                    itemBuilder: (context, index) {
-                      final guide = filteredGuides[index];
-                      return _buildGuideCard(guide, isDark);
-                    },
-                  ),
+            child: Consumer<GuideProvider>(
+              builder: (context, guideProvider, child) {
+                // ── Loading State ──
+                if (guideProvider.isLoading) {
+                  return const Center(
+                    child: CircularProgressIndicator(
+                      color: AppColors.yellowColor,
+                    ),
+                  );
+                }
+
+                // ── Error State ──
+                if (guideProvider.hasError) {
+                  return _buildErrorState(guideProvider, isDark, horizontalPadding);
+                }
+
+                // Apply local filtering
+                final filteredGuides = _filterGuides(guideProvider.guides);
+
+                // ── Number of Guides Label + List ──
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+                      child: Text(
+                        'guides_available'.tr(args: [filteredGuides.length.toString()]),
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? AppColors.blueColor : AppColors.lightGrayColor,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+
+                    // ── Empty State ──
+                    if (filteredGuides.isEmpty)
+                      Expanded(child: _buildEmptyState())
+                    else
+                      Expanded(
+                        child: RefreshIndicator(
+                          color: AppColors.yellowColor,
+                          onRefresh: () => guideProvider.fetchGuides(forceRefresh: true),
+                          child: ListView.separated(
+                            padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 10),
+                            itemCount: filteredGuides.length,
+                            separatorBuilder: (_, __) => const SizedBox(height: 16),
+                            itemBuilder: (context, index) {
+                              final guide = filteredGuides[index];
+                              return _buildGuideCard(guide, isDark);
+                            },
+                          ),
+                        ),
+                      ),
+                  ],
+                );
+              },
+            ),
           ),
         ],
       ),
     );
+  }
+
+  /// Filters guides based on the search query and selected language.
+  List<GuideModel> _filterGuides(List<GuideModel> guides) {
+    return guides.where((guide) {
+      final matchesQuery = guide.fullName.toLowerCase().contains(_searchQuery) ||
+          guide.specialization.toLowerCase().contains(_searchQuery);
+      final matchesLang = _selectedLang == 'all' ||
+          guide.languagesList.contains(_selectedLang);
+      return matchesQuery && matchesLang;
+    }).toList();
   }
 
   Widget _buildSearchBar(bool isDark) {
@@ -270,7 +248,7 @@ class _GuideTabState extends State<GuideTab> {
     );
   }
 
-  Widget _buildGuideCard(Map<String, dynamic> guide, bool isDark) {
+  Widget _buildGuideCard(GuideModel guide, bool isDark) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -298,20 +276,28 @@ class _GuideTabState extends State<GuideTab> {
                 children: [
                   ClipRRect(
                     borderRadius: BorderRadius.circular(12),
-                    child: Image.network(
-                      guide['image'],
+                    child: CachedNetworkImage(
+                      imageUrl: guide.imageUrl,
                       width: 65,
                       height: 65,
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(
+                      placeholder: (context, url) => Container(
+                        width: 65,
+                        height: 65,
+                        color: isDark ? AppColors.bottomNavigationColor : Colors.grey[200],
+                        child: const Center(
+                          child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.yellowColor),
+                        ),
+                      ),
+                      errorWidget: (context, url, error) => Container(
                         width: 65,
                         height: 65,
                         color: Colors.grey[300],
-                        child: const Icon(Icons.person),
+                        child: const Icon(Icons.error_outline, color: Colors.red),
                       ),
                     ),
                   ),
-                  if (guide['online'] as bool)
+                  if (guide.isAvailable)
                     Positioned(
                       bottom: 0,
                       right: 0,
@@ -336,12 +322,15 @@ class _GuideTabState extends State<GuideTab> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          guide['name'],
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: isDark ? Colors.white : AppColors.primaryColor,
+                        Expanded(
+                          child: Text(
+                            guide.fullName,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: isDark ? Colors.white : AppColors.primaryColor,
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                         Row(
@@ -349,7 +338,7 @@ class _GuideTabState extends State<GuideTab> {
                             const Icon(Icons.star, color: Colors.amber, size: 16),
                             const SizedBox(width: 2),
                             Text(
-                              guide['rating'],
+                              guide.rating.toStringAsFixed(1),
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: isDark ? Colors.white70 : Colors.black87,
@@ -358,7 +347,7 @@ class _GuideTabState extends State<GuideTab> {
                             ),
                             const SizedBox(width: 2),
                             Text(
-                              '(${guide['reviews']})',
+                              '(${guide.reviewCount})',
                               style: const TextStyle(color: Colors.grey, fontSize: 12),
                             ),
                           ],
@@ -367,7 +356,7 @@ class _GuideTabState extends State<GuideTab> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      guide['speciality'],
+                      guide.specialization,
                       style: const TextStyle(color: AppColors.yellowColor, fontSize: 13, fontWeight: FontWeight.w600),
                     ),
                     const SizedBox(height: 2),
@@ -376,7 +365,7 @@ class _GuideTabState extends State<GuideTab> {
                         const Icon(Icons.location_on_outlined, color: Colors.grey, size: 14),
                         const SizedBox(width: 4),
                         Text(
-                          guide['location'],
+                          guide.nationality,
                           style: const TextStyle(color: Colors.grey, fontSize: 12),
                         ),
                       ],
@@ -391,18 +380,23 @@ class _GuideTabState extends State<GuideTab> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  const Icon(Icons.language, color: Colors.grey, size: 16),
-                  const SizedBox(width: 6),
-                  Text(
-                    (guide['languages'] as List<String>).join(', '),
-                    style: const TextStyle(color: Colors.grey, fontSize: 12),
-                  ),
-                ],
+              Expanded(
+                child: Row(
+                  children: [
+                    const Icon(Icons.language, color: Colors.grey, size: 16),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        guide.languages,
+                        style: const TextStyle(color: Colors.grey, fontSize: 12),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
               ),
               Text(
-                '${guide['price']}',
+                '\$${guide.pricePerDay.toStringAsFixed(0)}/day',
                 style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.yellowColor, fontSize: 15),
               ),
             ],
@@ -427,6 +421,44 @@ class _GuideTabState extends State<GuideTab> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildErrorState(GuideProvider guideProvider, bool isDark, double horizontalPadding) {
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.error_outline_rounded,
+              size: 60,
+              color: isDark ? AppColors.blueColor : AppColors.lightGrayColor,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              guideProvider.errorMessage ?? 'Something went wrong',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14,
+                color: isDark ? AppColors.blueColor : AppColors.lightGrayColor,
+              ),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton.icon(
+              onPressed: () => guideProvider.fetchGuides(forceRefresh: true),
+              icon: const Icon(Icons.refresh, size: 18),
+              label: Text('retry'.tr()),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.yellowColor,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
