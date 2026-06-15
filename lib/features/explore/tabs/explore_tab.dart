@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tourist_app/core/provider/themeProvider.dart';
 import 'package:tourist_app/core/utils/app_theme.dart';
+import 'package:tourist_app/features/explore/provider/hotel_provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class ExploreTab extends StatefulWidget {
   final int initialSegment;
@@ -32,6 +34,9 @@ class _ExploreTabState extends State<ExploreTab> {
   void initState() {
     super.initState();
     _selectedSegmentIndex = widget.initialSegment;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<HotelProvider>().fetchHotels();
+    });
   }
 
   @override
@@ -545,96 +550,122 @@ class _ExploreTabState extends State<ExploreTab> {
       Icons.star,
     ];
 
-    // Select correct mock list
-    String currentKey = subcatKeys[_selectedHotelSubcat];
-    List<Map<String, dynamic>> rawList = _hotelsList[currentKey] ?? [];
+    return Consumer<HotelProvider>(
+      builder: (context, hotelProvider, child) {
+        if (hotelProvider.isLoading) {
+          return const Center(
+            child: CircularProgressIndicator(color: AppColors.yellowColor),
+          );
+        }
 
-    final filteredList = rawList.where((item) {
-      return item['title'].toString().toLowerCase().contains(_searchQuery) ||
-          item['location'].toString().toLowerCase().contains(_searchQuery);
-    }).toList();
+        if (hotelProvider.hasError) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.error_outline, size: 50, color: Colors.red),
+                const SizedBox(height: 16),
+                Text(hotelProvider.errorMessage ?? 'Error', style: TextStyle(color: isDark ? Colors.white : Colors.black)),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () => hotelProvider.fetchHotels(forceRefresh: true),
+                  style: ElevatedButton.styleFrom(backgroundColor: AppColors.yellowColor),
+                  child: Text('retry'.tr(), style: const TextStyle(color: Colors.white)),
+                )
+              ],
+            ),
+          );
+        }
 
-    return Column(
-      children: [
-        // Subcategory ChoiceChip Bar
-        SizedBox(
-          height: 38,
-          child: ListView.separated(
-            padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-            scrollDirection: Axis.horizontal,
-            itemCount: subcatKeys.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 10),
-            itemBuilder: (context, index) {
-              final selected = _selectedHotelSubcat == index;
-              return ChoiceChip(
-                label: Row(
-                  children: [
-                    Icon(
-                      subcatIcons[index],
-                      size: 16,
+        int targetStars = 5 - _selectedHotelSubcat;
+        final filteredList = hotelProvider.hotels.where((item) {
+          bool matchesStars = item.starRating == targetStars;
+          bool matchesQuery = item.name.toLowerCase().contains(_searchQuery) ||
+              item.location.toLowerCase().contains(_searchQuery);
+          return matchesStars && matchesQuery;
+        }).toList();
+
+        return Column(
+          children: [
+            SizedBox(
+              height: 38,
+              child: ListView.separated(
+                padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+                scrollDirection: Axis.horizontal,
+                itemCount: subcatKeys.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 10),
+                itemBuilder: (context, index) {
+                  final selected = _selectedHotelSubcat == index;
+                  return ChoiceChip(
+                    label: Row(
+                      children: [
+                        Icon(
+                          subcatIcons[index],
+                          size: 16,
+                          color: selected
+                              ? Colors.white
+                              : (isDark ? AppColors.blueColor : AppColors.primaryColor),
+                        ),
+                        const SizedBox(width: 6),
+                        Text(subcatKeys[index].tr()),
+                      ],
+                    ),
+                    selected: selected,
+                    onSelected: (_) {
+                      setState(() {
+                        _selectedHotelSubcat = index;
+                      });
+                    },
+                    showCheckmark: false,
+                    selectedColor: AppColors.yellowColor,
+                    backgroundColor: isDark ? const Color(0xFF101E2E) : const Color(0xFFFBF6EE),
+                    side: BorderSide.none,
+                    labelStyle: AppStyles.primary12Medium.copyWith(
                       color: selected
                           ? Colors.white
-                          : (isDark
-                                ? AppColors.blueColor
-                                : AppColors.primaryColor),
+                          : (isDark ? AppColors.blueColor : AppColors.primaryColor),
+                      fontWeight: FontWeight.w700,
                     ),
-                    const SizedBox(width: 6),
-                    Text(subcatKeys[index].tr()),
-                  ],
-                ),
-                selected: selected,
-                onSelected: (_) {
-                  setState(() {
-                    _selectedHotelSubcat = index;
-                  });
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                  );
                 },
-                showCheckmark: false,
-                selectedColor: AppColors.yellowColor,
-                backgroundColor: isDark
-                    ? const Color(0xFF101E2E)
-                    : const Color(0xFFFBF6EE),
-                side: BorderSide.none,
-                labelStyle: AppStyles.primary12Medium.copyWith(
-                  color: selected
-                      ? Colors.white
-                      : (isDark ? AppColors.blueColor : AppColors.primaryColor),
-                  fontWeight: FontWeight.w700,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(18),
-                ),
-              );
-            },
-          ),
-        ),
-        const SizedBox(height: 16),
-        // Item List
-        Expanded(
-          child: filteredList.isEmpty
-              ? _buildEmptyState()
-              : ListView.separated(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: horizontalPadding,
-                    vertical: 10,
-                  ),
-                  itemCount: filteredList.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 16),
-                  itemBuilder: (context, index) {
-                    final item = filteredList[index];
-                    return _buildHotelCard(
-                      title: item['title'],
-                      price: item['price'],
-                      location: item['location'],
-                      rating: item['rating'],
-                      reviews: item['reviews'],
-                      image: item['image'],
-                      buttonText: 'book'.tr(),
-                      isDark: isDark,
-                    );
-                  },
-                ),
-        ),
-      ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: filteredList.isEmpty
+                  ? _buildEmptyState()
+                  : RefreshIndicator(
+                      color: AppColors.yellowColor,
+                      onRefresh: () => hotelProvider.fetchHotels(forceRefresh: true),
+                      child: ListView.separated(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: horizontalPadding,
+                          vertical: 10,
+                        ),
+                        itemCount: filteredList.length,
+                        separatorBuilder: (_, __) => const SizedBox(height: 16),
+                        itemBuilder: (context, index) {
+                          final item = filteredList[index];
+                          return _buildHotelCard(
+                            title: item.name,
+                            price: '\$${item.pricePerNight.toStringAsFixed(0)}/night',
+                            location: item.location,
+                            rating: item.rating.toStringAsFixed(1),
+                            reviews: item.reviewCount.toString(),
+                            image: item.imageUrl,
+                            buttonText: 'book'.tr(),
+                            isDark: isDark,
+                          );
+                        },
+                      ),
+                    ),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -921,12 +952,18 @@ class _ExploreTabState extends State<ExploreTab> {
               child: SizedBox(
                 width: 104,
                 height: 104,
-                child: Image.network(
-                  image,
+                child: CachedNetworkImage(
+                  imageUrl: image,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(
+                  placeholder: (context, url) => Container(
+                    color: isDark ? AppColors.bottomNavigationColor : Colors.grey[200],
+                    child: const Center(
+                      child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.yellowColor),
+                    ),
+                  ),
+                  errorWidget: (context, url, error) => Container(
                     color: Colors.grey[300],
-                    child: const Icon(Icons.image_not_supported),
+                    child: const Icon(Icons.error_outline, color: Colors.red),
                   ),
                 ),
               ),

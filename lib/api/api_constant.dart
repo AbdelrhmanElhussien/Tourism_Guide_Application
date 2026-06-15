@@ -8,4 +8,6 @@ class ApiConstant {
   static const String resetPasswordEndPoint = 'Accounts/ResetPassword';
   static const String changePasswordEndPoint = 'Accounts/ChangePassword';
   static const String testAuthEndPoint = 'Accounts/TestAuth';
+  static const String guidesEndPoint = 'Guides';
+  static const String hotelsEndPoint = 'Hotels';
 }
