@@ -11,12 +11,15 @@ import 'package:tourist_app/features/map/models/place_prediction_model.dart';
 import 'package:tourist_app/features/map/services/google_maps_service.dart';
 
 class MapProvider extends ChangeNotifier {
+  bool _isLocationInitialized = false;
+
   MapProvider() {
-    _initializeLocation();
     loadTouristPlaces();
   }
 
   Future<void> _initializeLocation() async {
+    if (_isLocationInitialized) return;
+    _isLocationInitialized = true;
     await getUserLocation();
     getUserLocationUpdates();
   }
@@ -235,6 +238,7 @@ class MapProvider extends ChangeNotifier {
   void onMapCreated(GoogleMapController controller, bool isDark) {
     mapController = controller;
     setMapStyle(isDark);
+    _initializeLocation();
     final pendingUpdate = _pendingCameraUpdate;
     if (pendingUpdate != null) {
       _pendingCameraUpdate = null;

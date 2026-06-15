@@ -19,8 +19,8 @@ class _GuideTabState extends State<GuideTab> {
   final List<Map<String, dynamic>> _guidesList = [
     {
       'name': 'Ahmed Hassan',
-      'speciality': 'Historical Sites',
-      'location': 'Cairo & Giza',
+      'speciality': 'historical_sites',
+      'location': 'cairo_giza',
       'languages': ['English', 'Arabic', 'French'],
       'price': '\$80/day',
       'rating': '4.9',
@@ -30,8 +30,8 @@ class _GuideTabState extends State<GuideTab> {
     },
     {
       'name': 'Fatma El-Zahraa',
-      'speciality': 'Luxor & Karnak',
-      'location': 'Luxor',
+      'speciality': 'luxor_karnak',
+      'location': 'luxor',
       'languages': ['English', 'Arabic', 'German'],
       'price': '\$70/day',
       'rating': '4.8',
@@ -41,8 +41,8 @@ class _GuideTabState extends State<GuideTab> {
     },
     {
       'name': 'Mohamed Salah',
-      'speciality': 'Nile Cruises',
-      'location': 'Aswan & Luxor',
+      'speciality': 'nile_cruises',
+      'location': 'aswan_luxor',
       'languages': ['English', 'Arabic', 'Italian'],
       'price': '\$90/day',
       'rating': '4.7',
@@ -52,8 +52,8 @@ class _GuideTabState extends State<GuideTab> {
     },
     {
       'name': 'Sarah Smith',
-      'speciality': 'Adventure & Hiking',
-      'location': 'Dahab & Sinai',
+      'speciality': 'adventure_hiking',
+      'location': 'dahab_sinai',
       'languages': ['English', 'German', 'Spanish'],
       'price': '\$85/day',
       'rating': '4.9',
@@ -63,8 +63,8 @@ class _GuideTabState extends State<GuideTab> {
     },
     {
       'name': 'Youssef Ali',
-      'speciality': 'Cultural Landmarks',
-      'location': 'Alexandria',
+      'speciality': 'cultural_landmarks',
+      'location': 'alexandria',
       'languages': ['English', 'Arabic', 'French'],
       'price': '\$60/day',
       'rating': '4.6',
@@ -74,8 +74,8 @@ class _GuideTabState extends State<GuideTab> {
     },
     {
       'name': 'Elena Petrova',
-      'speciality': 'Historical Tours',
-      'location': 'Hurghada',
+      'speciality': 'historical_tours',
+      'location': 'hurghada',
       'languages': ['English', 'Russian'],
       'price': '\$95/day',
       'rating': '4.8',
@@ -93,11 +93,11 @@ class _GuideTabState extends State<GuideTab> {
 
   @override
   Widget build(BuildContext context) {
+    final _ = context.locale;
     var themeProvider = Provider.of<Themeprovider>(context);
     final isDark = themeProvider.apptheme == ThemeMode.dark;
     final size = MediaQuery.of(context).size;
     final horizontalPadding = (size.width * 0.055).clamp(20.0, 32.0);
-    final topPadding = (size.width * 0.05).clamp(18.0, 28.0);
 
     // Specialty filter chips list
     final langFilters = ['all', 'English', 'Arabic', 'French', 'German', 'Russian', 'Spanish'];
@@ -105,7 +105,7 @@ class _GuideTabState extends State<GuideTab> {
     // Filtering logic
     final filteredGuides = _guidesList.where((guide) {
       final matchesQuery = guide['name'].toString().toLowerCase().contains(_searchQuery) ||
-          guide['speciality'].toString().toLowerCase().contains(_searchQuery);
+          guide['speciality'].toString().tr().toLowerCase().contains(_searchQuery);
       final matchesLang = _selectedLang == 'all' ||
           (guide['languages'] as List<String>).contains(_selectedLang);
       return matchesQuery && matchesLang;
@@ -166,7 +166,7 @@ class _GuideTabState extends State<GuideTab> {
                 final lang = langFilters[index];
                 final selected = _selectedLang == lang;
                 return ChoiceChip(
-                  label: Text(lang == 'all' ? 'all'.tr() : lang),
+                  label: Text(lang.tr()),
                   selected: selected,
                   onSelected: (_) {
                     setState(() {
@@ -367,7 +367,7 @@ class _GuideTabState extends State<GuideTab> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      guide['speciality'],
+                      guide['speciality'].toString().tr(),
                       style: const TextStyle(color: AppColors.yellowColor, fontSize: 13, fontWeight: FontWeight.w600),
                     ),
                     const SizedBox(height: 2),
@@ -376,7 +376,7 @@ class _GuideTabState extends State<GuideTab> {
                         const Icon(Icons.location_on_outlined, color: Colors.grey, size: 14),
                         const SizedBox(width: 4),
                         Text(
-                          guide['location'],
+                          guide['location'].toString().tr(),
                           style: const TextStyle(color: Colors.grey, fontSize: 12),
                         ),
                       ],
@@ -396,13 +396,13 @@ class _GuideTabState extends State<GuideTab> {
                   const Icon(Icons.language, color: Colors.grey, size: 16),
                   const SizedBox(width: 6),
                   Text(
-                    (guide['languages'] as List<String>).join(', '),
+                    (guide['languages'] as List<String>).map((l) => l.toString().tr()).join(', '),
                     style: const TextStyle(color: Colors.grey, fontSize: 12),
                   ),
                 ],
               ),
               Text(
-                '${guide['price']}',
+                '${guide['price']}'.replaceAll('/day', ' / ${"day".tr()}'),
                 style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.yellowColor, fontSize: 15),
               ),
             ],
@@ -432,10 +432,10 @@ class _GuideTabState extends State<GuideTab> {
   }
 
   Widget _buildEmptyState() {
-    return const Center(
+    return Center(
       child: Text(
-        'No guides found',
-        style: TextStyle(color: Colors.grey, fontSize: 14),
+        'no_guides_found'.tr(),
+        style: const TextStyle(color: Colors.grey, fontSize: 14),
       ),
     );
   }
