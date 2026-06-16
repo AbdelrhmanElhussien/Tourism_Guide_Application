@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:tourist_app/features/home/tabs/home_tab.dart';
 import 'package:tourist_app/features/explore/tabs/explore_tab.dart';
 import 'package:tourist_app/features/map/tabs/map_tab.dart';
-import 'package:tourist_app/features/map/provider/map_provider.dart';
 import 'package:tourist_app/features/guide/tabs/guide_tab.dart';
 import 'package:tourist_app/features/profile/tabs/profile_tab.dart';
 

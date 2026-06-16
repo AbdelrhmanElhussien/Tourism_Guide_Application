@@ -44,6 +44,7 @@ class _GuideTabState extends State<GuideTab> {
 
   @override
   Widget build(BuildContext context) {
+    final _ = context.locale;
     var themeProvider = Provider.of<Themeprovider>(context);
     final isDark = themeProvider.apptheme == ThemeMode.dark;
     final size = MediaQuery.of(context).size;
@@ -51,7 +52,15 @@ class _GuideTabState extends State<GuideTab> {
     final guideProvider = Provider.of<GuideProvider>(context);
 
     // Specialty filter chips list
-    final langFilters = ['all', 'English', 'Arabic', 'French', 'German', 'Russian', 'Spanish'];
+    final langFilters = [
+      'all',
+      'English',
+      'Arabic',
+      'French',
+      'German',
+      'Russian',
+      'Spanish',
+    ];
 
     final filteredGuides = guideProvider.guides.where((guide) {
       final matchesQuery = guide.fullName.toLowerCase().contains(_searchQuery) ||
@@ -61,14 +70,21 @@ class _GuideTabState extends State<GuideTab> {
     }).toList();
 
     return Scaffold(
-      backgroundColor: isDark ? AppColors.darkBlueColor : const Color(0xffF8FAFC),
+      backgroundColor: isDark
+          ? AppColors.darkBlueColor
+          : const Color(0xffF8FAFC),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // ── Header Section (Full Width Rounded Container matching Mockups) ──
           Container(
             width: double.infinity,
-            padding: EdgeInsets.fromLTRB(horizontalPadding, size.height * 0.06, horizontalPadding, 24),
+            padding: EdgeInsets.fromLTRB(
+              horizontalPadding,
+              size.height * 0.06,
+              horizontalPadding,
+              24,
+            ),
             decoration: const BoxDecoration(
               color: AppColors.primaryColor,
               borderRadius: BorderRadius.only(
@@ -115,7 +131,7 @@ class _GuideTabState extends State<GuideTab> {
                 final lang = langFilters[index];
                 final selected = _selectedLang == lang;
                 return ChoiceChip(
-                  label: Text(lang == 'all' ? 'all'.tr() : lang),
+                  label: Text(lang.tr()),
                   selected: selected,
                   onSelected: (_) {
                     setState(() {
@@ -124,15 +140,21 @@ class _GuideTabState extends State<GuideTab> {
                   },
                   showCheckmark: false,
                   selectedColor: AppColors.yellowColor,
-                  backgroundColor: isDark ? const Color(0xFF101E2E) : const Color(0xFFFBF6EE),
+                  backgroundColor: isDark
+                      ? const Color(0xFF101E2E)
+                      : const Color(0xFFFBF6EE),
                   side: BorderSide.none,
                   labelStyle: AppStyles.primary12Medium.copyWith(
                     color: selected
                         ? Colors.white
-                        : (isDark ? AppColors.blueColor : AppColors.primaryColor),
+                        : (isDark
+                              ? AppColors.blueColor
+                              : AppColors.primaryColor),
                     fontWeight: FontWeight.w700,
                   ),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(18),
+                  ),
                 );
               },
             ),
@@ -206,7 +228,9 @@ class _GuideTabState extends State<GuideTab> {
 
   Widget _buildSearchBar(bool isDark) {
     final fieldColor = isDark ? AppColors.bottomNavigationColor : Colors.white;
-    final borderColor = isDark ? AppColors.blueColor.withOpacity(0.18) : Colors.transparent;
+    final borderColor = isDark
+        ? AppColors.blueColor.withOpacity(0.18)
+        : Colors.transparent;
 
     return Container(
       decoration: BoxDecoration(
@@ -233,10 +257,16 @@ class _GuideTabState extends State<GuideTab> {
           hintText: 'search_guides_hint'.tr(),
           hintStyle: TextStyle(color: isDark ? AppColors.hint : Colors.grey),
           border: InputBorder.none,
-          prefixIcon: Icon(Icons.search, color: isDark ? AppColors.blueColor : Colors.grey),
+          prefixIcon: Icon(
+            Icons.search,
+            color: isDark ? AppColors.blueColor : Colors.grey,
+          ),
           suffixIcon: _searchController.text.isNotEmpty
               ? IconButton(
-                  icon: Icon(Icons.clear, color: isDark ? AppColors.blueColor : Colors.grey),
+                  icon: Icon(
+                    Icons.clear,
+                    color: isDark ? AppColors.blueColor : Colors.grey,
+                  ),
                   onPressed: () {
                     _searchController.clear();
                     setState(() {
@@ -245,7 +275,10 @@ class _GuideTabState extends State<GuideTab> {
                   },
                 )
               : null,
-          contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+          contentPadding: const EdgeInsets.symmetric(
+            vertical: 12,
+            horizontal: 16,
+          ),
         ),
       ),
     );
@@ -354,11 +387,78 @@ class _GuideTabState extends State<GuideTab> {
                               '(${guide.reviewCount})',
                               style: const TextStyle(color: Colors.grey, fontSize: 12),
                             ),
-                          ],
+                          ),
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.star,
+                                color: Colors.amber,
+                                size: 16,
+                              ),
+                              const SizedBox(width: 2),
+                              Text(
+                                guide['rating'],
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: isDark
+                                      ? Colors.white70
+                                      : Colors.black87,
+                                  fontSize: 13,
+                                ),
+                              ),
+                              const SizedBox(width: 2),
+                              Text(
+                                '(${guide['reviews']})',
+                                style: const TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        guide['speciality'],
+                        style: const TextStyle(
+                          color: AppColors.yellowColor,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: 2),
+                      ),
+                      const SizedBox(height: 2),
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.location_on_outlined,
+                            color: Colors.grey,
+                            size: 14,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            guide['location'],
+                            style: const TextStyle(
+                              color: Colors.grey,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            // Languages & Price row
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.language, color: Colors.grey, size: 16),
+                    const SizedBox(width: 6),
                     Text(
                       guide.specialization,
                       style: const TextStyle(color: AppColors.yellowColor, fontSize: 13, fontWeight: FontWeight.w600),
@@ -434,17 +534,17 @@ class _GuideTabState extends State<GuideTab> {
                 style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildEmptyState() {
-    return const Center(
+    return Center(
       child: Text(
-        'No guides found',
-        style: TextStyle(color: Colors.grey, fontSize: 14),
+        'no_guides_found'.tr(),
+        style: const TextStyle(color: Colors.grey, fontSize: 14),
       ),
     );
   }

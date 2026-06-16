@@ -148,6 +148,9 @@ class MapTap extends StatelessWidget {
                         padding: EdgeInsets.zero,
                         itemCount: mapProvider.searchPredictions.length,
                         itemBuilder: (context, index) {
+                          if (index >= mapProvider.searchPredictions.length) {
+                            return const SizedBox.shrink();
+                          }
                           final prediction =
                               mapProvider.searchPredictions[index];
                           return ListTile(

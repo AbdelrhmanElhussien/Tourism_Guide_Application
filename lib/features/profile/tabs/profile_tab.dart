@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:tourist_app/core/provider/themeProvider.dart';
 import 'package:tourist_app/core/utils/app_theme.dart';
 import 'package:tourist_app/core/utils/app_routes.dart';
+import 'package:tourist_app/core/utils/dialoge_utils.dart';
 
 class ProfileTab extends StatelessWidget {
   const ProfileTab({super.key});
@@ -150,9 +151,19 @@ class ProfileTab extends StatelessWidget {
                         isLight: isLight,
                         trailing: const SizedBox.shrink(),
                         onTap: () {
-                          Navigator.pushReplacementNamed(
-                            context,
-                            AppRoutes.loginRouteName,
+                          DialogeUtils.showMassage(
+                            context: context,
+                            title: 'sign_out'.tr(),
+                            masseage: 'are_you_sure_to_logout'.tr(),
+                            posActionName: 'yes_action'.tr(),
+                            posFun: () {
+                              Navigator.pushReplacementNamed(
+                                context,
+                                AppRoutes.loginRouteName,
+                              );
+                            },
+                            negActionName: 'cancel_action'.tr(),
+                            negFun: () {},
                           );
                         },
                       ),
