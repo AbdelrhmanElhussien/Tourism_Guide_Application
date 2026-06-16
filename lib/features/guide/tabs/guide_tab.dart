@@ -387,90 +387,34 @@ class _GuideTabState extends State<GuideTab> {
                               '(${guide.reviewCount})',
                               style: const TextStyle(color: Colors.grey, fontSize: 12),
                             ),
-                          ),
-                          Row(
-                            children: [
-                              const Icon(
-                                Icons.star,
-                                color: Colors.amber,
-                                size: 16,
-                              ),
-                              const SizedBox(width: 2),
-                              Text(
-                                guide['rating'],
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: isDark
-                                      ? Colors.white70
-                                      : Colors.black87,
-                                  fontSize: 13,
-                                ),
-                              ),
-                              const SizedBox(width: 2),
-                              Text(
-                                '(${guide['reviews']})',
-                                style: const TextStyle(
-                                  color: Colors.grey,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        guide['speciality'],
-                        style: const TextStyle(
-                          color: AppColors.yellowColor,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
+                          ],
                         ),
-                      ),
-                      const SizedBox(height: 2),
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.location_on_outlined,
-                            color: Colors.grey,
-                            size: 14,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            guide['location'],
-                            style: const TextStyle(
-                              color: Colors.grey,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            // Languages & Price row
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    const Icon(Icons.language, color: Colors.grey, size: 16),
-                    const SizedBox(width: 6),
+                      ],
+                    ),
+                    const SizedBox(height: 2),
                     Text(
                       guide.specialization,
-                      style: const TextStyle(color: AppColors.yellowColor, fontSize: 13, fontWeight: FontWeight.w600),
+                      style: const TextStyle(
+                        color: AppColors.yellowColor,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     const SizedBox(height: 2),
                     Row(
                       children: [
-                        const Icon(Icons.location_on_outlined, color: Colors.grey, size: 14),
+                        const Icon(
+                          Icons.location_on_outlined,
+                          color: Colors.grey,
+                          size: 14,
+                        ),
                         const SizedBox(width: 4),
                         Text(
                           guide.nationality,
-                          style: const TextStyle(color: Colors.grey, fontSize: 12),
+                          style: const TextStyle(
+                            color: Colors.grey,
+                            fontSize: 12,
+                          ),
                         ),
                       ],
                     ),
@@ -534,8 +478,8 @@ class _GuideTabState extends State<GuideTab> {
                 style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
