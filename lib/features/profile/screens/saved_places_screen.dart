@@ -98,7 +98,7 @@ class _SavedPlacesScreenState extends State<SavedPlacesScreen> {
                               ),
                               const SizedBox(width: 14),
                               Text(
-                                'saved_places'.tr(),
+                                'saved_places'.tr() == 'saved_places' ? 'Places' : 'saved_places'.tr(),
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 22,

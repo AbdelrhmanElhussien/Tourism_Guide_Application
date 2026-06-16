@@ -1,15 +1,21 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:tourist_app/core/di/di.dart';
 import 'package:tourist_app/core/provider/themeProvider.dart';
 import 'package:tourist_app/core/utils/app_theme.dart';
 import 'package:tourist_app/core/utils/app_routes.dart';
 import 'package:tourist_app/core/utils/dialoge_utils.dart';
 import 'package:tourist_app/features/home/widgets/top_circular_button.dart';
 import 'package:tourist_app/features/home/provider/place_provider.dart';
+import 'package:intl/intl.dart';
+import 'package:tourist_app/domain/use_cases/trips/create_trip_use_case.dart';
+import 'package:tourist_app/features/profile/cubit/profile_cubit.dart';
+import 'package:tourist_app/features/profile/cubit/profile_states.dart';
 
-enum DetailType { place, hotel, transport, guide }
+enum DetailType { place, hotel, transport, guide, program }
 
 class DetailArgs {
   final String? id;
@@ -81,6 +87,7 @@ class DetailScreen extends StatefulWidget {
 
 class _DetailScreenState extends State<DetailScreen> {
   bool isFavorite = false;
+  bool isVisited = false;
   bool _isInit = true;
   DetailArgs? _args;
 
@@ -283,7 +290,7 @@ class _DetailScreenState extends State<DetailScreen> {
           ),
         ),
 
-        // Action Buttons (Share, Favorite)
+        // Action Buttons (Share, Visited, Favorite)
         Positioned(
           top: 50,
           right: 20,
@@ -427,6 +434,38 @@ class _DetailScreenState extends State<DetailScreen> {
             Icons.location_on_outlined,
             "distance_label".tr(),
             args.distance ?? "15 km",
+            Colors.teal.shade50,
+            Colors.teal,
+            textColorPrimary,
+            textColorSec,
+          ),
+        ];
+        break;
+
+      case DetailType.program:
+        infoItems = [
+          _buildInfoItem(
+            Icons.access_time,
+            "duration_label".tr() == "duration_label" ? "Duration" : "duration_label".tr(),
+            args.duration ?? "1 Day",
+            Colors.orange.shade50,
+            Colors.orange,
+            textColorPrimary,
+            textColorSec,
+          ),
+          _buildInfoItem(
+            Icons.attach_money,
+            "price_label".tr(),
+            args.price ?? "200 EGP",
+            Colors.yellow.shade50,
+            Colors.orangeAccent,
+            textColorPrimary,
+            textColorSec,
+          ),
+          _buildInfoItem(
+            Icons.location_on_outlined,
+            "distance_label".tr(),
+            args.distance ?? "Egypt",
             Colors.teal.shade50,
             Colors.teal,
             textColorPrimary,
@@ -1157,5 +1196,12 @@ class _DetailScreenState extends State<DetailScreen> {
         ],
       ),
     );
+  }
+}
+
+extension on String {
+  String trDefault(String defaultValue) {
+    final translated = this.tr();
+    return translated == this ? defaultValue : translated;
   }
 }

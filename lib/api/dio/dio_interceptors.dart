@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tourist_app/core/exceptions/app_exception.dart';
 
 // class DioInterceptor1 extends InterceptorsWrapper {
@@ -22,6 +23,8 @@ import 'package:tourist_app/core/exceptions/app_exception.dart';
 //     super.onError(err, handler);
 //   }
 // }
+import 'package:tourist_app/core/utils/cache_helper.dart';
+
 class DioInterceptor implements Interceptor {
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
@@ -34,6 +37,10 @@ class DioInterceptor implements Interceptor {
     if (responseData is Map) {
       message =
           responseData['errors']?['msg'] ?? responseData['message'] ?? message;
+    } else if (err.response?.statusCode == 403) {
+      message = 'You are not authorized as a Service Provider. Please sign in with a provider account.';
+    } else if (err.response?.statusCode == 401) {
+      message = 'Unauthorized. Please sign in.';
     }
     switch (err.type) {
       case DioExceptionType.connectionTimeout:
@@ -71,10 +78,12 @@ class DioInterceptor implements Interceptor {
   }
 
   @override
-  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
     print('onRequest:${options.baseUrl}');
-    // TODO: implement onRequest
-    // options.headers.addAll({'x-Api-key':ApiConst.apiKey});
+    final token = CacheHelper.getData(key: 'token');
+    if (token != null) {
+      options.headers['Authorization'] = 'Bearer $token';
+    }
     handler.next(options);
   }
 

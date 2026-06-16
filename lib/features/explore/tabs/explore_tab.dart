@@ -3,6 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tourist_app/core/provider/themeProvider.dart';
 import 'package:tourist_app/core/utils/app_theme.dart';
+import 'package:tourist_app/features/explore/provider/hotel_provider.dart';
+import 'package:tourist_app/features/explore/provider/transport_provider.dart';
+import 'package:tourist_app/features/explore/provider/program_provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:tourist_app/features/booking/provider/booking_provider.dart';
+import 'package:tourist_app/core/utils/dialoge_utils.dart';
 import 'package:tourist_app/core/utils/app_routes.dart';
 import 'package:tourist_app/features/home/screens/detailed_screen.dart';
 
@@ -30,10 +36,38 @@ class _ExploreTabState extends State<ExploreTab> {
 
   String _searchQuery = '';
 
+  final ScrollController _hotelScrollController = ScrollController();
+  final ScrollController _transportScrollController = ScrollController();
+  final ScrollController _programScrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
     _selectedSegmentIndex = widget.initialSegment;
+
+    _hotelScrollController.addListener(() {
+      if (_hotelScrollController.position.pixels >= _hotelScrollController.position.maxScrollExtent - 200) {
+        context.read<HotelProvider>().fetchMoreHotels();
+      }
+    });
+
+    _transportScrollController.addListener(() {
+      if (_transportScrollController.position.pixels >= _transportScrollController.position.maxScrollExtent - 200) {
+        context.read<TransportProvider>().fetchMoreTransports();
+      }
+    });
+
+    _programScrollController.addListener(() {
+      if (_programScrollController.position.pixels >= _programScrollController.position.maxScrollExtent - 200) {
+        context.read<ProgramProvider>().fetchMorePrograms();
+      }
+    });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<HotelProvider>().fetchHotels();
+      context.read<TransportProvider>().fetchTransports();
+      context.read<ProgramProvider>().fetchPrograms();
+    });
   }
 
   @override
@@ -47,6 +81,9 @@ class _ExploreTabState extends State<ExploreTab> {
   @override
   void dispose() {
     _searchController.dispose();
+    _hotelScrollController.dispose();
+    _transportScrollController.dispose();
+    _programScrollController.dispose();
     super.dispose();
   }
 
@@ -435,99 +472,151 @@ class _ExploreTabState extends State<ExploreTab> {
       Icons.sailing_outlined,
     ];
 
-    // Select correct mock list
-    List<Map<String, dynamic>> rawList;
-    if (_selectedTransportSubcat == 0) {
-      rawList = _carsList;
-    } else if (_selectedTransportSubcat == 1) {
-      rawList = _cruisesList;
-    } else if (_selectedTransportSubcat == 2) {
-      rawList = _carriageList;
-    } else {
-      rawList = _feluccaList;
-    }
+    return Consumer<TransportProvider>(
+      builder: (context, transportProvider, child) {
+        if (transportProvider.isLoading) {
+          return const Center(
+            child: CircularProgressIndicator(color: AppColors.yellowColor),
+          );
+        }
 
-    final filteredList = rawList.where((item) {
-      return item['title'].toString().toLowerCase().contains(_searchQuery) ||
-          item['location'].toString().toLowerCase().contains(_searchQuery);
-    }).toList();
+        if (transportProvider.hasError) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.error_outline, size: 50, color: Colors.red),
+                const SizedBox(height: 16),
+                Text(transportProvider.errorMessage ?? 'Error', style: TextStyle(color: isDark ? Colors.white : Colors.black)),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () => transportProvider.fetchTransports(forceRefresh: true),
+                  style: ElevatedButton.styleFrom(backgroundColor: AppColors.yellowColor),
+                  child: Text('retry'.tr(), style: const TextStyle(color: Colors.white)),
+                )
+              ],
+            ),
+          );
+        }
 
-    return Column(
-      children: [
-        // Subcategory Chip Bar
-        SizedBox(
-          height: 38,
-          child: ListView.separated(
-            padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-            scrollDirection: Axis.horizontal,
-            itemCount: subcatKeys.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 10),
-            itemBuilder: (context, index) {
-              final selected = _selectedTransportSubcat == index;
-              return ChoiceChip(
-                avatar: Icon(
-                  subcatIcons[index],
-                  size: 16,
-                  color: selected
-                      ? Colors.white
-                      : (isDark
-                            ? AppColors.blueColor
-                            : AppColors.primaryColor),
-                ),
-                label: Text(subcatKeys[index].tr()),
-                selected: selected,
-                onSelected: (_) {
-                  setState(() {
-                    _selectedTransportSubcat = index;
-                  });
+        String targetType = '';
+        if (_selectedTransportSubcat == 0) targetType = 'Car';
+        else if (_selectedTransportSubcat == 1) targetType = 'Train'; 
+        else if (_selectedTransportSubcat == 2) targetType = 'Carriage';
+        else if (_selectedTransportSubcat == 3) targetType = 'Boat';
+
+        final filteredList = transportProvider.transports.where((item) {
+          bool matchesType = false;
+          if (_selectedTransportSubcat == 1) {
+            matchesType = item.type == 'Train' || item.type == 'Ferry' || item.type == 'Cruise';
+          } else {
+            matchesType = item.type == targetType;
+          }
+          bool matchesQuery = item.name.toLowerCase().contains(_searchQuery) ||
+              item.departureLocation.toLowerCase().contains(_searchQuery) ||
+              item.arrivalLocation.toLowerCase().contains(_searchQuery);
+          return matchesType && matchesQuery;
+        }).toList();
+
+        return Column(
+          children: [
+            SizedBox(
+              height: 38,
+              child: ListView.separated(
+                padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+                scrollDirection: Axis.horizontal,
+                itemCount: subcatKeys.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 10),
+                itemBuilder: (context, index) {
+                  final selected = _selectedTransportSubcat == index;
+                  return ChoiceChip(
+                    label: Row(
+                      children: [
+                        Icon(
+                          subcatIcons[index],
+                          size: 16,
+                          color: selected
+                              ? Colors.white
+                              : (isDark ? AppColors.blueColor : AppColors.primaryColor),
+                        ),
+                        const SizedBox(width: 6),
+                        Text(subcatKeys[index].tr()),
+                      ],
+                    ),
+                    selected: selected,
+                    onSelected: (_) {
+                      setState(() {
+                        _selectedTransportSubcat = index;
+                      });
+                    },
+                    showCheckmark: false,
+                    selectedColor: AppColors.yellowColor,
+                    backgroundColor: isDark ? const Color(0xFF101E2E) : const Color(0xFFFBF6EE),
+                    side: BorderSide.none,
+                    labelStyle: AppStyles.primary12Medium.copyWith(
+                      color: selected
+                          ? Colors.white
+                          : (isDark ? AppColors.blueColor : AppColors.primaryColor),
+                      fontWeight: FontWeight.w700,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                  );
                 },
-                showCheckmark: false,
-                selectedColor: AppColors.yellowColor,
-                backgroundColor: isDark
-                    ? const Color(0xFF101E2E)
-                    : const Color(0xFFFBF6EE),
-                side: BorderSide.none,
-                labelStyle: AppStyles.primary12Medium.copyWith(
-                  color: selected
-                      ? Colors.white
-                      : (isDark ? AppColors.blueColor : AppColors.primaryColor),
-                  fontWeight: FontWeight.w700,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(18),
-                ),
-              );
-            },
-          ),
-        ),
-        const SizedBox(height: 16),
-        // Item List
-        Expanded(
-          child: filteredList.isEmpty
-              ? _buildEmptyState()
-              : ListView.separated(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: horizontalPadding,
-                    vertical: 10,
-                  ),
-                  itemCount: filteredList.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 16),
-                  itemBuilder: (context, index) {
-                    final item = filteredList[index];
-                    return _buildTransportCard(
-                      title: item['title'],
-                      price: item['price'],
-                      location: item['location'],
-                      rating: item['rating'],
-                      reviews: item['reviews'],
-                      image: item['image'],
-                      buttonText: 'book_now'.tr(),
-                      isDark: isDark,
-                    );
-                  },
-                ),
-        ),
-      ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: filteredList.isEmpty
+                  ? _buildEmptyState()
+                  : RefreshIndicator(
+                      color: AppColors.yellowColor,
+                      onRefresh: () => transportProvider.fetchTransports(forceRefresh: true),
+                      child: ListView.separated(
+                        controller: _transportScrollController,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: horizontalPadding,
+                          vertical: 10,
+                        ),
+                        itemCount: filteredList.length + (transportProvider.isFetchingMore ? 1 : 0),
+                        separatorBuilder: (_, __) => const SizedBox(height: 16),
+                        itemBuilder: (context, index) {
+                          if (index == filteredList.length) {
+                            return const Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Center(child: CircularProgressIndicator(color: AppColors.yellowColor)),
+                            );
+                          }
+                          final item = filteredList[index];
+                          return _buildTransportCard(
+                            title: item.name,
+                            price: '\$${item.price.toStringAsFixed(0)}',
+                            location: '${item.departureLocation} → ${item.arrivalLocation}',
+                            rating: item.rating.toStringAsFixed(1),
+                            reviews: item.reviewCount.toString(),
+                            image: item.imageUrl,
+                            buttonText: 'book_now'.tr(),
+                            isDark: isDark,
+                            onBook: () async {
+                              try {
+                                DialogeUtils.showLoading(context: context, text: "loading_msg".tr());
+                                await context.read<BookingProvider>().bookItem('transport', item.id);
+                                DialogeUtils.hideLoading(context: context);
+                                DialogeUtils.showMassage(context: context, masseage: 'Booking Successful', title: 'Success', posActionName: 'OK');
+                              } catch (e) {
+                                DialogeUtils.hideLoading(context: context);
+                                DialogeUtils.showMassage(context: context, masseage: e.toString(), title: 'Error', posActionName: 'OK');
+                              }
+                            },
+                          );
+                        },
+                      ),
+                    ),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -543,97 +632,140 @@ class _ExploreTabState extends State<ExploreTab> {
     ];
     final subcatIcons = [Icons.star, Icons.star, Icons.star, Icons.star];
 
-    // Select correct mock list
-    List<Map<String, dynamic>> rawList;
-    if (_selectedHotelSubcat == 0) {
-      rawList = [];
-      _hotelsList.values.forEach((list) => rawList.addAll(list));
-    } else {
-      String currentKey = subcatKeys[_selectedHotelSubcat];
-      rawList = _hotelsList[currentKey] ?? [];
-    }
+    return Consumer<HotelProvider>(
+      builder: (context, hotelProvider, child) {
+        if (hotelProvider.isLoading) {
+          return const Center(
+            child: CircularProgressIndicator(color: AppColors.yellowColor),
+          );
+        }
 
-    final filteredList = rawList.where((item) {
-      return item['title'].toString().toLowerCase().contains(_searchQuery) ||
-          item['location'].toString().toLowerCase().contains(_searchQuery);
-    }).toList();
+        if (hotelProvider.hasError) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.error_outline, size: 50, color: Colors.red),
+                const SizedBox(height: 16),
+                Text(hotelProvider.errorMessage ?? 'Error', style: TextStyle(color: isDark ? Colors.white : Colors.black)),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () => hotelProvider.fetchHotels(forceRefresh: true),
+                  style: ElevatedButton.styleFrom(backgroundColor: AppColors.yellowColor),
+                  child: Text('retry'.tr(), style: const TextStyle(color: Colors.white)),
+                )
+              ],
+            ),
+          );
+        }
 
-    return Column(
-      children: [
-        // Subcategory ChoiceChip Bar
-        SizedBox(
-          height: 38,
-          child: ListView.separated(
-            padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-            scrollDirection: Axis.horizontal,
-            itemCount: subcatKeys.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 10),
-            itemBuilder: (context, index) {
-              final selected = _selectedHotelSubcat == index;
-              return ChoiceChip(
-                avatar: Icon(
-                  subcatIcons[index],
-                  size: 16,
-                  color: selected
-                      ? Colors.white
-                      : (isDark
-                            ? AppColors.blueColor
-                            : AppColors.primaryColor),
-                ),
-                label: Text(subcatKeys[index].tr()),
-                selected: selected,
-                onSelected: (_) {
-                  setState(() {
-                    _selectedHotelSubcat = index;
-                  });
+        int targetStars = 5 - _selectedHotelSubcat;
+        final filteredList = hotelProvider.hotels.where((item) {
+          bool matchesStars = item.starRating == targetStars;
+          bool matchesQuery = item.name.toLowerCase().contains(_searchQuery) ||
+              item.location.toLowerCase().contains(_searchQuery);
+          return matchesStars && matchesQuery;
+        }).toList();
+
+        return Column(
+          children: [
+            SizedBox(
+              height: 38,
+              child: ListView.separated(
+                padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+                scrollDirection: Axis.horizontal,
+                itemCount: subcatKeys.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 10),
+                itemBuilder: (context, index) {
+                  final selected = _selectedHotelSubcat == index;
+                  return ChoiceChip(
+                    label: Row(
+                      children: [
+                        Icon(
+                          subcatIcons[index],
+                          size: 16,
+                          color: selected
+                              ? Colors.white
+                              : (isDark ? AppColors.blueColor : AppColors.primaryColor),
+                        ),
+                        const SizedBox(width: 6),
+                        Text(subcatKeys[index].tr()),
+                      ],
+                    ),
+                    selected: selected,
+                    onSelected: (_) {
+                      setState(() {
+                        _selectedHotelSubcat = index;
+                      });
+                    },
+                    showCheckmark: false,
+                    selectedColor: AppColors.yellowColor,
+                    backgroundColor: isDark ? const Color(0xFF101E2E) : const Color(0xFFFBF6EE),
+                    side: BorderSide.none,
+                    labelStyle: AppStyles.primary12Medium.copyWith(
+                      color: selected
+                          ? Colors.white
+                          : (isDark ? AppColors.blueColor : AppColors.primaryColor),
+                      fontWeight: FontWeight.w700,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                  );
                 },
-                showCheckmark: false,
-                selectedColor: AppColors.yellowColor,
-                backgroundColor: isDark
-                    ? const Color(0xFF101E2E)
-                    : const Color(0xFFFBF6EE),
-                side: BorderSide.none,
-                labelStyle: AppStyles.primary12Medium.copyWith(
-                  color: selected
-                      ? Colors.white
-                      : (isDark ? AppColors.blueColor : AppColors.primaryColor),
-                  fontWeight: FontWeight.w700,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(18),
-                ),
-              );
-            },
-          ),
-        ),
-        const SizedBox(height: 16),
-        // Item List
-        Expanded(
-          child: filteredList.isEmpty
-              ? _buildEmptyState()
-              : ListView.separated(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: horizontalPadding,
-                    vertical: 10,
-                  ),
-                  itemCount: filteredList.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 16),
-                  itemBuilder: (context, index) {
-                    final item = filteredList[index];
-                    return _buildHotelCard(
-                      title: item['title'],
-                      price: item['price'],
-                      location: item['location'],
-                      rating: item['rating'],
-                      reviews: item['reviews'],
-                      image: item['image'],
-                      buttonText: 'book'.tr(),
-                      isDark: isDark,
-                    );
-                  },
-                ),
-        ),
-      ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: filteredList.isEmpty
+                  ? _buildEmptyState()
+                  : RefreshIndicator(
+                      color: AppColors.yellowColor,
+                      onRefresh: () => hotelProvider.fetchHotels(forceRefresh: true),
+                      child: ListView.separated(
+                        controller: _hotelScrollController,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: horizontalPadding,
+                          vertical: 10,
+                        ),
+                        itemCount: filteredList.length + (hotelProvider.isFetchingMore ? 1 : 0),
+                        separatorBuilder: (_, __) => const SizedBox(height: 16),
+                        itemBuilder: (context, index) {
+                          if (index == filteredList.length) {
+                            return const Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Center(child: CircularProgressIndicator(color: AppColors.yellowColor)),
+                            );
+                          }
+                          final item = filteredList[index];
+                          return _buildHotelCard(
+                            title: item.name,
+                            price: '\$${item.pricePerNight.toStringAsFixed(0)}/night',
+                            location: item.location,
+                            rating: item.rating.toStringAsFixed(1),
+                            reviews: item.reviewCount.toString(),
+                            image: item.imageUrl,
+                            buttonText: 'book'.tr(),
+                            isDark: isDark,
+                            onBook: () async {
+                              try {
+                                DialogeUtils.showLoading(context: context, text: "loading_msg".tr());
+                                await context.read<BookingProvider>().bookItem('hotel', item.id);
+                                DialogeUtils.hideLoading(context: context);
+                                DialogeUtils.showMassage(context: context, masseage: 'Booking Successful', title: 'Success', posActionName: 'OK');
+                              } catch (e) {
+                                DialogeUtils.hideLoading(context: context);
+                                DialogeUtils.showMassage(context: context, masseage: e.toString(), title: 'Error', posActionName: 'OK');
+                              }
+                            },
+                          );
+                        },
+                      ),
+                    ),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -649,88 +781,156 @@ class _ExploreTabState extends State<ExploreTab> {
       Icons.access_time_outlined,
     ];
 
-    final filteredList = _programsList.where((item) {
-      return item['title'].toString().toLowerCase().contains(_searchQuery);
-    }).toList();
+    return Consumer<ProgramProvider>(
+      builder: (context, programProvider, child) {
+        if (programProvider.isLoading) {
+          return const Center(
+            child: CircularProgressIndicator(color: AppColors.yellowColor),
+          );
+        }
 
-    return Column(
-      children: [
-        // Filter tags chip bar
-        SizedBox(
-          height: 38,
-          child: ListView.separated(
-            padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-            scrollDirection: Axis.horizontal,
-            itemCount: programChips.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 10),
-            itemBuilder: (context, index) {
-              final selected = _selectedProgramChip == index;
-              return ChoiceChip(
-                avatar: Icon(
-                  programIcons[index],
-                  size: 16,
-                  color: selected
-                      ? Colors.white
-                      : (isDark
-                            ? AppColors.blueColor
-                            : AppColors.primaryColor),
-                ),
-                label: Text(programChips[index].tr()),
-                selected: selected,
-                onSelected: (_) {
-                  setState(() {
-                    _selectedProgramChip = index;
-                  });
+        if (programProvider.hasError) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.error_outline, size: 50, color: Colors.red),
+                const SizedBox(height: 16),
+                Text(programProvider.errorMessage ?? 'Error', style: TextStyle(color: isDark ? Colors.white : Colors.black)),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () => programProvider.fetchPrograms(forceRefresh: true),
+                  style: ElevatedButton.styleFrom(backgroundColor: AppColors.yellowColor),
+                  child: Text('retry'.tr(), style: const TextStyle(color: Colors.white)),
+                )
+              ],
+            ),
+          );
+        }
+
+        final filteredList = programProvider.programs.where((item) {
+          return item.name.toLowerCase().contains(_searchQuery) ||
+                 item.location.toLowerCase().contains(_searchQuery) ||
+                 item.city.toLowerCase().contains(_searchQuery);
+        }).toList();
+
+        // Implement sorting based on selected chip if needed
+        if (_selectedProgramChip == 2) {
+          // Sort by price
+          filteredList.sort((a, b) => a.price.compareTo(b.price));
+        } else if (_selectedProgramChip == 3) {
+          // Sort by duration
+          filteredList.sort((a, b) => a.duration.compareTo(b.duration));
+        } else if (_selectedProgramChip == 1) {
+          // Sort by rating (recommended)
+          filteredList.sort((a, b) => b.rating.compareTo(a.rating));
+        } else {
+          // Popular - sort by reviews
+          filteredList.sort((a, b) => b.reviewCount.compareTo(a.reviewCount));
+        }
+
+        return Column(
+          children: [
+            SizedBox(
+              height: 38,
+              child: ListView.separated(
+                padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+                scrollDirection: Axis.horizontal,
+                itemCount: programChips.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 10),
+                itemBuilder: (context, index) {
+                  final selected = _selectedProgramChip == index;
+                  return ChoiceChip(
+                    label: Row(
+                      children: [
+                        Icon(
+                          programIcons[index],
+                          size: 16,
+                          color: selected
+                              ? Colors.white
+                              : (isDark ? AppColors.blueColor : AppColors.primaryColor),
+                        ),
+                        const SizedBox(width: 6),
+                        Text(programChips[index].tr()),
+                      ],
+                    ),
+                    selected: selected,
+                    onSelected: (_) {
+                      setState(() {
+                        _selectedProgramChip = index;
+                      });
+                    },
+                    showCheckmark: false,
+                    selectedColor: AppColors.yellowColor,
+                    backgroundColor: isDark ? const Color(0xFF101E2E) : const Color(0xFFFBF6EE),
+                    side: BorderSide.none,
+                    labelStyle: AppStyles.primary12Medium.copyWith(
+                      color: selected
+                          ? Colors.white
+                          : (isDark ? AppColors.blueColor : AppColors.primaryColor),
+                      fontWeight: FontWeight.w700,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                  );
                 },
-                showCheckmark: false,
-                selectedColor: AppColors.yellowColor,
-                backgroundColor: isDark
-                    ? const Color(0xFF101E2E)
-                    : const Color(0xFFFBF6EE),
-                side: BorderSide.none,
-                labelStyle: AppStyles.primary12Medium.copyWith(
-                  color: selected
-                      ? Colors.white
-                      : (isDark ? AppColors.blueColor : AppColors.primaryColor),
-                  fontWeight: FontWeight.w700,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(18),
-                ),
-              );
-            },
-          ),
-        ),
-        const SizedBox(height: 16),
-        // Item List
-        Expanded(
-          child: filteredList.isEmpty
-              ? _buildEmptyState()
-              : ListView.separated(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: horizontalPadding,
-                    vertical: 10,
-                  ),
-                  itemCount: filteredList.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 16),
-                  itemBuilder: (context, index) {
-                    final item = filteredList[index];
-                    return _buildProgramCard(
-                      title: item['title'],
-                      price: item['price'],
-                      duration: item['duration'],
-                      rating: item['rating'],
-                      reviews: item['reviews'],
-                      image: item['image'],
-                      buttonText: 'book_program'.tr(),
-                      isDark: isDark,
-                    );
-                  },
-                ),
-        ),
-      ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: filteredList.isEmpty
+                  ? _buildEmptyState()
+                  : RefreshIndicator(
+                      color: AppColors.yellowColor,
+                      onRefresh: () => programProvider.fetchPrograms(forceRefresh: true),
+                      child: ListView.separated(
+                        controller: _programScrollController,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: horizontalPadding,
+                          vertical: 10,
+                        ),
+                        itemCount: filteredList.length + (programProvider.isFetchingMore ? 1 : 0),
+                        separatorBuilder: (_, __) => const SizedBox(height: 16),
+                        itemBuilder: (context, index) {
+                          if (index == filteredList.length) {
+                            return const Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Center(child: CircularProgressIndicator(color: AppColors.yellowColor)),
+                            );
+                          }
+                          final item = filteredList[index];
+                          return _buildProgramCard(
+                            title: item.name,
+                            price: '\$${item.price.toStringAsFixed(0)}',
+                            duration: '${item.duration} hrs',
+                            rating: item.rating.toStringAsFixed(1),
+                            reviews: item.reviewCount.toString(),
+                            image: item.imageUrl,
+                            buttonText: 'book_program'.tr(),
+                            isDark: isDark,
+                            onBook: () async {
+                              try {
+                                DialogeUtils.showLoading(context: context, text: "loading_msg".tr());
+                                await context.read<BookingProvider>().bookItem('program', item.id);
+                                DialogeUtils.hideLoading(context: context);
+                                DialogeUtils.showMassage(context: context, masseage: 'Booking Successful', title: 'Success', posActionName: 'OK');
+                              } catch (e) {
+                                DialogeUtils.hideLoading(context: context);
+                                DialogeUtils.showMassage(context: context, masseage: e.toString(), title: 'Error', posActionName: 'OK');
+                              }
+                            },
+                          );
+                        },
+                      ),
+                    ),
+            ),
+          ],
+        );
+      },
     );
   }
+
 
   // ── Card Styles ──
 
@@ -743,6 +943,7 @@ class _ExploreTabState extends State<ExploreTab> {
     required String image,
     required String buttonText,
     required bool isDark,
+    VoidCallback? onBook,
   }) {
     return GestureDetector(
       onTap: () {
@@ -754,11 +955,9 @@ class _ExploreTabState extends State<ExploreTab> {
             title: title,
             location: location,
             rating: double.tryParse(rating) ?? 4.5,
-            reviewsCount:
-                int.tryParse(reviews.replaceAll(RegExp(r'[^0-9]'), '')) ?? 100,
+            reviewsCount: int.tryParse(reviews.replaceAll(RegExp(r'[^0-9]'), '')) ?? 100,
             networkImage: image,
-            about:
-                "Enjoy a comfortable ride with our top-rated transport service.",
+            about: "Enjoy a comfortable ride with our top-rated transport service.",
             price: price,
             transportType: "Transport",
           ),
@@ -769,9 +968,7 @@ class _ExploreTabState extends State<ExploreTab> {
           color: isDark ? AppColors.bottomNavigationColor : Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isDark
-                ? Colors.white.withOpacity(0.06)
-                : Colors.black.withOpacity(0.04),
+            color: isDark ? Colors.white.withOpacity(0.06) : Colors.black.withOpacity(0.04),
             width: 1.5,
           ),
           boxShadow: [
@@ -787,18 +984,22 @@ class _ExploreTabState extends State<ExploreTab> {
           children: [
             // Image
             ClipRRect(
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(16),
-              ),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
               child: SizedBox(
                 height: 160,
                 width: double.infinity,
-                child: Image.network(
-                  image,
+                child: CachedNetworkImage(
+                  imageUrl: image,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(
+                  placeholder: (context, url) => Container(
+                    color: isDark ? AppColors.bottomNavigationColor : Colors.grey[200],
+                    child: const Center(
+                      child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.yellowColor),
+                    ),
+                  ),
+                  errorWidget: (context, url, error) => Container(
                     color: Colors.grey[300],
-                    child: const Icon(Icons.image_not_supported),
+                    child: const Icon(Icons.error_outline, color: Colors.red),
                   ),
                 ),
               ),
@@ -818,9 +1019,7 @@ class _ExploreTabState extends State<ExploreTab> {
                           style: TextStyle(
                             fontSize: 17,
                             fontWeight: FontWeight.bold,
-                            color: isDark
-                                ? Colors.white
-                                : AppColors.primaryColor,
+                            color: isDark ? Colors.white : AppColors.primaryColor,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -840,18 +1039,11 @@ class _ExploreTabState extends State<ExploreTab> {
                   const SizedBox(height: 6),
                   Row(
                     children: [
-                      const Icon(
-                        Icons.location_on_outlined,
-                        color: Colors.grey,
-                        size: 15,
-                      ),
+                      const Icon(Icons.location_on_outlined, color: Colors.grey, size: 15),
                       const SizedBox(width: 4),
                       Text(
                         location,
-                        style: const TextStyle(
-                          color: Colors.grey,
-                          fontSize: 13,
-                        ),
+                        style: const TextStyle(color: Colors.grey, fontSize: 13),
                       ),
                     ],
                   ),
@@ -871,10 +1063,7 @@ class _ExploreTabState extends State<ExploreTab> {
                       const SizedBox(width: 4),
                       Text(
                         '($reviews)',
-                        style: const TextStyle(
-                          color: Colors.grey,
-                          fontSize: 12,
-                        ),
+                        style: const TextStyle(color: Colors.grey, fontSize: 12),
                       ),
                     ],
                   ),
@@ -884,15 +1073,10 @@ class _ExploreTabState extends State<ExploreTab> {
                     width: double.infinity,
                     height: 42,
                     child: OutlinedButton(
-                      onPressed: () {},
+                      onPressed: onBook ?? () {},
                       style: OutlinedButton.styleFrom(
-                        side: const BorderSide(
-                          color: AppColors.yellowColor,
-                          width: 1.5,
-                        ),
-                        backgroundColor: isDark
-                            ? const Color(0xFF0B1825)
-                            : Colors.white,
+                        side: const BorderSide(color: AppColors.yellowColor, width: 1.5),
+                        backgroundColor: isDark ? const Color(0xFF0B1825) : Colors.white,
                         foregroundColor: AppColors.yellowColor,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
@@ -925,6 +1109,7 @@ class _ExploreTabState extends State<ExploreTab> {
     required String image,
     required String buttonText,
     required bool isDark,
+    VoidCallback? onBook,
   }) {
     return GestureDetector(
       onTap: () {
@@ -936,8 +1121,7 @@ class _ExploreTabState extends State<ExploreTab> {
             title: title,
             location: location,
             rating: double.tryParse(rating) ?? 4.5,
-            reviewsCount:
-                int.tryParse(reviews.replaceAll(RegExp(r'[^0-9]'), '')) ?? 100,
+            reviewsCount: int.tryParse(reviews.replaceAll(RegExp(r'[^0-9]'), '')) ?? 100,
             networkImage: image,
             about: "Experience luxury and comfort at $title.",
             price: price,
@@ -951,22 +1135,13 @@ class _ExploreTabState extends State<ExploreTab> {
           color: isDark ? AppColors.bottomNavigationColor : Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isDark
-                ? Colors.white.withOpacity(0.06)
-                : Colors.black.withOpacity(0.04),
+            color: isDark ? Colors.white.withOpacity(0.06) : Colors.black.withOpacity(0.04),
             width: 1.5,
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.04),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
         ),
         child: Row(
           children: [
-            // Left image
+            // Image
             Padding(
               padding: const EdgeInsets.all(10.0),
               child: ClipRRect(
@@ -974,18 +1149,24 @@ class _ExploreTabState extends State<ExploreTab> {
                 child: SizedBox(
                   width: 104,
                   height: 104,
-                  child: Image.network(
-                    image,
+                  child: CachedNetworkImage(
+                    imageUrl: image,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
+                    placeholder: (context, url) => Container(
+                      color: isDark ? AppColors.bottomNavigationColor : Colors.grey[200],
+                      child: const Center(
+                        child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.yellowColor),
+                      ),
+                    ),
+                    errorWidget: (context, url, error) => Container(
                       color: Colors.grey[300],
-                      child: const Icon(Icons.image_not_supported),
+                      child: const Icon(Icons.error_outline, color: Colors.red),
                     ),
                   ),
                 ),
               ),
             ),
-            // Right details
+            // Details
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(2, 10, 12, 10),
@@ -1060,7 +1241,7 @@ class _ExploreTabState extends State<ExploreTab> {
                         SizedBox(
                           height: 28,
                           child: ElevatedButton(
-                            onPressed: () {},
+                            onPressed: onBook ?? () {},
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.yellowColor,
                               foregroundColor: Colors.white,
@@ -1102,6 +1283,7 @@ class _ExploreTabState extends State<ExploreTab> {
     required String image,
     required String buttonText,
     required bool isDark,
+    VoidCallback? onBook,
   }) {
     return GestureDetector(
       onTap: () {
@@ -1113,8 +1295,7 @@ class _ExploreTabState extends State<ExploreTab> {
             title: title,
             location: "Egypt",
             rating: double.tryParse(rating) ?? 4.5,
-            reviewsCount:
-                int.tryParse(reviews.replaceAll(RegExp(r'[^0-9]'), '')) ?? 100,
+            reviewsCount: int.tryParse(reviews.replaceAll(RegExp(r'[^0-9]'), '')) ?? 100,
             networkImage: image,
             about: "Discover our recommended program: $title.",
             price: price,
@@ -1127,9 +1308,7 @@ class _ExploreTabState extends State<ExploreTab> {
           color: isDark ? AppColors.bottomNavigationColor : Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isDark
-                ? Colors.white.withOpacity(0.06)
-                : Colors.black.withOpacity(0.04),
+            color: isDark ? Colors.white.withOpacity(0.06) : Colors.black.withOpacity(0.04),
             width: 1.5,
           ),
           boxShadow: [
@@ -1153,14 +1332,18 @@ class _ExploreTabState extends State<ExploreTab> {
                 width: double.infinity,
                 child: Stack(
                   children: [
-                    Image.network(
-                      image,
-                      width: double.infinity,
-                      height: double.infinity,
+                    CachedNetworkImage(
+                      imageUrl: image,
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(
+                      placeholder: (context, url) => Container(
+                        color: isDark ? AppColors.bottomNavigationColor : Colors.grey[200],
+                        child: const Center(
+                          child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.yellowColor),
+                        ),
+                      ),
+                      errorWidget: (context, url, error) => Container(
                         color: Colors.grey[300],
-                        child: const Icon(Icons.image_not_supported),
+                        child: const Icon(Icons.error_outline, color: Colors.red),
                       ),
                     ),
                     Positioned(
@@ -1215,9 +1398,7 @@ class _ExploreTabState extends State<ExploreTab> {
                           style: TextStyle(
                             fontSize: 17,
                             fontWeight: FontWeight.bold,
-                            color: isDark
-                                ? Colors.white
-                                : AppColors.primaryColor,
+                            color: isDark ? Colors.white : AppColors.primaryColor,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -1263,7 +1444,7 @@ class _ExploreTabState extends State<ExploreTab> {
                     width: double.infinity,
                     height: 42,
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: onBook ?? () {},
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.yellowColor,
                         foregroundColor: Colors.white,
