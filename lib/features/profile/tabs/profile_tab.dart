@@ -8,8 +8,15 @@ import 'package:tourist_app/core/provider/themeProvider.dart';
 import 'package:tourist_app/core/utils/app_theme.dart';
 import 'package:tourist_app/core/utils/app_routes.dart';
 import 'package:tourist_app/core/utils/dialoge_utils.dart';
+import 'package:tourist_app/core/utils/cache_helper.dart';
 import 'package:tourist_app/features/profile/cubit/profile_cubit.dart';
 import 'package:tourist_app/features/profile/cubit/profile_states.dart';
+import 'package:tourist_app/features/home/provider/place_provider.dart';
+import 'package:tourist_app/features/guide/provider/guide_provider.dart';
+import 'package:tourist_app/features/explore/provider/hotel_provider.dart';
+import 'package:tourist_app/features/explore/provider/transport_provider.dart';
+import 'package:tourist_app/features/explore/provider/program_provider.dart';
+import 'package:tourist_app/features/booking/provider/booking_provider.dart';
 
 class ProfileTab extends StatelessWidget {
   const ProfileTab({super.key});
@@ -19,6 +26,13 @@ class ProfileTab extends StatelessWidget {
     var themeProvider = Provider.of<Themeprovider>(context);
     bool isLight = themeProvider.apptheme == ThemeMode.light;
     final size = MediaQuery.of(context).size;
+
+    final String? role = CacheHelper.getData(key: 'role') as String?;
+    final bool showServiceProvider = role != null &&
+        (role.toLowerCase() == 'serviceprovider' ||
+         role.toLowerCase() == 'service provider' ||
+         role.toLowerCase() == 'provider' ||
+         role.toLowerCase() == 'admin');
 
     return BlocProvider(
       create: (context) => getIt<ProfileCubit>()..fetchProfileData(),
@@ -91,17 +105,17 @@ class ProfileTab extends StatelessWidget {
                                   icon: Icons.calendar_month_outlined,
                                   iconColor: AppColors.yellowColor,
                                   iconBgColor: const Color(0xFFFEF9EC),
-                                  title: 'my_trips'.tr(),
+                                  title: 'my_bookings'.tr(),
                                   isLight: isLight,
                                   onTap: () {
-                                    Navigator.pushNamed(context, AppRoutes.myTripsRouteName);
+                                    Navigator.pushNamed(context, AppRoutes.myBookingsRouteName);
                                   },
                                 ),
                                 _buildMenuItem(
                                   icon: Icons.favorite_border_outlined,
                                   iconColor: const Color(0xFF1ABC9C),
                                   iconBgColor: const Color(0xFFEBF7F5),
-                                  title: 'saved_places'.tr(),
+                                  title: 'saved'.tr(),
                                   isLight: isLight,
                                   onTap: () async {
                                     await Navigator.pushNamed(context, AppRoutes.savedPlacesRouteName);
@@ -118,19 +132,20 @@ class ProfileTab extends StatelessWidget {
                                   isLight: isLight,
                                   onTap: () {},
                                 ),
-                                _buildMenuItem(
-                                  icon: Icons.business_center_outlined,
-                                  iconColor: AppColors.yellowColor,
-                                  iconBgColor: const Color(0xFFFEF9EC),
-                                  title: 'service_provider'.tr(),
-                                  isLight: isLight,
-                                  onTap: () {
-                                    Navigator.pushNamed(
-                                      context,
-                                      AppRoutes.serviceProviderRouteName,
-                                    );
-                                  },
-                                ),
+                                if (showServiceProvider)
+                                  _buildMenuItem(
+                                    icon: Icons.business_center_outlined,
+                                    iconColor: AppColors.yellowColor,
+                                    iconBgColor: const Color(0xFFFEF9EC),
+                                    title: 'service_provider'.tr(),
+                                    isLight: isLight,
+                                    onTap: () {
+                                      Navigator.pushNamed(
+                                        context,
+                                        AppRoutes.serviceProviderRouteName,
+                                      );
+                                    },
+                                  ),
                               ],
                             ),
 
@@ -212,11 +227,36 @@ class ProfileTab extends StatelessWidget {
                                       title: 'sign_out'.tr(),
                                       masseage: 'are_you_sure_to_logout'.tr(),
                                       posActionName: 'yes_action'.tr(),
-                                      posFun: () {
-                                        Navigator.pushReplacementNamed(
-                                          context,
-                                          AppRoutes.loginRouteName,
-                                        );
+                                      posFun: () async {
+                                        // 1. Clear caches of all providers
+                                        try {
+                                          Provider.of<PlaceProvider>(context, listen: false).clearCache();
+                                        } catch (_) {}
+                                        try {
+                                          Provider.of<GuideProvider>(context, listen: false).clearCache();
+                                        } catch (_) {}
+                                        try {
+                                          Provider.of<HotelProvider>(context, listen: false).clearCache();
+                                        } catch (_) {}
+                                        try {
+                                          Provider.of<TransportProvider>(context, listen: false).clearCache();
+                                        } catch (_) {}
+                                        try {
+                                          Provider.of<ProgramProvider>(context, listen: false).clearCache();
+                                        } catch (_) {}
+                                        try {
+                                          Provider.of<BookingProvider>(context, listen: false).clearCache();
+                                        } catch (_) {}
+
+                                        // 2. Clear credentials from CacheHelper
+                                        await CacheHelper.clearData();
+
+                                        if (context.mounted) {
+                                          Navigator.pushReplacementNamed(
+                                            context,
+                                            AppRoutes.loginRouteName,
+                                          );
+                                        }
                                       },
                                       negActionName: 'cancel_action'.tr(),
                                       negFun: () {},

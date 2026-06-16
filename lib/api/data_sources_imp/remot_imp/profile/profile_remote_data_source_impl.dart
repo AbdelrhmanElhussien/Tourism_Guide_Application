@@ -1,5 +1,6 @@
 import 'package:injectable/injectable.dart';
 import 'package:tourist_app/api/api_services.dart';
+import 'package:tourist_app/api/model/response/auth/UserDto.dart';
 import 'package:tourist_app/api/model/response/profile/place_dto.dart';
 import 'package:tourist_app/data/data_sources/remot/profile/profile_remote_data_source.dart';
 
@@ -10,8 +11,8 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
   ProfileRemoteDataSourceImpl(this._apiServices);
 
   @override
-  Future<String> getUsername() async {
-    return await _apiServices.getUsername();
+  Future<UserDto> getProfileMe() async {
+    return await _apiServices.getProfileMe();
   }
 
   @override

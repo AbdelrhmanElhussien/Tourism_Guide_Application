@@ -15,7 +15,12 @@ class TokensDto {
   });
 
   factory TokensDto.fromJson(Map<String, dynamic> json) {
-    return _$TokensDtoFromJson(json);
+    final token = json['token'] as String? ?? json['Token'] as String?;
+    final message = json['message'] as String? ?? json['Message'] as String?;
+    return TokensDto(
+      token: token,
+      message: message,
+    );
   }
 
   Map<String, dynamic> toJson() {
@@ -42,7 +47,29 @@ class Auth_response_dto {
   });
 
   factory Auth_response_dto.fromJson(Map<String, dynamic> json) {
-    return _$Auth_response_dtoFromJson(json);
+    final email = json['email'] as String? ?? json['Email'] as String?;
+    final userName = json['userName'] as String? ?? json['UserName'] as String? ?? json['username'] as String? ?? json['Username'] as String?;
+    final role = json['role'] as String? ?? json['Role'] as String?;
+    
+    TokensDto? tokens;
+    final tokensVal = json['tokens'] ?? json['Tokens'];
+    if (tokensVal != null && tokensVal is Map<String, dynamic>) {
+      tokens = TokensDto.fromJson(tokensVal);
+    } else {
+      final directToken = json['token'] as String? ?? json['Token'] as String? ?? json['token_key'] as String?;
+      if (directToken != null) {
+        tokens = TokensDto(
+          token: directToken,
+          message: json['message'] as String? ?? json['Message'] as String?,
+        );
+      }
+    }
+    return Auth_response_dto(
+      tokens: tokens,
+      email: email,
+      userName: userName,
+      role: role,
+    );
   }
 
   Map<String, dynamic> toJson() {

@@ -23,7 +23,20 @@ class BookingProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _bookings = await _bookingService.fetchMyBookings();
+      final list = await _bookingService.fetchMyBookings();
+      // Sort descending (newest bookings first)
+      list.sort((a, b) {
+        if (a.date == null) return 1;
+        if (b.date == null) return -1;
+        try {
+          final dateA = DateTime.parse(a.date!);
+          final dateB = DateTime.parse(b.date!);
+          return dateB.compareTo(dateA);
+        } catch (_) {
+          return 0;
+        }
+      });
+      _bookings = list;
     } catch (e) {
       _errorMessage = e.toString().replaceAll('Exception: ', '');
     } finally {
@@ -68,6 +81,13 @@ class BookingProvider extends ChangeNotifier {
   }
 
   void clearError() {
+    _errorMessage = null;
+    notifyListeners();
+  }
+
+  void clearCache() {
+    _bookings = [];
+    _isLoading = false;
     _errorMessage = null;
     notifyListeners();
   }

@@ -92,8 +92,13 @@ class BookingService {
     String message = 'Something went wrong';
 
     if (errorData is Map) {
-      message = errorData['errors']?['msg'] ?? errorData['message'] ?? message;
+      message = errorData['errors']?['msg'] ?? errorData['message'] ?? errorData['error'] ?? message;
+    } else if (errorData is String && errorData.isNotEmpty) {
+      message = errorData;
     }
+
+    final statusCode = e.response?.statusCode;
+    final statusText = statusCode != null ? ' (Status $statusCode)' : '';
 
     switch (e.type) {
       case DioExceptionType.connectionTimeout:
@@ -102,11 +107,11 @@ class BookingService {
       case DioExceptionType.connectionError:
         return Exception('Please check your internet connection');
       case DioExceptionType.badResponse:
-        return Exception(message);
+        return Exception('$message$statusText');
       case DioExceptionType.cancel:
         return Exception('Request was cancelled');
       default:
-        return Exception(message);
+        return Exception('$message$statusText');
     }
   }
 }

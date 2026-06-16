@@ -2,16 +2,17 @@ import 'package:dio/dio.dart';
 import 'package:tourist_app/api/api_constant.dart';
 import 'package:tourist_app/features/explore/models/program_model.dart';
 
+import 'package:tourist_app/core/di/di.dart';
+
 class ProgramService {
   final Dio _dio;
 
   ProgramService({Dio? dio})
-      : _dio = dio ??
-            Dio(BaseOptions(
+      : _dio = dio ?? (getIt.isRegistered<Dio>() ? getIt<Dio>() : Dio(BaseOptions(
               baseUrl: ApiConstant.baseUrl,
               receiveTimeout: const Duration(seconds: 10),
               sendTimeout: const Duration(seconds: 10),
-            ));
+            )));
 
   Future<List<ProgramModel>> fetchPrograms({int page = 1, int limit = 10}) async {
     try {

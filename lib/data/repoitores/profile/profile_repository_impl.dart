@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:injectable/injectable.dart';
 import 'package:tourist_app/api/mapper/profile/profile_mappers.dart';
 import 'package:tourist_app/data/data_sources/remot/profile/profile_remote_data_source.dart';
+import 'package:tourist_app/domain/entities/response/auth/User.dart';
 import 'package:tourist_app/domain/repositories/profile/profile_repo_contract.dart';
 import 'package:tourist_app/features/home/widgets/tourism_destination.dart';
 
@@ -12,15 +13,13 @@ class ProfileRepositoryImpl implements ProfileRepoContract {
   ProfileRepositoryImpl(this._remoteDataSource);
 
   @override
-  Future<String> getUsername() async {
-    final raw = await _remoteDataSource.getUsername();
-    try {
-      final decoded = jsonDecode(raw);
-      if (decoded is Map<String, dynamic>) {
-        return decoded['username'] ?? decoded['userName'] ?? raw;
-      }
-    } catch (_) {}
-    return raw;
+  Future<User> getProfileMe() async {
+    final dto = await _remoteDataSource.getProfileMe();
+    return User(
+      name: dto.name ?? dto.userName ?? dto.username ?? dto.fullName ?? dto.fullname,
+      email: dto.email,
+      role: dto.role,
+    );
   }
 
   @override
