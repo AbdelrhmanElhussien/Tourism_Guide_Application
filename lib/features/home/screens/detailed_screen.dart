@@ -14,7 +14,7 @@ import 'package:tourist_app/domain/use_cases/trips/create_trip_use_case.dart';
 import 'package:tourist_app/features/profile/cubit/profile_cubit.dart';
 import 'package:tourist_app/features/profile/cubit/profile_states.dart';
 
-enum DetailType { place, hotel, transport, guide }
+enum DetailType { place, hotel, transport, guide, program }
 
 class DetailArgs {
   final String? id;
@@ -84,6 +84,9 @@ class DetailScreen extends StatefulWidget {
 }
 
 class _DetailScreenState extends State<DetailScreen> {
+  bool isFavorite = false;
+  bool isVisited = false;
+
   @override
   Widget build(BuildContext context) {
     // Retrieve arguments from ModalRoute or constructor fallback
@@ -111,16 +114,8 @@ class _DetailScreenState extends State<DetailScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Main Content
-                SingleChildScrollView(
-                  padding: const EdgeInsets.only(
-                    bottom: 100,
-                  ), // Padding to avoid overlap with bottom navigation bar
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // 1. Header Image Section
-                      _buildHeaderImage(context, args, isDark, isFav: isFav, isVisited: isVisited),
+                // 1. Header Image Section
+                _buildHeaderImage(context, args, isDark),
 
                 Padding(
                   padding: EdgeInsets.symmetric(
@@ -172,13 +167,10 @@ class _DetailScreenState extends State<DetailScreen> {
         ],
       ),
     );
-        },
-      ),
-    );
   }
 
   // --- Header Image Widget ---
-  Widget _buildHeaderImage(BuildContext context, DetailArgs args, bool isDark, {required bool isFav, required bool isVisited}) {
+  Widget _buildHeaderImage(BuildContext context, DetailArgs args, bool isDark) {
     ImageProvider imageProvider;
     if (args.assetImage != null) {
       imageProvider = AssetImage(args.assetImage!);

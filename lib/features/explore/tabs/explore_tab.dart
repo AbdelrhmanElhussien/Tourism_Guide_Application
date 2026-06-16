@@ -1468,9 +1468,8 @@ class _ExploreTabState extends State<ExploreTab> {
           ],
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   Widget _buildEmptyState() {
     return Center(
