@@ -2,8 +2,13 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tourist_app/core/di/di.dart';
 import 'package:tourist_app/core/provider/themeProvider.dart';
 import 'package:tourist_app/core/utils/app_theme.dart';
+import 'package:tourist_app/domain/entities/provider/provider_service.dart';
+import 'package:tourist_app/features/profile/service_provider/cubits/provider_services_cubit.dart';
+import 'package:tourist_app/features/profile/service_provider/cubits/provider_services_states.dart';
 import 'my_services_screen.dart'; // To reuse DashedBorderPainter
 
 class AddServiceScreen extends StatefulWidget {
@@ -28,6 +33,29 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
   final List<String> _days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   final List<String> _selectedDays = [];
 
+  ProviderService? _editingService;
+  bool _isInitialized = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_isInitialized) {
+      final args = ModalRoute.of(context)?.settings.arguments;
+      if (args is ProviderService) {
+        _editingService = args;
+        _titleController.text = args.title;
+        _descriptionController.text = args.description;
+        _priceController.text = args.price.toString();
+        _durationController.text = args.duration;
+        _locationController.text = args.location;
+        _selectedCategory = args.category;
+        _selectedDays.clear();
+        _selectedDays.addAll(args.availability);
+      }
+      _isInitialized = true;
+    }
+  }
+
   @override
   void dispose() {
     _titleController.dispose();
@@ -38,7 +66,7 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
     super.dispose();
   }
 
-  void _submitForm() {
+  void _submitForm(BuildContext context) {
     if (_formKey.currentState!.validate()) {
       if (_selectedCategory == null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -50,14 +78,36 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
         return;
       }
       
-      // Success simulation
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('service_added_success'.tr()),
-          backgroundColor: Colors.green,
-        ),
-      );
-      Navigator.pop(context);
+      final title = _titleController.text.trim();
+      final description = _descriptionController.text.trim();
+      final price = double.tryParse(_priceController.text.trim()) ?? 0.0;
+      final duration = _durationController.text.trim();
+      final location = _locationController.text.trim();
+      final category = _selectedCategory!;
+      final availability = _selectedDays;
+
+      if (_editingService != null) {
+        context.read<ProviderServicesCubit>().updateService(
+          id: _editingService!.id,
+          title: title,
+          description: description,
+          price: price,
+          duration: duration,
+          location: location,
+          category: category,
+          availability: availability,
+        );
+      } else {
+        context.read<ProviderServicesCubit>().createService(
+          title: title,
+          description: description,
+          price: price,
+          duration: duration,
+          location: location,
+          category: category,
+          availability: availability,
+        );
+      }
     }
   }
 
@@ -67,166 +117,201 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
     bool isLight = themeProvider.apptheme == ThemeMode.light;
     final size = MediaQuery.of(context).size;
 
-    return Scaffold(
-      backgroundColor: isLight ? const Color(0xffF8FAFC) : AppColors.darkBlueColor,
-      body: SafeArea(
-        top: false,
-        bottom: true,
-        child: Column(
-          children: [
-            // ── Header Section ──────────────────────────────────────────
-            _buildHeader(context, isLight, size),
+    return BlocProvider(
+      create: (context) => getIt<ProviderServicesCubit>(),
+      child: BlocConsumer<ProviderServicesCubit, ProviderServicesState>(
+        listener: (context, state) {
+          if (state is ProviderServiceActionSuccess) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: Colors.green,
+              ),
+            );
+            Navigator.pop(context);
+          } else if (state is ProviderServicesError) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.errorMsg),
+                backgroundColor: Colors.redAccent,
+              ),
+            );
+          }
+        },
+        builder: (context, state) {
+          final isLoading = state is ProviderServicesLoading;
+          return Scaffold(
+            backgroundColor: isLight ? const Color(0xffF8FAFC) : AppColors.darkBlueColor,
+            body: SafeArea(
+              top: false,
+              bottom: true,
+              child: Column(
+                children: [
+                  // ── Header Section ──────────────────────────────────────────
+                  _buildHeader(context, isLight, size),
 
-            // ── Form Content ───────────────────────────────────────────
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(20.0),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Photo Upload Area
-                      _buildPhotoUploadArea(isLight),
-                      const SizedBox(height: 24),
+                  // ── Form Content ───────────────────────────────────────────
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Photo Upload Area
+                            _buildPhotoUploadArea(isLight),
+                            const SizedBox(height: 24),
 
-                      // Service Title Field
-                      _buildLabel('service_title'.tr(), isLight),
-                      _buildTextField(
-                        controller: _titleController,
-                        hintText: 'service_title_hint'.tr(),
-                        isLight: isLight,
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'please_enter_title'.tr();
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 20),
+                            // Service Title Field
+                            _buildLabel('service_title'.tr(), isLight),
+                            _buildTextField(
+                              controller: _titleController,
+                              hintText: 'service_title_hint'.tr(),
+                              isLight: isLight,
+                              validator: (value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return 'please_enter_title'.tr();
+                                }
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: 20),
 
-                      // Category Selector
-                      _buildLabel('category_label'.tr(), isLight),
-                      _buildCategoryDropdown(isLight),
-                      const SizedBox(height: 20),
+                            // Category Selector
+                            _buildLabel('category_label'.tr(), isLight),
+                            _buildCategoryDropdown(isLight),
+                            const SizedBox(height: 20),
 
-                      // Price & Duration Row
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                            // Price & Duration Row
+                            Row(
                               children: [
-                                _buildLabel('price_label'.tr(), isLight),
-                                _buildTextField(
-                                  controller: _priceController,
-                                  hintText: 'price_hint'.tr(),
-                                  isLight: isLight,
-                                  keyboardType: TextInputType.number,
-                                  prefixIcon: const Icon(Icons.attach_money, color: Colors.grey),
-                                  validator: (value) {
-                                    if (value == null || value.trim().isEmpty) {
-                                      return 'please_enter_price'.tr();
-                                    }
-                                    return null;
-                                  },
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      _buildLabel('price_label'.tr(), isLight),
+                                      _buildTextField(
+                                        controller: _priceController,
+                                        hintText: 'price_hint'.tr(),
+                                        isLight: isLight,
+                                        keyboardType: TextInputType.number,
+                                        prefixIcon: const Icon(Icons.attach_money, color: Colors.grey),
+                                        validator: (value) {
+                                          if (value == null || value.trim().isEmpty) {
+                                            return 'please_enter_price'.tr();
+                                          }
+                                          return null;
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      _buildLabel('duration_label'.tr(), isLight),
+                                      _buildTextField(
+                                        controller: _durationController,
+                                        hintText: 'duration_hint'.tr(),
+                                        isLight: isLight,
+                                        prefixIcon: const Icon(Icons.access_time, color: Colors.grey),
+                                        validator: (value) {
+                                          if (value == null || value.trim().isEmpty) {
+                                            return 'please_enter_duration'.tr();
+                                          }
+                                          return null;
+                                        },
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ],
                             ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                _buildLabel('duration_label'.tr(), isLight),
-                                _buildTextField(
-                                  controller: _durationController,
-                                  hintText: 'duration_hint'.tr(),
-                                  isLight: isLight,
-                                  prefixIcon: const Icon(Icons.access_time, color: Colors.grey),
-                                  validator: (value) {
-                                    if (value == null || value.trim().isEmpty) {
-                                      return 'please_enter_duration'.tr();
-                                    }
-                                    return null;
-                                  },
+                            const SizedBox(height: 20),
+
+                            // Location Field
+                            _buildLabel('address'.tr(), isLight),
+                            _buildTextField(
+                              controller: _locationController,
+                              hintText: 'address_placeholder'.tr(),
+                              isLight: isLight,
+                              prefixIcon: const Icon(Icons.location_on_outlined, color: Colors.grey),
+                              validator: (value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return 'please_enter_address'.tr();
+                                }
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: 20),
+
+                            // Description Field
+                            _buildLabel('describe_service_hint'.tr(), isLight),
+                            _buildTextField(
+                              controller: _descriptionController,
+                              hintText: 'describe_service_hint'.tr(),
+                              isLight: isLight,
+                              maxLines: 4,
+                              validator: (value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return 'please_enter_description'.tr();
+                                }
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: 20),
+
+                            // Availability
+                            _buildLabel('availability_label'.tr(), isLight),
+                            _buildAvailabilityChips(isLight),
+                            const SizedBox(height: 32),
+
+                            // Submit Button
+                            SizedBox(
+                              width: double.infinity,
+                              height: 52,
+                              child: ElevatedButton(
+                                onPressed: isLoading ? null : () => _submitForm(context),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.yellowColor,
+                                  foregroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(14),
+                                  ),
+                                  elevation: 0,
                                 ),
-                              ],
+                                child: isLoading
+                                    ? const SizedBox(
+                                        width: 24,
+                                        height: 24,
+                                        child: CircularProgressIndicator(
+                                          color: Colors.white,
+                                          strokeWidth: 2.5,
+                                        ),
+                                      )
+                                    : Text(
+                                        _editingService != null ? 'edit'.tr() : 'add_service'.tr(),
+                                        style: GoogleFonts.inter(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 20),
-
-                      // Location Field
-                      _buildLabel('address'.tr(), isLight),
-                      _buildTextField(
-                        controller: _locationController,
-                        hintText: 'address_placeholder'.tr(),
-                        isLight: isLight,
-                        prefixIcon: const Icon(Icons.location_on_outlined, color: Colors.grey),
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'please_enter_address'.tr();
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 20),
-
-                      // Description Field
-                      _buildLabel('describe_service_hint'.tr(), isLight),
-                      _buildTextField(
-                        controller: _descriptionController,
-                        hintText: 'describe_service_hint'.tr(),
-                        isLight: isLight,
-                        maxLines: 4,
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return 'please_enter_description'.tr();
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 20),
-
-                      // Availability
-                      _buildLabel('availability_label'.tr(), isLight),
-                      _buildAvailabilityChips(isLight),
-                      const SizedBox(height: 32),
-
-                      // Submit Button
-                      SizedBox(
-                        width: double.infinity,
-                        height: 52,
-                        child: ElevatedButton(
-                          onPressed: _submitForm,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.yellowColor,
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14),
-                            ),
-                            elevation: 0,
-                          ),
-                          child: Text(
-                            'add_service'.tr(),
-                            style: GoogleFonts.inter(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                            const SizedBox(height: 32),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 32),
-                    ],
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
@@ -272,7 +357,7 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
           const SizedBox(width: 16),
           // Title
           Text(
-            "add_service_title".tr(),
+            _editingService != null ? 'edit'.tr() : 'add_service_title'.tr(),
             style: GoogleFonts.inter(
               color: isLight ? AppColors.primaryColor : Colors.white,
               fontSize: 22,

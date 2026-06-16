@@ -1,0 +1,39 @@
+// GENERATED CODE - DO NOT MODIFY BY HAND
+
+part of 'provider_service_dto.dart';
+
+// **************************************************************************
+// JsonSerializableGenerator
+// **************************************************************************
+
+ProviderServiceDto _$ProviderServiceDtoFromJson(Map<String, dynamic> json) =>
+    ProviderServiceDto(
+      id: json['id'] as String?,
+      title: json['title'] as String?,
+      category: json['category'] as String?,
+      price: (json['price'] as num?)?.toDouble(),
+      bookingsCount: (json['bookingsCount'] as num?)?.toInt(),
+      rating: (json['rating'] as num?)?.toDouble(),
+      imageUrl: json['imageUrl'] as String?,
+      duration: json['duration'] as String?,
+      location: json['location'] as String?,
+      description: json['description'] as String?,
+      availability: (json['availability'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
+    );
+
+Map<String, dynamic> _$ProviderServiceDtoToJson(ProviderServiceDto instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'title': instance.title,
+      'category': instance.category,
+      'price': instance.price,
+      'bookingsCount': instance.bookingsCount,
+      'rating': instance.rating,
+      'imageUrl': instance.imageUrl,
+      'duration': instance.duration,
+      'location': instance.location,
+      'description': instance.description,
+      'availability': instance.availability,
+    };

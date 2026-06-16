@@ -6,6 +6,8 @@ import 'package:tourist_app/domain/entities/reqeuest/login/login_request.dart';
 import 'package:tourist_app/domain/use_cases/loginInUseCase.dart';
 import 'package:tourist_app/features/auth/cubit/auth_states.dart';
 
+import 'package:tourist_app/core/utils/cache_helper.dart';
+
 @injectable
 class Loginviewmodel extends Cubit<AuthState> {
   final LoginInUseCase _loginInUseCase;
@@ -19,6 +21,15 @@ class Loginviewmodel extends Cubit<AuthState> {
         password: password,
       );
       var authResponse = await _loginInUseCase.invoke(loginRequest);
+      if (authResponse.token != null) {
+        await CacheHelper.saveData(key: 'token', value: authResponse.token);
+      }
+      if (authResponse.email != null) {
+        await CacheHelper.saveData(key: 'email', value: authResponse.email);
+      }
+      if (authResponse.userName != null) {
+        await CacheHelper.saveData(key: 'userName', value: authResponse.userName);
+      }
       emit(AuthSuccessState(authResponse: authResponse));
     } on DioException catch (e) {
       String msg = (e.error is AppException) ? (e.error as AppException).message : 'UnExpected Error';

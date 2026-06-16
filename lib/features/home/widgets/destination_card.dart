@@ -29,6 +29,7 @@ class DestinationCard extends StatelessWidget {
         ? Colors.black.withOpacity(0.12)
         : Colors.black.withOpacity(0.05);
 
+<<<<<<< Updated upstream
     return DecoratedBox(
       decoration: BoxDecoration(
         color: cardColor,
@@ -39,6 +40,27 @@ class DestinationCard extends StatelessWidget {
             color: shadowColor,
             blurRadius: 12,
             offset: const Offset(0, 5),
+=======
+    return GestureDetector(
+      onTap: () {
+        Navigator.pushNamed(
+          context,
+          AppRoutes.DetailScreenRouteName,
+          arguments: DetailArgs(
+            id: destination.id,
+            type: DetailType.place,
+            title: destination.title,
+            location: destination.location,
+            rating: destination.rating,
+            reviewsCount: destination.reviews,
+            assetImage: destination.assetImage,
+            networkImage: destination.networkImage,
+            about:
+                "Experience the beauty and history of ${destination.title}. A perfect destination for your next trip.",
+            price: "150 EGP",
+            hours: "9:00 AM - 5:00 PM",
+            distance: "Nearby",
+>>>>>>> Stashed changes
           ),
         ],
       ),

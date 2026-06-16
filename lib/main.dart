@@ -22,10 +22,13 @@ import 'package:tourist_app/features/auth/signup/screens/signup_screen.dart';
 import 'package:tourist_app/features/map/provider/map_provider.dart';
 import 'package:tourist_app/features/profile/service_provider/screens/earnings_screen.dart';
 
+import 'package:tourist_app/core/utils/cache_helper.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   configureDependencies();
   await EasyLocalization.ensureInitialized();
+  await CacheHelper.init();
 
   runApp(
     EasyLocalization(

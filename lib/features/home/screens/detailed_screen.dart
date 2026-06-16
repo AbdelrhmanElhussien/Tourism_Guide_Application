@@ -1,21 +1,32 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:tourist_app/core/di/di.dart';
 import 'package:tourist_app/core/provider/themeProvider.dart';
 import 'package:tourist_app/core/utils/app_theme.dart';
 import 'package:tourist_app/core/utils/app_routes.dart';
 import 'package:tourist_app/core/utils/dialoge_utils.dart';
 import 'package:tourist_app/features/home/widgets/top_circular_button.dart';
+import 'package:intl/intl.dart';
+import 'package:tourist_app/domain/use_cases/trips/create_trip_use_case.dart';
+import 'package:tourist_app/features/profile/cubit/profile_cubit.dart';
+import 'package:tourist_app/features/profile/cubit/profile_states.dart';
 
+<<<<<<< Updated upstream
 enum DetailType {
   place,
   hotel,
   transport,
   guide,
 }
+=======
+enum DetailType { place, hotel, transport, guide, program }
+>>>>>>> Stashed changes
 
 class DetailArgs {
+  final String? id;
   final DetailType type;
   final String title;
   final String location;
@@ -37,6 +48,7 @@ class DetailArgs {
   final String? transportType;  // Transport type: "Car", "Felucca"
 
   const DetailArgs({
+    this.id,
     required this.type,
     required this.title,
     required this.location,
@@ -80,8 +92,6 @@ class DetailScreen extends StatefulWidget {
 }
 
 class _DetailScreenState extends State<DetailScreen> {
-  bool isFavorite = false;
-
   @override
   Widget build(BuildContext context) {
     // Retrieve arguments from ModalRoute or constructor fallback
@@ -94,6 +104,7 @@ class _DetailScreenState extends State<DetailScreen> {
     final themeProvider = Provider.of<Themeprovider>(context);
     final bool isDark = themeProvider.apptheme == ThemeMode.dark;
 
+<<<<<<< Updated upstream
     return Scaffold(
       backgroundColor: isDark ? AppColors.darkBlueColor : const Color(0xffF8FAFC),
       body: Stack(
@@ -103,9 +114,35 @@ class _DetailScreenState extends State<DetailScreen> {
             padding: const EdgeInsets.bottom(100), // Padding to avoid overlap with bottom navigation bar
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+=======
+    return BlocProvider(
+      create: (context) => getIt<ProfileCubit>()..fetchProfileData(),
+      child: BlocBuilder<ProfileCubit, ProfileState>(
+        builder: (context, state) {
+          bool isFav = false;
+          bool isVisited = false;
+          if (state is ProfileSuccess && args.id != null) {
+            isFav = state.savedPlaces.any((place) => place.id == args.id);
+            isVisited = state.visitedPlaces.any((place) => place.id == args.id);
+          }
+
+          return Scaffold(
+            backgroundColor: isDark
+                ? AppColors.darkBlueColor
+                : const Color(0xffF8FAFC),
+            body: Stack(
+>>>>>>> Stashed changes
               children: [
-                // 1. Header Image Section
-                _buildHeaderImage(context, args, isDark),
+                // Main Content
+                SingleChildScrollView(
+                  padding: const EdgeInsets.only(
+                    bottom: 100,
+                  ), // Padding to avoid overlap with bottom navigation bar
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // 1. Header Image Section
+                      _buildHeaderImage(context, args, isDark, isFav: isFav, isVisited: isVisited),
 
                 Padding(
                   padding: EdgeInsets.symmetric(
@@ -156,10 +193,13 @@ class _DetailScreenState extends State<DetailScreen> {
         ],
       ),
     );
+        },
+      ),
+    );
   }
 
   // --- Header Image Widget ---
-  Widget _buildHeaderImage(BuildContext context, DetailArgs args, bool isDark) {
+  Widget _buildHeaderImage(BuildContext context, DetailArgs args, bool isDark, {required bool isFav, required bool isVisited}) {
     ImageProvider imageProvider;
     if (args.assetImage != null) {
       imageProvider = AssetImage(args.assetImage!);
@@ -216,7 +256,7 @@ class _DetailScreenState extends State<DetailScreen> {
           ),
         ),
 
-        // Action Buttons (Share, Favorite)
+        // Action Buttons (Share, Visited, Favorite)
         Positioned(
           top: 50,
           right: 20,
@@ -229,6 +269,7 @@ class _DetailScreenState extends State<DetailScreen> {
                   // Share action
                 },
               ),
+<<<<<<< Updated upstream
               const SizedBox(width: 10),
               Topcircularbutton(
                 icon: isFavorite ? Icons.favorite : Icons.favorite_border_outlined,
@@ -239,6 +280,30 @@ class _DetailScreenState extends State<DetailScreen> {
                   });
                 },
               ),
+=======
+              if (args.id != null) ...[
+                const SizedBox(width: 10),
+                Topcircularbutton(
+                  icon: isVisited
+                      ? Icons.check_circle
+                      : Icons.check_circle_outline,
+                  isSelected: isVisited,
+                  fun: () {
+                    context.read<ProfileCubit>().markAsVisited(args.id!);
+                  },
+                ),
+                const SizedBox(width: 10),
+                Topcircularbutton(
+                  icon: isFav
+                      ? Icons.favorite
+                      : Icons.favorite_border_outlined,
+                  isSelected: isFav,
+                  fun: () {
+                    context.read<ProfileCubit>().toggleSavePlace(args.id!, isFav);
+                  },
+                ),
+              ],
+>>>>>>> Stashed changes
             ],
           ),
         ),
@@ -356,6 +421,38 @@ class _DetailScreenState extends State<DetailScreen> {
             Icons.location_on_outlined,
             "distance_label".tr(defaultValue: "Distance"),
             args.distance ?? "15 km",
+            Colors.teal.shade50,
+            Colors.teal,
+            textColorPrimary,
+            textColorSec,
+          ),
+        ];
+        break;
+
+      case DetailType.program:
+        infoItems = [
+          _buildInfoItem(
+            Icons.access_time,
+            "duration_label".tr() == "duration_label" ? "Duration" : "duration_label".tr(),
+            args.duration ?? "1 Day",
+            Colors.orange.shade50,
+            Colors.orange,
+            textColorPrimary,
+            textColorSec,
+          ),
+          _buildInfoItem(
+            Icons.attach_money,
+            "price_label".tr(),
+            args.price ?? "200 EGP",
+            Colors.yellow.shade50,
+            Colors.orangeAccent,
+            textColorPrimary,
+            textColorSec,
+          ),
+          _buildInfoItem(
+            Icons.location_on_outlined,
+            "distance_label".tr(),
+            args.distance ?? "Egypt",
             Colors.teal.shade50,
             Colors.teal,
             textColorPrimary,
@@ -952,7 +1049,13 @@ class _DetailScreenState extends State<DetailScreen> {
     } else if (args.type == DetailType.hotel) {
       buttonText = "book_room".tr(defaultValue: "Book Room");
     } else if (args.type == DetailType.transport) {
+<<<<<<< Updated upstream
       buttonText = "rent_now".tr(defaultValue: "Rent Now");
+=======
+      buttonText = "rent_now".tr();
+    } else if (args.type == DetailType.program) {
+      buttonText = "book_program".tr() == "book_program" ? "Book Program" : "book_program".tr();
+>>>>>>> Stashed changes
     }
 
     final double screenWidth = MediaQuery.of(context).size.width;
@@ -1009,6 +1112,7 @@ class _DetailScreenState extends State<DetailScreen> {
             child: SizedBox(
               height: 52,
               child: ElevatedButton(
+<<<<<<< Updated upstream
                 onPressed: () {
                   // Trigger booking success dialog
                   DialogeUtils.showMassage(
@@ -1017,6 +1121,74 @@ class _DetailScreenState extends State<DetailScreen> {
                     masseage: "booking_success_msg".tr(defaultValue: "Booking request submitted successfully!"),
                     posActionName: "ok_action".tr(defaultValue: "Ok"),
                   );
+=======
+                onPressed: () async {
+                  if (args.type == DetailType.program) {
+                    final date = await showDatePicker(
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate: DateTime.now(),
+                      lastDate: DateTime.now().add(const Duration(days: 365)),
+                    );
+                    if (date != null) {
+                      try {
+                        DateTime start = date;
+                        DateTime end = start;
+                        if (args.duration != null) {
+                          final daysMatch = RegExp(r'(\d+)\s*day').firstMatch(args.duration!.toLowerCase());
+                          if (daysMatch != null) {
+                            final int days = int.parse(daysMatch.group(1)!);
+                            end = start.add(Duration(days: days));
+                          }
+                        }
+                        
+                        final String startDateStr = DateFormat('yyyy-MM-dd').format(start);
+                        final String endDateStr = DateFormat('yyyy-MM-dd').format(end);
+                        
+                        // Show loading dialog
+                        DialogeUtils.showLoading(context: context, text: "loading_msg".tr());
+                        
+                        await getIt<CreateTripUseCase>().invoke(
+                          args.title,
+                          startDateStr,
+                          endDateStr,
+                          args.about,
+                        );
+
+                        if (context.mounted) {
+                          DialogeUtils.hideLoading(context: context);
+                          DialogeUtils.showMassage(
+                            context: context,
+                            title: "success_title".tr(),
+                            masseage: "booking_success_msg".tr() == "booking_success_msg" ? "Program booked successfully!" : "booking_success_msg".tr(),
+                            posActionName: "ok_action".tr(),
+                            posFun: () {
+                              Navigator.pushNamed(context, AppRoutes.myTripsRouteName);
+                            }
+                          );
+                        }
+                      } catch (e) {
+                        if (context.mounted) {
+                          DialogeUtils.hideLoading(context: context);
+                          DialogeUtils.showMassage(
+                            context: context,
+                            title: "error_title".tr(),
+                            masseage: e.toString(),
+                            posActionName: "ok_action".tr(),
+                          );
+                        }
+                      }
+                    }
+                  } else {
+                    // Trigger booking success dialog
+                    DialogeUtils.showMassage(
+                      context: context,
+                      title: "success_title".tr(),
+                      masseage: "booking_success_msg".tr(),
+                      posActionName: "ok_action".tr(),
+                    );
+                  }
+>>>>>>> Stashed changes
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.yellowColor,

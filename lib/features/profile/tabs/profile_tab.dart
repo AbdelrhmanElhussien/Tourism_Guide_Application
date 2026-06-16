@@ -2,10 +2,14 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tourist_app/core/di/di.dart';
 import 'package:tourist_app/core/provider/themeProvider.dart';
 import 'package:tourist_app/core/utils/app_theme.dart';
 import 'package:tourist_app/core/utils/app_routes.dart';
 import 'package:tourist_app/core/utils/dialoge_utils.dart';
+import 'package:tourist_app/features/profile/cubit/profile_cubit.dart';
+import 'package:tourist_app/features/profile/cubit/profile_states.dart';
 
 class ProfileTab extends StatelessWidget {
   const ProfileTab({super.key});
@@ -16,169 +20,245 @@ class ProfileTab extends StatelessWidget {
     bool isLight = themeProvider.apptheme == ThemeMode.light;
     final size = MediaQuery.of(context).size;
 
-    return Scaffold(
-      backgroundColor: isLight ? const Color(0xffF8FAFC) : AppColors.darkBlueColor,
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            // ── Header Section ──────────────────────────────────────────
-            _buildHeader(context, isLight, size),
-
-            // ── Menu Options List ─────────────────────────────────────────
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
-              child: Column(
-                children: [
-                  // --- Group 1 ---
-                  _buildMenuCard(
-                    isLight: isLight,
-                    cardColor: Theme.of(context).cardColor,
+    return BlocProvider(
+      create: (context) => getIt<ProfileCubit>()..fetchProfileData(),
+      child: Scaffold(
+        backgroundColor: isLight ? const Color(0xffF8FAFC) : AppColors.darkBlueColor,
+        body: BlocBuilder<ProfileCubit, ProfileState>(
+          builder: (context, state) {
+            if (state is ProfileLoading) {
+              return const Center(
+                child: CircularProgressIndicator(
+                  color: AppColors.primaryColor,
+                ),
+              );
+            } else if (state is ProfileError) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'something_went_wrong'.tr() == 'something_went_wrong'
+                          ? 'Something went wrong'
+                          : 'something_went_wrong'.tr(),
+                      style: TextStyle(
+                        color: isLight ? Colors.black : Colors.white,
+                        fontSize: 16,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    ElevatedButton(
+                      onPressed: () {
+                        context.read<ProfileCubit>().fetchProfileData();
+                      },
+                      child: Text(
+                        'retry'.tr() == 'retry' ? 'Retry' : 'retry'.tr(),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            } else if (state is ProfileSuccess) {
+              return RefreshIndicator(
+                onRefresh: () => context.read<ProfileCubit>().fetchProfileData(),
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: Column(
                     children: [
-                      _buildMenuItem(
-                        icon: Icons.calendar_month_outlined,
-                        iconColor: AppColors.yellowColor,
-                        iconBgColor: const Color(0xFFFEF9EC),
-                        title: 'my_trips'.tr(),
+                      // ── Header Section ──────────────────────────────────────────
+                      _buildHeader(
+                        context: context,
                         isLight: isLight,
-                        onTap: () {
-                          Navigator.pushNamed(context, AppRoutes.myTripsRouteName);
-                        },
+                        size: size,
+                        userName: state.userName,
+                        email: state.email,
+                        visitedCount: state.visitedPlaces.length,
+                        savedCount: state.savedPlaces.length,
+                        completedTripsCount: state.completedTripsCount,
                       ),
-                      _buildMenuItem(
-                        icon: Icons.favorite_border_outlined,
-                        iconColor: const Color(0xFF1ABC9C),
-                        iconBgColor: const Color(0xFFEBF7F5),
-                        title: 'saved_places'.tr(),
-                        isLight: isLight,
-                        onTap: () {
-                          Navigator.pushNamed(context, AppRoutes.savedPlacesRouteName);
-                        },
-                      ),
-                      _buildMenuItem(
-                        icon: Icons.location_on_outlined,
-                        iconColor: isLight ? AppColors.primaryColor : AppColors.blueColor,
-                        iconBgColor: const Color(0xFFEEF4F8),
-                        title: 'visited_places'.tr(),
-                        isLight: isLight,
-                        onTap: () {},
-                      ),
-                      _buildMenuItem(
-                        icon: Icons.business_center_outlined,
-                        iconColor: AppColors.yellowColor,
-                        iconBgColor: const Color(0xFFFEF9EC),
-                        title: 'service_provider'.tr(),
-                        isLight: isLight,
-                        onTap: () {
-                          Navigator.pushNamed(
-                            context,
-                            AppRoutes.serviceProviderRouteName,
-                          );
-                        },
-                      ),
-                    ],
-                  ),
 
-                  // --- Group 2 ---
-                  _buildMenuCard(
-                    isLight: isLight,
-                    cardColor: Theme.of(context).cardColor,
-                    children: [
-                      _buildMenuItem(
-                        icon: isLight ? Icons.nightlight_outlined : Icons.wb_sunny_outlined,
-                        iconColor: isLight ? AppColors.primaryColor : AppColors.yellowColor,
-                        iconBgColor: isLight ? const Color(0xFFF1F3F6) : const Color(0xFFFEF9EC),
-                        title: isLight ? 'night_mode'.tr() : 'light_mode'.tr(),
-                        isLight: isLight,
-                        trailing: Switch(
-                          value: !isLight,
-                          activeColor: Colors.white,
-                          activeTrackColor: AppColors.yellowColor,
-                          inactiveThumbColor: Colors.white,
-                          inactiveTrackColor: Colors.grey[300],
-                          onChanged: (value) {
-                            themeProvider.changeTheme(
-                              value ? ThemeMode.dark : ThemeMode.light,
-                            );
-                          },
+                      // ── Menu Options List ─────────────────────────────────────────
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+                        child: Column(
+                          children: [
+                            // --- Group 1 ---
+                            _buildMenuCard(
+                              isLight: isLight,
+                              cardColor: Theme.of(context).cardColor,
+                              children: [
+                                _buildMenuItem(
+                                  icon: Icons.calendar_month_outlined,
+                                  iconColor: AppColors.yellowColor,
+                                  iconBgColor: const Color(0xFFFEF9EC),
+                                  title: 'my_trips'.tr(),
+                                  isLight: isLight,
+                                  onTap: () {
+                                    Navigator.pushNamed(context, AppRoutes.myTripsRouteName);
+                                  },
+                                ),
+                                _buildMenuItem(
+                                  icon: Icons.favorite_border_outlined,
+                                  iconColor: const Color(0xFF1ABC9C),
+                                  iconBgColor: const Color(0xFFEBF7F5),
+                                  title: 'saved_places'.tr(),
+                                  isLight: isLight,
+                                  onTap: () async {
+                                    await Navigator.pushNamed(context, AppRoutes.savedPlacesRouteName);
+                                    if (context.mounted) {
+                                      context.read<ProfileCubit>().fetchProfileData();
+                                    }
+                                  },
+                                ),
+                                _buildMenuItem(
+                                  icon: Icons.location_on_outlined,
+                                  iconColor: isLight ? AppColors.primaryColor : AppColors.blueColor,
+                                  iconBgColor: const Color(0xFFEEF4F8),
+                                  title: 'visited_places'.tr(),
+                                  isLight: isLight,
+                                  onTap: () {},
+                                ),
+                                _buildMenuItem(
+                                  icon: Icons.business_center_outlined,
+                                  iconColor: AppColors.yellowColor,
+                                  iconBgColor: const Color(0xFFFEF9EC),
+                                  title: 'service_provider'.tr(),
+                                  isLight: isLight,
+                                  onTap: () {
+                                    Navigator.pushNamed(
+                                      context,
+                                      AppRoutes.serviceProviderRouteName,
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+
+                            // --- Group 2 ---
+                            _buildMenuCard(
+                              isLight: isLight,
+                              cardColor: Theme.of(context).cardColor,
+                              children: [
+                                _buildMenuItem(
+                                  icon: isLight ? Icons.nightlight_outlined : Icons.wb_sunny_outlined,
+                                  iconColor: isLight ? AppColors.primaryColor : AppColors.yellowColor,
+                                  iconBgColor: isLight ? const Color(0xFFF1F3F6) : const Color(0xFFFEF9EC),
+                                  title: isLight ? 'night_mode'.tr() : 'light_mode'.tr(),
+                                  isLight: isLight,
+                                  trailing: Switch(
+                                    value: !isLight,
+                                    activeColor: Colors.white,
+                                    activeTrackColor: AppColors.yellowColor,
+                                    inactiveThumbColor: Colors.white,
+                                    inactiveTrackColor: Colors.grey[300],
+                                    onChanged: (value) {
+                                      themeProvider.changeTheme(
+                                        value ? ThemeMode.dark : ThemeMode.light,
+                                      );
+                                    },
+                                  ),
+                                ),
+                                _buildMenuItem(
+                                  icon: Icons.language,
+                                  iconColor: isLight ? AppColors.primaryColor : AppColors.blueColor,
+                                  iconBgColor: const Color(0xFFF1F3F6),
+                                  title: 'language'.tr(),
+                                  isLight: isLight,
+                                  trailing: Text(
+                                    context.locale.languageCode.toUpperCase(),
+                                    style: TextStyle(
+                                      color: isLight ? AppColors.primaryColor : AppColors.blueColor,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  onTap: () {
+                                    _showLanguageDialog(context, !isLight);
+                                  },
+                                ),
+                                _buildMenuItem(
+                                  icon: Icons.settings_outlined,
+                                  iconColor: isLight ? AppColors.primaryColor : AppColors.blueColor,
+                                  iconBgColor: const Color(0xFFF1F3F6),
+                                  title: 'settings'.tr(),
+                                  isLight: isLight,
+                                  onTap: () {},
+                                ),
+                                _buildMenuItem(
+                                  icon: Icons.help_outline,
+                                  iconColor: isLight ? AppColors.primaryColor : AppColors.blueColor,
+                                  iconBgColor: const Color(0xFFF1F3F6),
+                                  title: 'help_support'.tr(),
+                                  isLight: isLight,
+                                  onTap: () {},
+                                ),
+                              ],
+                            ),
+
+                            // --- Group 3 (Sign Out) ---
+                            _buildMenuCard(
+                              isLight: isLight,
+                              cardColor: Theme.of(context).cardColor,
+                              children: [
+                                _buildMenuItem(
+                                  icon: Icons.logout_rounded,
+                                  iconColor: Colors.red,
+                                  iconBgColor: const Color(0xFFFCEBEB),
+                                  title: 'sign_out'.tr(),
+                                  isLight: isLight,
+                                  trailing: const SizedBox.shrink(),
+                                  onTap: () {
+                                    DialogeUtils.showMassage(
+                                      context: context,
+                                      title: 'sign_out'.tr(),
+                                      masseage: 'are_you_sure_to_logout'.tr(),
+                                      posActionName: 'yes_action'.tr(),
+                                      posFun: () {
+                                        Navigator.pushReplacementNamed(
+                                          context,
+                                          AppRoutes.loginRouteName,
+                                        );
+                                      },
+                                      negActionName: 'cancel_action'.tr(),
+                                      negFun: () {},
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
                       ),
-                      _buildMenuItem(
-                        icon: Icons.language,
-                        iconColor: isLight ? AppColors.primaryColor : AppColors.blueColor,
-                        iconBgColor: const Color(0xFFF1F3F6),
-                        title: 'language'.tr(),
-                        isLight: isLight,
-                        trailing: Text(
-                          context.locale.languageCode.toUpperCase(),
-                          style: TextStyle(
-                            color: isLight ? AppColors.primaryColor : AppColors.blueColor,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        onTap: () {
-                          _showLanguageDialog(context, !isLight);
-                        },
-                      ),
-                      _buildMenuItem(
-                        icon: Icons.settings_outlined,
-                        iconColor: isLight ? AppColors.primaryColor : AppColors.blueColor,
-                        iconBgColor: const Color(0xFFF1F3F6),
-                        title: 'settings'.tr(),
-                        isLight: isLight,
-                        onTap: () {},
-                      ),
-                      _buildMenuItem(
-                        icon: Icons.help_outline,
-                        iconColor: isLight ? AppColors.primaryColor : AppColors.blueColor,
-                        iconBgColor: const Color(0xFFF1F3F6),
-                        title: 'help_support'.tr(),
-                        isLight: isLight,
-                        onTap: () {},
-                      ),
                     ],
                   ),
-
-                  // --- Group 3 (Sign Out) ---
-                  _buildMenuCard(
-                    isLight: isLight,
-                    cardColor: Theme.of(context).cardColor,
-                    children: [
-                      _buildMenuItem(
-                        icon: Icons.logout_rounded,
-                        iconColor: Colors.red,
-                        iconBgColor: const Color(0xFFFCEBEB),
-                        title: 'sign_out'.tr(),
-                        isLight: isLight,
-                        trailing: const SizedBox.shrink(),
-                        onTap: () {
-                          DialogeUtils.showMassage(
-                            context: context,
-                            title: 'sign_out'.tr(),
-                            masseage: 'are_you_sure_to_logout'.tr(),
-                            posActionName: 'yes_action'.tr(),
-                            posFun: () {
-                              Navigator.pushReplacementNamed(
-                                context,
-                                AppRoutes.loginRouteName,
-                              );
-                            },
-                            negActionName: 'cancel_action'.tr(),
-                            negFun: () {},
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
+                ),
+              );
+            }
+            return const SizedBox.shrink();
+          },
         ),
       ),
     );
   }
 
-  Widget _buildHeader(BuildContext context, bool isLight, Size size) {
+  String _getInitials(String name) {
+    if (name.isEmpty) return 'U';
+    List<String> parts = name.trim().split(' ');
+    if (parts.length > 1) {
+      return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
+    }
+    return parts[0].substring(0, parts[0].length >= 2 ? 2 : 1).toUpperCase();
+  }
+
+  Widget _buildHeader({
+    required BuildContext context,
+    required bool isLight,
+    required Size size,
+    required String userName,
+    required String email,
+    required int visitedCount,
+    required int savedCount,
+    required int completedTripsCount,
+  }) {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.fromLTRB(20, size.height * 0.07, 20, 24),
@@ -203,7 +283,7 @@ class ProfileTab extends StatelessWidget {
                 ),
                 alignment: Alignment.center,
                 child: Text(
-                  'JD',
+                  _getInitials(userName),
                   style: GoogleFonts.inter(
                     color: Colors.white,
                     fontSize: 24,
@@ -218,7 +298,7 @@ class ProfileTab extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'John Doe',
+                      userName,
                       style: GoogleFonts.inter(
                         color: Colors.white,
                         fontSize: 22,
@@ -227,7 +307,7 @@ class ProfileTab extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'john.doe@example.com',
+                      email,
                       style: GoogleFonts.inter(
                         color: Colors.white.withOpacity(0.7),
                         fontSize: 14,
@@ -254,19 +334,19 @@ class ProfileTab extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                _buildStatItem('12', 'visited_count'.tr()),
+                _buildStatItem(visitedCount.toString(), 'visited_count'.tr()),
                 Container(
                   height: 30,
                   width: 1,
                   color: Colors.white.withOpacity(0.2),
                 ),
-                _buildStatItem('5', 'trips_count'.tr()),
+                _buildStatItem(completedTripsCount.toString(), 'trips_count'.tr()),
                 Container(
                   height: 30,
                   width: 1,
                   color: Colors.white.withOpacity(0.2),
                 ),
-                _buildStatItem('28', 'saved_count'.tr()),
+                _buildStatItem(savedCount.toString(), 'saved_count'.tr()),
               ],
             ),
           ),

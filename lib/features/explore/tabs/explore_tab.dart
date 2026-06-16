@@ -1032,6 +1032,7 @@ class _ExploreTabState extends State<ExploreTab> {
     required String buttonText,
     required bool isDark,
   }) {
+<<<<<<< Updated upstream
     return Container(
       decoration: BoxDecoration(
         color: isDark ? AppColors.bottomNavigationColor : Colors.white,
@@ -1041,6 +1042,44 @@ class _ExploreTabState extends State<ExploreTab> {
               ? Colors.white.withOpacity(0.06)
               : Colors.black.withOpacity(0.04),
           width: 1.5,
+=======
+    return GestureDetector(
+      onTap: () {
+        Navigator.pushNamed(
+          context,
+          AppRoutes.DetailScreenRouteName,
+          arguments: DetailArgs(
+            type: DetailType.program,
+            title: title,
+            location: "Egypt",
+            rating: double.tryParse(rating) ?? 4.5,
+            reviewsCount:
+                int.tryParse(reviews.replaceAll(RegExp(r'[^0-9]'), '')) ?? 100,
+            networkImage: image,
+            about: "Discover our recommended program: $title.",
+            price: price,
+            duration: duration,
+          ),
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.bottomNavigationColor : Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isDark
+                ? Colors.white.withOpacity(0.06)
+                : Colors.black.withOpacity(0.04),
+            width: 1.5,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+>>>>>>> Stashed changes
         ),
         boxShadow: [
           BoxShadow(
