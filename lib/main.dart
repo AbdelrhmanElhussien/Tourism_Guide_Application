@@ -28,6 +28,7 @@ import 'package:tourist_app/features/explore/provider/program_provider.dart';
 import 'package:tourist_app/features/booking/provider/booking_provider.dart';
 import 'package:tourist_app/features/home/provider/place_provider.dart';
 import 'package:tourist_app/core/utils/cache_helper.dart';
+import 'package:tourist_app/features/splash/screens/splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -86,6 +87,7 @@ class MyApp extends StatelessWidget {
           supportedLocales: context.supportedLocales,
           locale: context.locale,
           routes: {
+            AppRoutes.splashRouteName: (context) => const SplashScreen(),
             AppRoutes.loginRouteName: (context) => LoginScreen(),
             AppRoutes.signUpRouteName: (context) => SignUpScreen(),
             AppRoutes.HomeRouteName: (context) => Homescreen(),
@@ -102,7 +104,7 @@ class MyApp extends StatelessWidget {
                 const AddServiceScreen(),
             AppRoutes.earningsRouteName: (context) => const EarningsScreen(),
           },
-          initialRoute: AppRoutes.loginRouteName,
+          initialRoute: AppRoutes.splashRouteName,
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,
 
