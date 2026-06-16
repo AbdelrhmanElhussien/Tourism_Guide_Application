@@ -2,15 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tourist_app/core/provider/themeProvider.dart';
 import 'package:tourist_app/core/utils/app_theme.dart';
-import 'package:tourist_app/features/home/widgets/tourism_destination.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:tourist_app/core/utils/app_routes.dart';
 import 'package:tourist_app/features/home/screens/detailed_screen.dart';
+import 'package:tourist_app/features/home/models/place_model.dart';
 
 class PopularWidget extends StatelessWidget {
-  final TourismDestination destination;
+  final PlaceModel place;
 
-  const PopularWidget({super.key, required this.destination});
+  const PopularWidget({super.key, required this.place});
 
   @override
   Widget build(BuildContext context) {
@@ -25,18 +26,17 @@ class PopularWidget extends StatelessWidget {
           context,
           AppRoutes.DetailScreenRouteName,
           arguments: DetailArgs(
+            id: place.id,
             type: DetailType.place,
-            title: destination.title,
-            location: destination.location,
-            rating: destination.rating,
-            reviewsCount: destination.reviews,
-            assetImage: destination.assetImage,
-            networkImage: destination.networkImage,
-            about:
-                "Experience the beauty and history of ${destination.title}. A perfect destination for your next trip.",
-            price: "150 EGP",
-            hours: "9:00 AM - 5:00 PM",
-            distance: "Nearby",
+            title: place.name,
+            location: place.locationName,
+            rating: place.rating,
+            reviewsCount: place.reviewCount,
+            networkImage: place.imageUrl.isNotEmpty ? place.imageUrl : null,
+            about: place.description,
+            price: place.priceFrom > 0 ? "${place.priceFrom.toStringAsFixed(0)} EGP" : "Free",
+            hours: place.openingHours,
+            distance: "${place.distanceKm.toStringAsFixed(1)} km",
           ),
         );
       },
@@ -67,20 +67,24 @@ class PopularWidget extends StatelessWidget {
               ),
               child: AspectRatio(
                 aspectRatio: 16 / 8.5,
-                child: destination.assetImage != null
-                    ? Image.asset(
-                        destination.assetImage!,
+                child: place.imageUrl.isNotEmpty
+                    ? CachedNetworkImage(
+                        imageUrl: place.imageUrl,
                         width: double.infinity,
                         fit: BoxFit.cover,
-                      )
-                    : destination.networkImage != null
-                    ? Image.network(
-                        destination.networkImage!,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Container(
-                          color: Colors.grey[300],
-                          child: const Icon(Icons.image_not_supported),
+                        placeholder: (context, url) => Container(
+                          color: Colors.grey[200],
+                          child: const Center(
+                            child: SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            ),
+                          ),
+                        ),
+                        errorWidget: (context, url, error) => Container(
+                          color: Colors.grey[200],
+                          child: const Icon(Icons.error_outline),
                         ),
                       )
                     : Container(
@@ -95,7 +99,7 @@ class PopularWidget extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    destination.title,
+                    place.name,
                     style: isDark
                         ? AppStyles.lightYellow18Medium
                         : AppStyles.primary18Medium,
@@ -111,7 +115,7 @@ class PopularWidget extends StatelessWidget {
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
-                          destination.location,
+                          place.locationName,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: isDark
@@ -131,7 +135,7 @@ class PopularWidget extends StatelessWidget {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        '${destination.rating} (${destination.reviews})',
+                        '${place.rating.toStringAsFixed(1)} (${place.reviewCount})',
                         style: isDark
                             ? AppStyles.blue14mediume
                             : AppStyles.black14mediume,

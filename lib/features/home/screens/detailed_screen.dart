@@ -7,10 +7,12 @@ import 'package:tourist_app/core/utils/app_theme.dart';
 import 'package:tourist_app/core/utils/app_routes.dart';
 import 'package:tourist_app/core/utils/dialoge_utils.dart';
 import 'package:tourist_app/features/home/widgets/top_circular_button.dart';
+import 'package:tourist_app/features/home/provider/place_provider.dart';
 
 enum DetailType { place, hotel, transport, guide }
 
 class DetailArgs {
+  final String? id;
   final DetailType type;
   final String title;
   final String location;
@@ -32,6 +34,7 @@ class DetailArgs {
   final String? transportType; // Transport type: "Car", "Felucca"
 
   const DetailArgs({
+    this.id,
     required this.type,
     required this.title,
     required this.location,
@@ -53,6 +56,7 @@ class DetailArgs {
 
   // Default fallback args (Giza Pyramids) if none passed
   static const DetailArgs fallback = DetailArgs(
+    id: "4cddac58-d326-420b-3a43-08deca6f1a42",
     type: DetailType.place,
     title: "Pyramids of Giza",
     location: "Giza, Egypt",
@@ -77,14 +81,76 @@ class DetailScreen extends StatefulWidget {
 
 class _DetailScreenState extends State<DetailScreen> {
   bool isFavorite = false;
+  bool _isInit = true;
+  DetailArgs? _args;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_isInit) {
+      _args = widget.args ??
+          (ModalRoute.of(context)?.settings.arguments as DetailArgs?) ??
+          DetailArgs.fallback;
+      if (_args!.type == DetailType.place && _args!.id != null) {
+        Future.microtask(() {
+          context.read<PlaceProvider>().fetchPlaceDetails(_args!.id!);
+        });
+      }
+      _isInit = false;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    // Retrieve arguments from ModalRoute or constructor fallback
-    final DetailArgs args =
-        widget.args ??
-        (ModalRoute.of(context)?.settings.arguments as DetailArgs?) ??
-        DetailArgs.fallback;
+    final placeProvider = Provider.of<PlaceProvider>(context);
+    DetailArgs args = _args ?? DetailArgs.fallback;
+
+    if (args.type == DetailType.place && args.id != null) {
+      if (placeProvider.isLoadingDetails) {
+        return const Scaffold(
+          body: Center(
+            child: CircularProgressIndicator(),
+          ),
+        );
+      } else if (placeProvider.errorMessageDetails != null) {
+        return Scaffold(
+          body: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  placeProvider.errorMessageDetails!,
+                  style: const TextStyle(color: Colors.red, fontSize: 16),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () {
+                    context.read<PlaceProvider>().fetchPlaceDetails(args.id!, forceRefresh: true);
+                  },
+                  child: const Text('Retry'),
+                ),
+              ],
+            ),
+          ),
+        );
+      } else if (placeProvider.selectedPlaceDetails != null) {
+        final place = placeProvider.selectedPlaceDetails!;
+        args = DetailArgs(
+          id: place.id,
+          type: DetailType.place,
+          title: place.name,
+          location: place.locationName,
+          rating: place.rating,
+          reviewsCount: place.reviewCount,
+          networkImage: place.imageUrl.isNotEmpty ? place.imageUrl : null,
+          about: place.description,
+          price: place.priceFrom > 0 ? "${place.priceFrom.toStringAsFixed(0)} EGP" : "Free",
+          hours: place.openingHours,
+          distance: "${place.distanceKm.toStringAsFixed(1)} km",
+        );
+      }
+    }
 
     final double screenWidth = MediaQuery.of(context).size.width;
     final double paddingSide = screenWidth * 0.05;
