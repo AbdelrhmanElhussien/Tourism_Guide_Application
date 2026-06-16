@@ -9,6 +9,8 @@ import 'package:tourist_app/features/explore/provider/program_provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:tourist_app/features/booking/provider/booking_provider.dart';
 import 'package:tourist_app/core/utils/dialoge_utils.dart';
+import 'package:tourist_app/core/utils/app_routes.dart';
+import 'package:tourist_app/features/home/screens/detailed_screen.dart';
 
 class ExploreTab extends StatefulWidget {
   final int initialSegment;
@@ -953,169 +955,39 @@ class _ExploreTabState extends State<ExploreTab> {
             title: title,
             location: location,
             rating: double.tryParse(rating) ?? 4.5,
-            reviewsCount:
-                int.tryParse(reviews.replaceAll(RegExp(r'[^0-9]'), '')) ?? 100,
+            reviewsCount: int.tryParse(reviews.replaceAll(RegExp(r'[^0-9]'), '')) ?? 100,
             networkImage: image,
-            about:
-                "Enjoy a comfortable ride with our top-rated transport service.",
+            about: "Enjoy a comfortable ride with our top-rated transport service.",
             price: price,
             transportType: "Transport",
           ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Image
-          ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-            child: SizedBox(
-              height: 160,
-              width: double.infinity,
-              child: CachedNetworkImage(
-                imageUrl: image,
-                fit: BoxFit.cover,
-                placeholder: (context, url) => Container(
-                  color: isDark ? AppColors.bottomNavigationColor : Colors.grey[200],
-                  child: const Center(
-                    child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.yellowColor),
-                  ),
-                ),
-                errorWidget: (context, url, error) => Container(
-                  color: Colors.grey[300],
-                  child: const Icon(Icons.error_outline, color: Colors.red),
-                ),
-              ),
-            ),
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.bottomNavigationColor : Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isDark ? Colors.white.withOpacity(0.06) : Colors.black.withOpacity(0.04),
+            width: 1.5,
           ),
-          // Details
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        title,
-                        style: TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.bold,
-                          color: isDark ? Colors.white : AppColors.primaryColor,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      price,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.yellowColor,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                Row(
-                  children: [
-                    const Icon(Icons.location_on_outlined, color: Colors.grey, size: 15),
-                    const SizedBox(width: 4),
-                    Text(
-                      location,
-                      style: const TextStyle(color: Colors.grey, fontSize: 13),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                Row(
-                  children: [
-                    const Icon(Icons.star, color: Colors.amber, size: 16),
-                    const SizedBox(width: 4),
-                    Text(
-                      rating,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: isDark ? Colors.white70 : Colors.black87,
-                        fontSize: 13,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      '($reviews)',
-                      style: const TextStyle(color: Colors.grey, fontSize: 12),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 14),
-                // Outlined full width button
-                SizedBox(
-                  width: double.infinity,
-                  height: 42,
-                  child: OutlinedButton(
-                    onPressed: onBook ?? () {},
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: AppColors.yellowColor, width: 1.5),
-                      backgroundColor: isDark ? const Color(0xFF0B1825) : Colors.white,
-                      foregroundColor: AppColors.yellowColor,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                    child: Text(
-                      buttonText,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHotelCard({
-    required String title,
-    required String price,
-    required String location,
-    required String rating,
-    required String reviews,
-    required String image,
-    required String buttonText,
-    required bool isDark,
-    VoidCallback? onBook,
-  }) {
-    return Container(
-      height: 124,
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.bottomNavigationColor : Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: isDark
-              ? Colors.white.withOpacity(0.06)
-              : Colors.black.withOpacity(0.04),
-          width: 1.5,
+          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Image
             ClipRRect(
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(16),
-              ),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
               child: SizedBox(
-                width: 104,
-                height: 104,
+                height: 160,
+                width: double.infinity,
                 child: CachedNetworkImage(
                   imageUrl: image,
                   fit: BoxFit.cover,
@@ -1147,9 +1019,7 @@ class _ExploreTabState extends State<ExploreTab> {
                           style: TextStyle(
                             fontSize: 17,
                             fontWeight: FontWeight.bold,
-                            color: isDark
-                                ? Colors.white
-                                : AppColors.primaryColor,
+                            color: isDark ? Colors.white : AppColors.primaryColor,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -1169,18 +1039,11 @@ class _ExploreTabState extends State<ExploreTab> {
                   const SizedBox(height: 6),
                   Row(
                     children: [
-                      const Icon(
-                        Icons.location_on_outlined,
-                        color: Colors.grey,
-                        size: 15,
-                      ),
+                      const Icon(Icons.location_on_outlined, color: Colors.grey, size: 15),
                       const SizedBox(width: 4),
                       Text(
                         location,
-                        style: const TextStyle(
-                          color: Colors.grey,
-                          fontSize: 13,
-                        ),
+                        style: const TextStyle(color: Colors.grey, fontSize: 13),
                       ),
                     ],
                   ),
@@ -1200,10 +1063,7 @@ class _ExploreTabState extends State<ExploreTab> {
                       const SizedBox(width: 4),
                       Text(
                         '($reviews)',
-                        style: const TextStyle(
-                          color: Colors.grey,
-                          fontSize: 12,
-                        ),
+                        style: const TextStyle(color: Colors.grey, fontSize: 12),
                       ),
                     ],
                   ),
@@ -1213,42 +1073,20 @@ class _ExploreTabState extends State<ExploreTab> {
                     width: double.infinity,
                     height: 42,
                     child: OutlinedButton(
-                      onPressed: () {},
+                      onPressed: onBook ?? () {},
                       style: OutlinedButton.styleFrom(
-                        side: const BorderSide(
-                          color: AppColors.yellowColor,
-                          width: 1.5,
-                        ),
-                        backgroundColor: isDark
-                            ? const Color(0xFF0B1825)
-                            : Colors.white,
+                        side: const BorderSide(color: AppColors.yellowColor, width: 1.5),
+                        backgroundColor: isDark ? const Color(0xFF0B1825) : Colors.white,
                         foregroundColor: AppColors.yellowColor,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                      SizedBox(
-                        height: 28,
-                        child: ElevatedButton(
-                          onPressed: onBook ?? () {},
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.yellowColor,
-                            foregroundColor: Colors.white,
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 14,
-                            ),
-                          ),
-                          child: Text(
-                            buttonText,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                      child: Text(
+                        buttonText,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
@@ -1283,27 +1121,35 @@ class _ExploreTabState extends State<ExploreTab> {
             title: title,
             location: location,
             rating: double.tryParse(rating) ?? 4.5,
-            reviewsCount:
-                int.tryParse(reviews.replaceAll(RegExp(r'[^0-9]'), '')) ?? 100,
+            reviewsCount: int.tryParse(reviews.replaceAll(RegExp(r'[^0-9]'), '')) ?? 100,
             networkImage: image,
             about: "Experience luxury and comfort at $title.",
             price: price,
             hotelStars: "5 Stars",
           ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Image with duration badge
-          ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-            child: SizedBox(
-              height: 160,
-              width: double.infinity,
-              child: Stack(
-                children: [
-                  CachedNetworkImage(
+        );
+      },
+      child: Container(
+        height: 124,
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.bottomNavigationColor : Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isDark ? Colors.white.withOpacity(0.06) : Colors.black.withOpacity(0.04),
+            width: 1.5,
+          ),
+        ),
+        child: Row(
+          children: [
+            // Image
+            Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: SizedBox(
+                  width: 104,
+                  height: 104,
+                  child: CachedNetworkImage(
                     imageUrl: image,
                     fit: BoxFit.cover,
                     placeholder: (context, url) => Container(
@@ -1320,7 +1166,7 @@ class _ExploreTabState extends State<ExploreTab> {
                 ),
               ),
             ),
-            // Right details
+            // Details
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(2, 10, 12, 10),
@@ -1395,7 +1241,7 @@ class _ExploreTabState extends State<ExploreTab> {
                         SizedBox(
                           height: 28,
                           child: ElevatedButton(
-                            onPressed: () {},
+                            onPressed: onBook ?? () {},
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.yellowColor,
                               foregroundColor: Colors.white,
@@ -1437,6 +1283,7 @@ class _ExploreTabState extends State<ExploreTab> {
     required String image,
     required String buttonText,
     required bool isDark,
+    VoidCallback? onBook,
   }) {
     return GestureDetector(
       onTap: () {
@@ -1448,8 +1295,7 @@ class _ExploreTabState extends State<ExploreTab> {
             title: title,
             location: "Egypt",
             rating: double.tryParse(rating) ?? 4.5,
-            reviewsCount:
-                int.tryParse(reviews.replaceAll(RegExp(r'[^0-9]'), '')) ?? 100,
+            reviewsCount: int.tryParse(reviews.replaceAll(RegExp(r'[^0-9]'), '')) ?? 100,
             networkImage: image,
             about: "Discover our recommended program: $title.",
             price: price,
@@ -1462,9 +1308,7 @@ class _ExploreTabState extends State<ExploreTab> {
           color: isDark ? AppColors.bottomNavigationColor : Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isDark
-                ? Colors.white.withOpacity(0.06)
-                : Colors.black.withOpacity(0.04),
+            color: isDark ? Colors.white.withOpacity(0.06) : Colors.black.withOpacity(0.04),
             width: 1.5,
           ),
           boxShadow: [
@@ -1488,14 +1332,18 @@ class _ExploreTabState extends State<ExploreTab> {
                 width: double.infinity,
                 child: Stack(
                   children: [
-                    Image.network(
-                      image,
-                      width: double.infinity,
-                      height: double.infinity,
+                    CachedNetworkImage(
+                      imageUrl: image,
                       fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(
+                      placeholder: (context, url) => Container(
+                        color: isDark ? AppColors.bottomNavigationColor : Colors.grey[200],
+                        child: const Center(
+                          child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.yellowColor),
+                        ),
+                      ),
+                      errorWidget: (context, url, error) => Container(
                         color: Colors.grey[300],
-                        child: const Icon(Icons.image_not_supported),
+                        child: const Icon(Icons.error_outline, color: Colors.red),
                       ),
                     ),
                     Positioned(
@@ -1533,19 +1381,28 @@ class _ExploreTabState extends State<ExploreTab> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 14),
-                // Filled button
-                SizedBox(
-                  width: double.infinity,
-                  height: 42,
-                  child: ElevatedButton(
-                    onPressed: onBook ?? () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.yellowColor,
-                      foregroundColor: Colors.white,
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            // Details
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          title,
+                          style: TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.bold,
+                            color: isDark ? Colors.white : AppColors.primaryColor,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                       const SizedBox(width: 8),
                       Text(
@@ -1587,7 +1444,7 @@ class _ExploreTabState extends State<ExploreTab> {
                     width: double.infinity,
                     height: 42,
                     child: ElevatedButton(
-                      onPressed: () {},
+                      onPressed: onBook ?? () {},
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.yellowColor,
                         foregroundColor: Colors.white,
