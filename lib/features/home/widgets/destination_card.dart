@@ -2,21 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tourist_app/core/provider/themeProvider.dart';
 import 'package:tourist_app/core/utils/app_theme.dart';
-import 'package:tourist_app/core/utils/app_routes.dart';
-import 'package:tourist_app/features/home/screens/detailed_screen.dart';
-import 'package:tourist_app/features/home/widgets/tourism_destination.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:tourist_app/core/utils/app_routes.dart';
 import 'package:tourist_app/features/home/screens/detailed_screen.dart';
+import 'package:tourist_app/features/home/models/place_model.dart';
 
 class DestinationCard extends StatelessWidget {
   const DestinationCard({
     super.key,
-    required this.destination,
+    required this.place,
     this.compact = false,
   });
 
-  final TourismDestination destination;
+  final PlaceModel place;
   final bool compact;
 
   @override
@@ -40,19 +39,17 @@ class DestinationCard extends StatelessWidget {
           context,
           AppRoutes.DetailScreenRouteName,
           arguments: DetailArgs(
-            id: destination.id,
+            id: place.id,
             type: DetailType.place,
-            title: destination.title,
-            location: destination.location,
-            rating: destination.rating,
-            reviewsCount: destination.reviews,
-            assetImage: destination.assetImage,
-            networkImage: destination.networkImage,
-            about:
-                "Experience the beauty and history of ${destination.title}. A perfect destination for your next trip.",
-            price: "150 EGP",
-            hours: "9:00 AM - 5:00 PM",
-            distance: "Nearby",
+            title: place.name,
+            location: place.locationName,
+            rating: place.rating,
+            reviewsCount: place.reviewCount,
+            networkImage: place.imageUrl.isNotEmpty ? place.imageUrl : null,
+            about: place.description,
+            price: place.priceFrom > 0 ? "${place.priceFrom.toStringAsFixed(0)} EGP" : "Free",
+            hours: place.openingHours,
+            distance: "${place.distanceKm.toStringAsFixed(1)} km",
           ),
         );
       },
@@ -76,7 +73,7 @@ class DestinationCard extends StatelessWidget {
             children: [
               Expanded(
                 flex: compact ? 5 : 7,
-                child: _DestinationImage(destination: destination),
+                child: _DestinationImage(place: place),
               ),
               Expanded(
                 flex: compact ? 3 : 4,
@@ -88,7 +85,7 @@ class DestinationCard extends StatelessWidget {
                     compact ? 10 : 14,
                   ),
                   child: _DestinationMeta(
-                    destination: destination,
+                    place: place,
                     compact: compact,
                   ),
                 ),
@@ -102,43 +99,55 @@ class DestinationCard extends StatelessWidget {
 }
 
 class _DestinationImage extends StatelessWidget {
-  const _DestinationImage({required this.destination});
+  const _DestinationImage({required this.place});
 
-  final TourismDestination destination;
+  final PlaceModel place;
 
   @override
   Widget build(BuildContext context) {
-    if (destination.assetImage != null) {
-      return Image.asset(
-        destination.assetImage!,
+    if (place.imageUrl.isEmpty) {
+      return Container(
         width: double.infinity,
-        fit: BoxFit.cover,
+        color: const Color(0xFFF4F1EA),
+        alignment: Alignment.center,
+        child: const Icon(
+          Icons.image_not_supported_outlined,
+          color: AppColors.lightGrayColor,
+        ),
       );
     }
 
-    return Image.network(
-      destination.networkImage!,
+    return CachedNetworkImage(
+      imageUrl: place.imageUrl,
       width: double.infinity,
       fit: BoxFit.cover,
-      errorBuilder: (context, error, stackTrace) {
-        return Container(
-          width: double.infinity,
-          color: const Color(0xFFF4F1EA),
-          alignment: Alignment.center,
-          child: const Icon(
-            Icons.image_not_supported_outlined,
-            color: AppColors.lightGrayColor,
-          ),
-        );
-      },
+      placeholder: (context, url) => Container(
+        width: double.infinity,
+        color: const Color(0xFFF4F1EA),
+        alignment: Alignment.center,
+        child: const SizedBox(
+          width: 24,
+          height: 24,
+          child: CircularProgressIndicator(strokeWidth: 2),
+        ),
+      ),
+      errorWidget: (context, url, error) => Container(
+        width: double.infinity,
+        color: const Color(0xFFF4F1EA),
+        alignment: Alignment.center,
+        child: const Icon(
+          Icons.image_not_supported_outlined,
+          color: AppColors.lightGrayColor,
+        ),
+      ),
     );
   }
 }
 
 class _DestinationMeta extends StatelessWidget {
-  const _DestinationMeta({required this.destination, required this.compact});
+  const _DestinationMeta({required this.place, required this.compact});
 
-  final TourismDestination destination;
+  final PlaceModel place;
   final bool compact;
 
   @override
@@ -159,7 +168,7 @@ class _DestinationMeta extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          destination.title,
+          place.name,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: titleStyle,
@@ -174,7 +183,7 @@ class _DestinationMeta extends StatelessWidget {
             const SizedBox(width: 4),
             Expanded(
               child: Text(
-                destination.location,
+                place.locationName,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: AppStyles.lightGray14Regular.copyWith(
@@ -194,7 +203,7 @@ class _DestinationMeta extends StatelessWidget {
             ),
             const SizedBox(width: 4),
             Text(
-              destination.rating.toStringAsFixed(1),
+              place.rating.toStringAsFixed(1),
               style: AppStyles.primary16Medium.copyWith(
                 color: isDark ? AppColors.begiColor : AppColors.primaryColor,
                 fontSize: compact ? 14 : 15,
@@ -204,7 +213,7 @@ class _DestinationMeta extends StatelessWidget {
             const SizedBox(width: 4),
             Flexible(
               child: Text(
-                '(${destination.reviews})',
+                '(${place.reviewCount})',
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: AppStyles.lightGray12Regular.copyWith(

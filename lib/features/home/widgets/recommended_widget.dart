@@ -3,12 +3,16 @@ import 'package:provider/provider.dart';
 import 'package:tourist_app/core/provider/themeProvider.dart';
 import 'package:tourist_app/core/utils/app_assets.dart';
 import 'package:tourist_app/core/utils/app_theme.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:tourist_app/core/utils/app_routes.dart';
 import 'package:tourist_app/features/home/screens/detailed_screen.dart';
+import 'package:tourist_app/features/home/models/place_model.dart';
 
 class RecommendedWidget extends StatelessWidget {
-  const RecommendedWidget({super.key});
+  final PlaceModel place;
+
+  const RecommendedWidget({super.key, required this.place});
 
   @override
   Widget build(BuildContext context) {
@@ -24,17 +28,17 @@ class RecommendedWidget extends StatelessWidget {
           context,
           AppRoutes.DetailScreenRouteName,
           arguments: DetailArgs(
+            id: place.id,
             type: DetailType.place,
-            title: 'Pyramids of Giza',
-            location: 'Giza, Egypt',
-            rating: 4.9,
-            reviewsCount: 12543,
-            assetImage: AppAssets.pyramidsofGiza,
-            about:
-                "Experience the timeless wonder of the Pyramids of Giza, a monumental feat of ancient engineering.",
-            price: "200 EGP",
-            hours: "8:00 AM - 5:00 PM",
-            distance: "Nearby",
+            title: place.name,
+            location: place.locationName,
+            rating: place.rating,
+            reviewsCount: place.reviewCount,
+            networkImage: place.imageUrl.isNotEmpty ? place.imageUrl : null,
+            about: place.description,
+            price: place.priceFrom > 0 ? "${place.priceFrom.toStringAsFixed(0)} EGP" : "Free",
+            hours: place.openingHours,
+            distance: "${place.distanceKm.toStringAsFixed(1)} km",
           ),
         );
       },
@@ -63,11 +67,31 @@ class RecommendedWidget extends StatelessWidget {
                 borderRadius: const BorderRadius.vertical(
                   top: Radius.circular(15),
                 ),
-                child: Image.asset(
-                  AppAssets.pyramidsofGiza,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                ),
+                child: place.imageUrl.isNotEmpty
+                    ? CachedNetworkImage(
+                        imageUrl: place.imageUrl,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) => Container(
+                          color: Colors.grey[200],
+                          child: const Center(
+                            child: SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            ),
+                          ),
+                        ),
+                        errorWidget: (context, url, error) => Container(
+                          color: Colors.grey[200],
+                          child: const Icon(Icons.error_outline),
+                        ),
+                      )
+                    : Image.asset(
+                        AppAssets.pyramidsofGiza,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
               ),
             ),
             Expanded(
@@ -82,7 +106,7 @@ class RecommendedWidget extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Pyramids of Giza',
+                      place.name,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: isDark
@@ -99,7 +123,7 @@ class RecommendedWidget extends StatelessWidget {
                         const SizedBox(width: 3),
                         Expanded(
                           child: Text(
-                            'Giza, Egypt',
+                            place.locationName,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: isDark
@@ -119,7 +143,7 @@ class RecommendedWidget extends StatelessWidget {
                         const SizedBox(width: 3),
                         Expanded(
                           child: Text(
-                            '4.9 (12543)',
+                            '${place.rating.toStringAsFixed(1)} (${place.reviewCount})',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: isDark

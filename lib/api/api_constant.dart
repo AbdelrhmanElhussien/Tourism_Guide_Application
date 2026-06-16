@@ -8,6 +8,7 @@ class ApiConstant {
   static const String resetPasswordEndPoint = 'Accounts/ResetPassword';
   static const String changePasswordEndPoint = 'Accounts/ChangePassword';
   static const String testAuthEndPoint = 'Accounts/TestAuth';
+
   static const String guidesEndPoint = 'Guides';
   static const String hotelsEndPoint = 'Hotels';
   static const String transportEndPoint = 'Transport';
@@ -21,4 +22,8 @@ class ApiConstant {
   static const String bookProgramEndPoint = 'Programs/{id}/book';
   static const String bookServiceEndPoint = 'Services/{id}/book';
   static const String bookTransportEndPoint = 'Transport/{id}/book';
+  
+  static const String placesEndPoint = 'Places';
+  static const String recommendedPlacesEndPoint = 'Places/GetRecommendedPlaces';
+  static const String placesSummaryEndPoint = 'Places/summary';
 }

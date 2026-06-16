@@ -3,13 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:tourist_app/core/provider/themeProvider.dart';
+import 'package:tourist_app/core/utils/app_routes.dart';
 import 'package:tourist_app/core/utils/app_theme.dart';
 import 'package:tourist_app/core/utils/cache_helper.dart';
 import 'package:tourist_app/features/home/widgets/categories_section.dart';
 import 'package:tourist_app/features/home/widgets/popular_widget.dart';
 import 'package:tourist_app/features/home/widgets/recommended_widget.dart';
 import 'package:tourist_app/features/home/widgets/search_widget.dart';
-import 'package:tourist_app/features/home/widgets/tourism_destination.dart';
+import 'package:tourist_app/features/home/provider/place_provider.dart';
 
 class HomeTab extends StatefulWidget {
   final Function(String) onCategorySelected;
@@ -71,6 +72,17 @@ class _HomeTabState extends State<HomeTab> {
         );
       },
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      if (mounted) {
+        context.read<PlaceProvider>().fetchRecommendedPlaces();
+        context.read<PlaceProvider>().fetchPlacesSummary();
+      }
+    });
   }
 
   @override
@@ -199,12 +211,33 @@ class _HomeTabState extends State<HomeTab> {
 
           SizedBox(
             height: recommendedHeight,
-            child: ListView.separated(
-              physics: const ClampingScrollPhysics(),
-              scrollDirection: Axis.horizontal,
-              itemCount: 4,
-              separatorBuilder: (context, index) => SizedBox(width: listGap),
-              itemBuilder: (context, index) => const RecommendedWidget(),
+            child: Consumer<PlaceProvider>(
+              builder: (context, placeProvider, child) {
+                if (placeProvider.isLoadingRecommended) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (placeProvider.errorMessageRecommended != null) {
+                  return Center(
+                    child: Text(
+                      placeProvider.errorMessageRecommended!,
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                  );
+                } else if (placeProvider.recommendedPlaces.isEmpty) {
+                  return Center(child: Text('no_places_found'.tr()));
+                } else {
+                  final list = placeProvider.recommendedPlaces;
+                  return ListView.separated(
+                    physics: const ClampingScrollPhysics(),
+                    scrollDirection: Axis.horizontal,
+                    itemCount: list.length,
+                    separatorBuilder: (context, index) =>
+                        SizedBox(width: listGap),
+                    itemBuilder: (context, index) {
+                      return RecommendedWidget(place: list[index]);
+                    },
+                  );
+                }
+              },
             ),
           ),
 
@@ -220,21 +253,58 @@ class _HomeTabState extends State<HomeTab> {
                     ? AppStyles.lightYellow24semiBold
                     : AppStyles.primary24semiBold,
               ),
-              Text('see_all'.tr(), style: AppStyles.yellow14mediume),
+              GestureDetector(
+                onTap: () {
+                  Navigator.pushNamed(context, AppRoutes.savedPlacesRouteName);
+                },
+                child: Text('see_all'.tr(), style: AppStyles.yellow14mediume),
+              ),
             ],
           ),
 
           SizedBox(height: sectionSpacing),
 
           // Popular places list
-          ListView.separated(
-            physics: const NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            scrollDirection: Axis.vertical,
-            itemCount: tourismDestinations.length,
-            separatorBuilder: (context, index) => SizedBox(height: listGap),
-            itemBuilder: (context, index) {
-              return PopularWidget(destination: tourismDestinations[index]);
+          Consumer<PlaceProvider>(
+            builder: (context, placeProvider, child) {
+              if (placeProvider.isLoadingSummary) {
+                return const Center(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 24),
+                    child: CircularProgressIndicator(),
+                  ),
+                );
+              } else if (placeProvider.errorMessageSummary != null) {
+                return Center(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 24),
+                    child: Text(
+                      placeProvider.errorMessageSummary!,
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                  ),
+                );
+              } else if (placeProvider.summaryPlaces.isEmpty) {
+                return Center(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 24),
+                    child: Text('no_places_found'.tr()),
+                  ),
+                );
+              } else {
+                final list = placeProvider.summaryPlaces;
+                return ListView.separated(
+                  physics: const NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  scrollDirection: Axis.vertical,
+                  itemCount: list.length,
+                  separatorBuilder: (context, index) =>
+                      SizedBox(height: listGap),
+                  itemBuilder: (context, index) {
+                    return PopularWidget(place: list[index]);
+                  },
+                );
+              }
             },
           ),
           SizedBox(height: sectionSpacing),

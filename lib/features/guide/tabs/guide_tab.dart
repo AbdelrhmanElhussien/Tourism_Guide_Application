@@ -8,6 +8,8 @@ import 'package:tourist_app/features/guide/models/guide_model.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:tourist_app/features/booking/provider/booking_provider.dart';
 import 'package:tourist_app/core/utils/dialoge_utils.dart';
+import 'package:tourist_app/core/utils/app_routes.dart';
+import 'package:tourist_app/features/home/screens/detailed_screen.dart';
 
 class GuideTab extends StatefulWidget {
   const GuideTab({super.key});
@@ -302,184 +304,206 @@ class _GuideTabState extends State<GuideTab> {
           ),
         ],
       ),
-      child: Column(
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Avatar
-              Stack(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: CachedNetworkImage(
-                      imageUrl: guide.imageUrl,
-                      width: 85,
-                      height: 85,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => Container(
-                        width: 85,
-                        height: 85,
-                        color: isDark ? AppColors.bottomNavigationColor : Colors.grey[200],
-                        child: const Center(
-                          child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.yellowColor),
-                        ),
-                      ),
-                      errorWidget: (context, url, error) => Container(
-                        width: 85,
-                        height: 85,
-                        color: Colors.grey[300],
-                        child: const Icon(Icons.person, color: Colors.grey),
-                      ),
-                    ),
-                  ),
-                  if (guide.isAvailable)
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: Container(
-                        width: 14,
-                        height: 14,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF1ABC9C),
-                          shape: BoxShape.circle,
-                          border: Border.all(color: isDark ? AppColors.bottomNavigationColor : Colors.white, width: 2),
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-              const SizedBox(width: 16),
-              // Profile Info
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () {
+          Navigator.pushNamed(
+            context,
+            AppRoutes.DetailScreenRouteName,
+            arguments: DetailArgs(
+              id: guide.id,
+              type: DetailType.guide,
+              title: guide.fullName,
+              location: guide.nationality,
+              rating: guide.rating,
+              reviewsCount: guide.reviewCount,
+              networkImage: guide.imageUrl,
+              about: guide.bio.isNotEmpty ? guide.bio : guide.description,
+              price: "\$${guide.pricePerDay.toStringAsFixed(0)}/day",
+              speciality: guide.specialization,
+              languages: guide.languages,
+            ),
+          );
+        },
+        child: Column(
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Avatar
+                Stack(
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            guide.fullName,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: isDark ? Colors.white : AppColors.primaryColor,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: CachedNetworkImage(
+                        imageUrl: guide.imageUrl,
+                        width: 85,
+                        height: 85,
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) => Container(
+                          width: 85,
+                          height: 85,
+                          color: isDark ? AppColors.bottomNavigationColor : Colors.grey[200],
+                          child: const Center(
+                            child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.yellowColor),
                           ),
                         ),
-                        Row(
-                          children: [
-                            const Icon(Icons.star, color: Colors.amber, size: 16),
-                            const SizedBox(width: 2),
-                            Text(
-                              guide.rating.toStringAsFixed(1),
+                        errorWidget: (context, url, error) => Container(
+                          width: 85,
+                          height: 85,
+                          color: Colors.grey[300],
+                          child: const Icon(Icons.person, color: Colors.grey),
+                        ),
+                      ),
+                    ),
+                    if (guide.isAvailable)
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: Container(
+                          width: 14,
+                          height: 14,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF1ABC9C),
+                            shape: BoxShape.circle,
+                            border: Border.all(color: isDark ? AppColors.bottomNavigationColor : Colors.white, width: 2),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                const SizedBox(width: 16),
+                // Profile Info
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              guide.fullName,
                               style: TextStyle(
+                                fontSize: 16,
                                 fontWeight: FontWeight.bold,
-                                color: isDark ? Colors.white70 : Colors.black87,
-                                fontSize: 13,
+                                color: isDark ? Colors.white : AppColors.primaryColor,
                               ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            const SizedBox(width: 2),
-                            Text(
-                              '(${guide.reviewCount})',
-                              style: const TextStyle(color: Colors.grey, fontSize: 12),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      guide.specialization,
-                      style: const TextStyle(
-                        color: AppColors.yellowColor,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.location_on_outlined,
-                          color: Colors.grey,
-                          size: 14,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          guide.nationality,
-                          style: const TextStyle(
-                            color: Colors.grey,
-                            fontSize: 12,
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          // Languages & Price row
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Row(
-                  children: [
-                    const Icon(Icons.language, color: Colors.grey, size: 16),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: Text(
-                        guide.languagesList.join(', '),
-                        style: const TextStyle(color: Colors.grey, fontSize: 12),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                          Row(
+                            children: [
+                              const Icon(Icons.star, color: Colors.amber, size: 16),
+                              const SizedBox(width: 2),
+                              Text(
+                                guide.rating.toStringAsFixed(1),
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: isDark ? Colors.white70 : Colors.black87,
+                                  fontSize: 13,
+                                ),
+                              ),
+                              const SizedBox(width: 2),
+                              Text(
+                                '(${guide.reviewCount})',
+                                style: const TextStyle(color: Colors.grey, fontSize: 12),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 2),
+                      Text(
+                        guide.specialization,
+                        style: const TextStyle(
+                          color: AppColors.yellowColor,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.location_on_outlined,
+                            color: Colors.grey,
+                            size: 14,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            guide.nationality,
+                            style: const TextStyle(
+                              color: Colors.grey,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              Text(
-                '\$${guide.pricePerDay.toStringAsFixed(0)}/day',
-                style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.yellowColor, fontSize: 15),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          // Book button
-          SizedBox(
-            width: double.infinity,
-            height: 40,
-            child: ElevatedButton(
-              onPressed: () async {
-                try {
-                  DialogeUtils.showLoading(context: context, text: "loading_msg".tr());
-                  await context.read<BookingProvider>().bookItem('guide', guide.id);
-                  DialogeUtils.hideLoading(context: context);
-                  DialogeUtils.showMassage(context: context, masseage: 'Booking Successful', title: 'Success', posActionName: 'OK');
-                } catch (e) {
-                  DialogeUtils.hideLoading(context: context);
-                  DialogeUtils.showMassage(context: context, masseage: e.toString(), title: 'Error', posActionName: 'OK');
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: isDark ? const Color(0xFF1E3A5F) : AppColors.primaryColor.withOpacity(0.09),
-                foregroundColor: AppColors.yellowColor,
-                elevation: 0,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              ),
-              child: Text(
-                'book_guide'.tr(),
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+              ],
+            ),
+            const SizedBox(height: 12),
+            // Languages & Price row
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Row(
+                    children: [
+                      const Icon(Icons.language, color: Colors.grey, size: 16),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          guide.languagesList.join(', '),
+                          style: const TextStyle(color: Colors.grey, fontSize: 12),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Text(
+                  '\$${guide.pricePerDay.toStringAsFixed(0)}/day',
+                  style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.yellowColor, fontSize: 15),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            // Book button
+            SizedBox(
+              width: double.infinity,
+              height: 40,
+              child: ElevatedButton(
+                onPressed: () async {
+                  try {
+                    DialogeUtils.showLoading(context: context, text: "loading_msg".tr());
+                    await context.read<BookingProvider>().bookItem('guide', guide.id);
+                    DialogeUtils.hideLoading(context: context);
+                    DialogeUtils.showMassage(context: context, masseage: 'Booking Successful', title: 'Success', posActionName: 'OK');
+                  } catch (e) {
+                    DialogeUtils.hideLoading(context: context);
+                    DialogeUtils.showMassage(context: context, masseage: e.toString(), title: 'Error', posActionName: 'OK');
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: isDark ? const Color(0xFF1E3A5F) : AppColors.primaryColor.withOpacity(0.09),
+                  foregroundColor: AppColors.yellowColor,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+                child: Text(
+                  'book_guide'.tr(),
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

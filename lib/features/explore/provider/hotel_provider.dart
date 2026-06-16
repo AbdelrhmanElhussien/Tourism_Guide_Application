@@ -73,12 +73,41 @@ class HotelProvider extends ChangeNotifier {
     }
   }
 
+  HotelModel? _selectedHotelDetails;
+  bool _isLoadingDetails = false;
+  String? _errorMessageDetails;
+
+  HotelModel? get selectedHotelDetails => _selectedHotelDetails;
+  bool get isLoadingDetails => _isLoadingDetails;
+  String? get errorMessageDetails => _errorMessageDetails;
+
+  Future<void> fetchHotelDetails(String id, {bool forceRefresh = false}) async {
+    if (_selectedHotelDetails?.id == id && !forceRefresh) return;
+
+    _isLoadingDetails = true;
+    _errorMessageDetails = null;
+    notifyListeners();
+
+    try {
+      final details = await _hotelService.fetchHotelDetails(id);
+      _selectedHotelDetails = details;
+    } catch (e) {
+      _errorMessageDetails = e.toString().replaceAll('Exception: ', '');
+    } finally {
+      _isLoadingDetails = false;
+      notifyListeners();
+    }
+  }
+
   void clearCache() {
     _hasFetched = false;
     _hotels = [];
     _errorMessage = null;
     _currentPage = 1;
     _hasMore = true;
+    _selectedHotelDetails = null;
+    _isLoadingDetails = false;
+    _errorMessageDetails = null;
     notifyListeners();
   }
 }

@@ -590,6 +590,7 @@ class _ExploreTabState extends State<ExploreTab> {
                           }
                           final item = filteredList[index];
                           return _buildTransportCard(
+                            id: item.id,
                             title: item.name,
                             price: '\$${item.price.toStringAsFixed(0)}',
                             location: '${item.departureLocation} → ${item.arrivalLocation}',
@@ -739,6 +740,7 @@ class _ExploreTabState extends State<ExploreTab> {
                           }
                           final item = filteredList[index];
                           return _buildHotelCard(
+                            id: item.id,
                             title: item.name,
                             price: '\$${item.pricePerNight.toStringAsFixed(0)}/night',
                             location: item.location,
@@ -901,6 +903,7 @@ class _ExploreTabState extends State<ExploreTab> {
                           }
                           final item = filteredList[index];
                           return _buildProgramCard(
+                            id: item.id,
                             title: item.name,
                             price: '\$${item.price.toStringAsFixed(0)}',
                             duration: '${item.duration} hrs',
@@ -935,6 +938,7 @@ class _ExploreTabState extends State<ExploreTab> {
   // ── Card Styles ──
 
   Widget _buildTransportCard({
+    required String id,
     required String title,
     required String price,
     required String location,
@@ -951,6 +955,7 @@ class _ExploreTabState extends State<ExploreTab> {
           context,
           AppRoutes.DetailScreenRouteName,
           arguments: DetailArgs(
+            id: id,
             type: DetailType.transport,
             title: title,
             location: location,
@@ -1101,6 +1106,7 @@ class _ExploreTabState extends State<ExploreTab> {
   }
 
   Widget _buildHotelCard({
+    required String id,
     required String title,
     required String price,
     required String location,
@@ -1117,6 +1123,7 @@ class _ExploreTabState extends State<ExploreTab> {
           context,
           AppRoutes.DetailScreenRouteName,
           arguments: DetailArgs(
+            id: id,
             type: DetailType.hotel,
             title: title,
             location: location,
@@ -1275,6 +1282,7 @@ class _ExploreTabState extends State<ExploreTab> {
   }
 
   Widget _buildProgramCard({
+    required String id,
     required String title,
     required String price,
     required String duration,
@@ -1291,7 +1299,8 @@ class _ExploreTabState extends State<ExploreTab> {
           context,
           AppRoutes.DetailScreenRouteName,
           arguments: DetailArgs(
-            type: DetailType.place,
+            id: id,
+            type: DetailType.program,
             title: title,
             location: "Egypt",
             rating: double.tryParse(rating) ?? 4.5,

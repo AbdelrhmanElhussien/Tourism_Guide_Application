@@ -67,4 +67,50 @@ class TransportService {
       rethrow;
     }
   }
+
+  Future<TransportModel> fetchTransportDetails(String id) async {
+    try {
+      final response = await _dio.get('${ApiConstant.transportEndPoint}/$id');
+
+      if (response.statusCode == 200) {
+        final data = response.data;
+
+        if (data is Map<String, dynamic>) {
+          if (data['success'] == true && data['data'] != null) {
+            return TransportModel.fromJson(data['data'] as Map<String, dynamic>);
+          }
+          return TransportModel.fromJson(data);
+        }
+
+        throw Exception('Unexpected API response format');
+      }
+
+      throw Exception('Failed to load transport details (Status: ${response.statusCode})');
+    } on DioException catch (e) {
+      final errorData = e.response?.data;
+      String message = 'Something went wrong';
+
+      if (errorData is Map) {
+        message = errorData['errors']?['msg'] ??
+            errorData['message'] ??
+            message;
+      }
+
+      switch (e.type) {
+        case DioExceptionType.connectionTimeout:
+        case DioExceptionType.sendTimeout:
+        case DioExceptionType.receiveTimeout:
+        case DioExceptionType.connectionError:
+          throw Exception('Please check your internet connection');
+        case DioExceptionType.badResponse:
+          throw Exception(message);
+        case DioExceptionType.cancel:
+          throw Exception('Request was cancelled');
+        default:
+          throw Exception(message);
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

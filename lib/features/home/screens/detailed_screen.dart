@@ -9,6 +9,11 @@ import 'package:tourist_app/core/utils/app_theme.dart';
 import 'package:tourist_app/core/utils/app_routes.dart';
 import 'package:tourist_app/core/utils/dialoge_utils.dart';
 import 'package:tourist_app/features/home/widgets/top_circular_button.dart';
+import 'package:tourist_app/features/home/provider/place_provider.dart';
+import 'package:tourist_app/features/guide/provider/guide_provider.dart';
+import 'package:tourist_app/features/explore/provider/hotel_provider.dart';
+import 'package:tourist_app/features/explore/provider/transport_provider.dart';
+import 'package:tourist_app/features/explore/provider/program_provider.dart';
 import 'package:intl/intl.dart';
 import 'package:tourist_app/domain/use_cases/trips/create_trip_use_case.dart';
 import 'package:tourist_app/features/profile/cubit/profile_cubit.dart';
@@ -61,6 +66,7 @@ class DetailArgs {
 
   // Default fallback args (Giza Pyramids) if none passed
   static const DetailArgs fallback = DetailArgs(
+    id: "4cddac58-d326-420b-3a43-08deca6f1a42",
     type: DetailType.place,
     title: "Pyramids of Giza",
     location: "Giza, Egypt",
@@ -86,14 +92,205 @@ class DetailScreen extends StatefulWidget {
 class _DetailScreenState extends State<DetailScreen> {
   bool isFavorite = false;
   bool isVisited = false;
+  bool _isInit = true;
+  DetailArgs? _args;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_isInit) {
+      _args = widget.args ??
+          (ModalRoute.of(context)?.settings.arguments as DetailArgs?) ??
+          DetailArgs.fallback;
+      if (_args!.id != null) {
+        Future.microtask(() {
+          if (!mounted) return;
+          final id = _args!.id!;
+          switch (_args!.type) {
+            case DetailType.place:
+              context.read<PlaceProvider>().fetchPlaceDetails(id);
+              break;
+            case DetailType.guide:
+              context.read<GuideProvider>().fetchGuideDetails(id);
+              break;
+            case DetailType.hotel:
+              context.read<HotelProvider>().fetchHotelDetails(id);
+              break;
+            case DetailType.transport:
+              context.read<TransportProvider>().fetchTransportDetails(id);
+              break;
+            case DetailType.program:
+              context.read<ProgramProvider>().fetchProgramDetails(id);
+              break;
+          }
+        });
+      }
+      _isInit = false;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    // Retrieve arguments from ModalRoute or constructor fallback
-    final DetailArgs args =
-        widget.args ??
-        (ModalRoute.of(context)?.settings.arguments as DetailArgs?) ??
-        DetailArgs.fallback;
+    final placeProvider = Provider.of<PlaceProvider>(context);
+    final guideProvider = Provider.of<GuideProvider>(context);
+    final hotelProvider = Provider.of<HotelProvider>(context);
+    final transportProvider = Provider.of<TransportProvider>(context);
+    final programProvider = Provider.of<ProgramProvider>(context);
+
+    DetailArgs args = _args ?? DetailArgs.fallback;
+
+    if (args.id != null) {
+      bool isLoading = false;
+      String? errorMessage;
+
+      switch (args.type) {
+        case DetailType.place:
+          isLoading = placeProvider.isLoadingDetails;
+          errorMessage = placeProvider.errorMessageDetails;
+          if (!isLoading && errorMessage == null && placeProvider.selectedPlaceDetails != null) {
+            final place = placeProvider.selectedPlaceDetails!;
+            args = DetailArgs(
+              id: place.id,
+              type: DetailType.place,
+              title: place.name,
+              location: place.locationName,
+              rating: place.rating,
+              reviewsCount: place.reviewCount,
+              networkImage: place.imageUrl.isNotEmpty ? place.imageUrl : null,
+              about: place.description,
+              price: place.priceFrom > 0 ? "${place.priceFrom.toStringAsFixed(0)} EGP" : "Free",
+              hours: place.openingHours,
+              distance: "${place.distanceKm.toStringAsFixed(1)} km",
+            );
+          }
+          break;
+        case DetailType.guide:
+          isLoading = guideProvider.isLoadingDetails;
+          errorMessage = guideProvider.errorMessageDetails;
+          if (!isLoading && errorMessage == null && guideProvider.selectedGuideDetails != null) {
+            final guide = guideProvider.selectedGuideDetails!;
+            args = DetailArgs(
+              id: guide.id,
+              type: DetailType.guide,
+              title: guide.fullName,
+              location: guide.nationality,
+              rating: guide.rating,
+              reviewsCount: guide.reviewCount,
+              networkImage: guide.imageUrl.isNotEmpty ? guide.imageUrl : null,
+              about: guide.bio.isNotEmpty ? guide.bio : guide.description,
+              price: "\$${guide.pricePerDay.toStringAsFixed(0)}/day",
+              speciality: guide.specialization,
+              languages: guide.languages,
+            );
+          }
+          break;
+        case DetailType.hotel:
+          isLoading = hotelProvider.isLoadingDetails;
+          errorMessage = hotelProvider.errorMessageDetails;
+          if (!isLoading && errorMessage == null && hotelProvider.selectedHotelDetails != null) {
+            final hotel = hotelProvider.selectedHotelDetails!;
+            args = DetailArgs(
+              id: hotel.id,
+              type: DetailType.hotel,
+              title: hotel.name,
+              location: hotel.location,
+              rating: hotel.rating,
+              reviewsCount: hotel.reviewCount,
+              networkImage: hotel.imageUrl.isNotEmpty ? hotel.imageUrl : null,
+              about: hotel.description,
+              price: "\$${hotel.pricePerNight.toStringAsFixed(0)}/night",
+              hotelStars: "${hotel.starRating} Stars",
+            );
+          }
+          break;
+        case DetailType.transport:
+          isLoading = transportProvider.isLoadingDetails;
+          errorMessage = transportProvider.errorMessageDetails;
+          if (!isLoading && errorMessage == null && transportProvider.selectedTransportDetails != null) {
+            final transport = transportProvider.selectedTransportDetails!;
+            args = DetailArgs(
+              id: transport.id,
+              type: DetailType.transport,
+              title: transport.name,
+              location: "${transport.departureLocation} → ${transport.arrivalLocation}",
+              rating: transport.rating,
+              reviewsCount: transport.reviewCount,
+              networkImage: transport.imageUrl.isNotEmpty ? transport.imageUrl : null,
+              about: transport.description,
+              price: "\$${transport.price.toStringAsFixed(0)}",
+              capacity: "${transport.totalCapacity} Seats",
+              transportType: transport.type,
+            );
+          }
+          break;
+        case DetailType.program:
+          isLoading = programProvider.isLoadingDetails;
+          errorMessage = programProvider.errorMessageDetails;
+          if (!isLoading && errorMessage == null && programProvider.selectedProgramDetails != null) {
+            final program = programProvider.selectedProgramDetails!;
+            args = DetailArgs(
+              id: program.id,
+              type: DetailType.program,
+              title: program.name,
+              location: program.location,
+              rating: program.rating,
+              reviewsCount: program.reviewCount,
+              networkImage: program.imageUrl.isNotEmpty ? program.imageUrl : null,
+              about: program.description,
+              price: "\$${program.price.toStringAsFixed(0)}",
+              duration: "${program.duration} hrs",
+            );
+          }
+          break;
+      }
+
+      if (isLoading) {
+        return const Scaffold(
+          body: Center(
+            child: CircularProgressIndicator(),
+          ),
+        );
+      } else if (errorMessage != null) {
+        return Scaffold(
+          body: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  errorMessage,
+                  style: const TextStyle(color: Colors.red, fontSize: 16),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () {
+                    final id = _args!.id!;
+                    switch (_args!.type) {
+                      case DetailType.place:
+                        context.read<PlaceProvider>().fetchPlaceDetails(id, forceRefresh: true);
+                        break;
+                      case DetailType.guide:
+                        context.read<GuideProvider>().fetchGuideDetails(id, forceRefresh: true);
+                        break;
+                      case DetailType.hotel:
+                        context.read<HotelProvider>().fetchHotelDetails(id, forceRefresh: true);
+                        break;
+                      case DetailType.transport:
+                        context.read<TransportProvider>().fetchTransportDetails(id, forceRefresh: true);
+                        break;
+                      case DetailType.program:
+                        context.read<ProgramProvider>().fetchProgramDetails(id, forceRefresh: true);
+                        break;
+                    }
+                  },
+                  child: const Text('Retry'),
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+    }
 
     final double screenWidth = MediaQuery.of(context).size.width;
     final double paddingSide = screenWidth * 0.05;
