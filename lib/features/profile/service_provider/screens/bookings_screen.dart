@@ -5,6 +5,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:tourist_app/core/provider/themeProvider.dart';
 import 'package:tourist_app/core/utils/app_theme.dart';
 
+import 'package:tourist_app/features/booking/provider/booking_provider.dart';
+import 'package:tourist_app/core/utils/dialoge_utils.dart';
+
 class BookingsScreen extends StatefulWidget {
   const BookingsScreen({super.key});
 
@@ -14,6 +17,14 @@ class BookingsScreen extends StatefulWidget {
 
 class _BookingsScreenState extends State<BookingsScreen> {
   int _selectedTab = 0; // 0: Confirmed, 1: Pending, 2: Past
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<BookingProvider>().fetchMyBookings();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -97,13 +108,17 @@ class _BookingsScreenState extends State<BookingsScreen> {
                   ),
                 ),
                 const SizedBox(height: 2),
-                Text(
-                  "4 ${"total_bookings_count".tr()}",
-                  style: GoogleFonts.inter(
-                    color: isLight ? AppColors.lightGrayColor : AppColors.blueColor,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w400,
-                  ),
+                Consumer<BookingProvider>(
+                  builder: (context, provider, child) {
+                    return Text(
+                      "${provider.bookings.length} ${"total_bookings_count".tr()}",
+                      style: GoogleFonts.inter(
+                        color: isLight ? AppColors.lightGrayColor : AppColors.blueColor,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    );
+                  },
                 ),
               ],
             ),
@@ -174,76 +189,82 @@ class _BookingsScreenState extends State<BookingsScreen> {
   }
 
   Widget _buildBookingsList(bool isLight) {
-    if (_selectedTab == 0) {
-      // Confirmed Bookings
-      return ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        children: [
-          _buildBookingCard(
-            title: "Private Pyramids Tour",
-            customer: "Sarah Johnson",
-            date: "Apr 30, 2026 at 9:00 AM",
-            price: "500 EGP",
-            status: "confirmed",
-            isLight: isLight,
-            showActions: true,
-            action1Text: "contact".tr(),
-            action2Text: "complete".tr(),
-            onAction1: () {},
-            onAction2: () {},
+    return Consumer<BookingProvider>(
+      builder: (context, bookingProvider, child) {
+        if (bookingProvider.isLoading) {
+          return const Center(
+            child: CircularProgressIndicator(color: AppColors.yellowColor),
+          );
+        }
+
+        if (bookingProvider.hasError) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.error_outline, size: 50, color: Colors.red),
+                const SizedBox(height: 16),
+                Text(bookingProvider.errorMessage ?? 'Error', style: TextStyle(color: isLight ? Colors.black : Colors.white)),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () => bookingProvider.fetchMyBookings(forceRefresh: true),
+                  style: ElevatedButton.styleFrom(backgroundColor: AppColors.yellowColor),
+                  child: Text('retry'.tr(), style: const TextStyle(color: Colors.white)),
+                )
+              ],
+            ),
+          );
+        }
+
+        final bookings = bookingProvider.bookings;
+
+        if (bookings.isEmpty) {
+          return Center(
+            child: Text(
+              'No bookings found',
+              style: TextStyle(color: isLight ? Colors.grey : Colors.white54, fontSize: 16),
+            ),
+          );
+        }
+
+        return RefreshIndicator(
+          color: AppColors.yellowColor,
+          onRefresh: () => bookingProvider.fetchMyBookings(forceRefresh: true),
+          child: ListView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            itemCount: bookings.length,
+            itemBuilder: (context, index) {
+              final booking = bookings[index];
+              return _buildBookingCard(
+                title: booking.itemName ?? 'Unknown Item',
+                customer: 'User ${booking.userId ?? ''}',
+                date: booking.date ?? '',
+                price: booking.price != null ? '${booking.price} EGP' : 'N/A',
+                status: booking.status ?? 'pending',
+                isLight: isLight,
+                showActions: true,
+                action1Text: 'Delete',
+                action2Text: 'Details',
+                onAction1: () async {
+                  if (booking.id != null) {
+                    try {
+                      DialogeUtils.showLoading(context: context, text: "loading_msg".tr());
+                      await context.read<BookingProvider>().deleteBooking(booking.id!.toString());
+                      DialogeUtils.hideLoading(context: context);
+                      DialogeUtils.showMassage(context: context, masseage: 'Deleted Successfully', title: 'Success', posActionName: 'OK');
+                    } catch (e) {
+                      DialogeUtils.hideLoading(context: context);
+                      DialogeUtils.showMassage(context: context, masseage: e.toString(), title: 'Error', posActionName: 'OK');
+                    }
+                  }
+                },
+                onAction2: () {},
+              );
+            },
           ),
-          _buildBookingCard(
-            title: "Luxor Temple Visit",
-            customer: "Emma Wilson",
-            date: "May 5, 2026 at 10:00 AM",
-            price: "400 EGP",
-            status: "confirmed",
-            isLight: isLight,
-            showActions: true,
-            action1Text: "contact".tr(),
-            action2Text: "complete".tr(),
-            onAction1: () {},
-            onAction2: () {},
-          ),
-        ],
-      );
-    } else if (_selectedTab == 1) {
-      // Pending Bookings
-      return ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        children: [
-          _buildBookingCard(
-            title: "Nile Sunset Cruise",
-            customer: "Mike Chen",
-            date: "May 2, 2026 at 6:00 PM",
-            price: "350 EGP",
-            status: "pending",
-            isLight: isLight,
-            showActions: true,
-            action1Text: "decline".tr(),
-            action2Text: "confirm".tr(),
-            onAction1: () {},
-            onAction2: () {},
-          ),
-        ],
-      );
-    } else {
-      // Past Bookings
-      return ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        children: [
-          _buildBookingCard(
-            title: "Private Pyramids Tour",
-            customer: "John Smith",
-            date: "Apr 25, 2026 at 9:00 AM",
-            price: "500 EGP",
-            status: "completed",
-            isLight: isLight,
-            showActions: false,
-          ),
-        ],
-      );
-    }
+        );
+      },
+    );
   }
 
   Widget _buildBookingCard({

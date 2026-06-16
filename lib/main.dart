@@ -25,6 +25,7 @@ import 'package:tourist_app/features/guide/provider/guide_provider.dart';
 import 'package:tourist_app/features/explore/provider/hotel_provider.dart';
 import 'package:tourist_app/features/explore/provider/transport_provider.dart';
 import 'package:tourist_app/features/explore/provider/program_provider.dart';
+import 'package:tourist_app/features/booking/provider/booking_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -55,6 +56,7 @@ void main() async {
           ChangeNotifierProvider(create: (context) => HotelProvider()),
           ChangeNotifierProvider(create: (context) => TransportProvider()),
           ChangeNotifierProvider(create: (context) => ProgramProvider()),
+          ChangeNotifierProvider(create: (context) => BookingProvider()),
         ],
         child: const MyApp(),
       ),

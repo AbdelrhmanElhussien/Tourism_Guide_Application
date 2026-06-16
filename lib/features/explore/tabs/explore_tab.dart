@@ -7,6 +7,8 @@ import 'package:tourist_app/features/explore/provider/hotel_provider.dart';
 import 'package:tourist_app/features/explore/provider/transport_provider.dart';
 import 'package:tourist_app/features/explore/provider/program_provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:tourist_app/features/booking/provider/booking_provider.dart';
+import 'package:tourist_app/core/utils/dialoge_utils.dart';
 
 class ExploreTab extends StatefulWidget {
   final int initialSegment;
@@ -593,6 +595,17 @@ class _ExploreTabState extends State<ExploreTab> {
                             image: item.imageUrl,
                             buttonText: 'book_now'.tr(),
                             isDark: isDark,
+                            onBook: () async {
+                              try {
+                                DialogeUtils.showLoading(context: context, text: "loading_msg".tr());
+                                await context.read<BookingProvider>().bookItem('transport', item.id);
+                                DialogeUtils.hideLoading(context: context);
+                                DialogeUtils.showMassage(context: context, masseage: 'Booking Successful', title: 'Success', posActionName: 'OK');
+                              } catch (e) {
+                                DialogeUtils.hideLoading(context: context);
+                                DialogeUtils.showMassage(context: context, masseage: e.toString(), title: 'Error', posActionName: 'OK');
+                              }
+                            },
                           );
                         },
                       ),
@@ -731,6 +744,17 @@ class _ExploreTabState extends State<ExploreTab> {
                             image: item.imageUrl,
                             buttonText: 'book'.tr(),
                             isDark: isDark,
+                            onBook: () async {
+                              try {
+                                DialogeUtils.showLoading(context: context, text: "loading_msg".tr());
+                                await context.read<BookingProvider>().bookItem('hotel', item.id);
+                                DialogeUtils.hideLoading(context: context);
+                                DialogeUtils.showMassage(context: context, masseage: 'Booking Successful', title: 'Success', posActionName: 'OK');
+                              } catch (e) {
+                                DialogeUtils.hideLoading(context: context);
+                                DialogeUtils.showMassage(context: context, masseage: e.toString(), title: 'Error', posActionName: 'OK');
+                              }
+                            },
                           );
                         },
                       ),
@@ -882,6 +906,17 @@ class _ExploreTabState extends State<ExploreTab> {
                             image: item.imageUrl,
                             buttonText: 'book_program'.tr(),
                             isDark: isDark,
+                            onBook: () async {
+                              try {
+                                DialogeUtils.showLoading(context: context, text: "loading_msg".tr());
+                                await context.read<BookingProvider>().bookItem('program', item.id);
+                                DialogeUtils.hideLoading(context: context);
+                                DialogeUtils.showMassage(context: context, masseage: 'Booking Successful', title: 'Success', posActionName: 'OK');
+                              } catch (e) {
+                                DialogeUtils.hideLoading(context: context);
+                                DialogeUtils.showMassage(context: context, masseage: e.toString(), title: 'Error', posActionName: 'OK');
+                              }
+                            },
                           );
                         },
                       ),
@@ -905,6 +940,7 @@ class _ExploreTabState extends State<ExploreTab> {
     required String image,
     required String buttonText,
     required bool isDark,
+    VoidCallback? onBook,
   }) {
     return Container(
       decoration: BoxDecoration(
@@ -1018,7 +1054,7 @@ class _ExploreTabState extends State<ExploreTab> {
                   width: double.infinity,
                   height: 42,
                   child: OutlinedButton(
-                    onPressed: () {},
+                    onPressed: onBook ?? () {},
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(color: AppColors.yellowColor, width: 1.5),
                       backgroundColor: isDark ? const Color(0xFF0B1825) : Colors.white,
@@ -1053,6 +1089,7 @@ class _ExploreTabState extends State<ExploreTab> {
     required String image,
     required String buttonText,
     required bool isDark,
+    VoidCallback? onBook,
   }) {
     return Container(
       height: 124,
@@ -1165,7 +1202,7 @@ class _ExploreTabState extends State<ExploreTab> {
                       SizedBox(
                         height: 28,
                         child: ElevatedButton(
-                          onPressed: () {},
+                          onPressed: onBook ?? () {},
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.yellowColor,
                             foregroundColor: Colors.white,
@@ -1206,6 +1243,7 @@ class _ExploreTabState extends State<ExploreTab> {
     required String image,
     required String buttonText,
     required bool isDark,
+    VoidCallback? onBook,
   }) {
     return Container(
       decoration: BoxDecoration(
@@ -1338,7 +1376,7 @@ class _ExploreTabState extends State<ExploreTab> {
                   width: double.infinity,
                   height: 42,
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: onBook ?? () {},
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.yellowColor,
                       foregroundColor: Colors.white,

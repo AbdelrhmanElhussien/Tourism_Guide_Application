@@ -6,6 +6,8 @@ import 'package:tourist_app/core/utils/app_theme.dart';
 import 'package:tourist_app/features/guide/provider/guide_provider.dart';
 import 'package:tourist_app/features/guide/models/guide_model.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:tourist_app/features/booking/provider/booking_provider.dart';
+import 'package:tourist_app/core/utils/dialoge_utils.dart';
 
 class GuideTab extends StatefulWidget {
   const GuideTab({super.key});
@@ -192,7 +194,7 @@ class _GuideTabState extends State<GuideTab> {
                                   );
                                 }
                                 final guide = filteredGuides[index];
-                                return _buildGuideCard(guide, isDark);
+                                return _buildGuideCard(guide, isDark, context);
                               },
                             ),
                           ),
@@ -249,7 +251,7 @@ class _GuideTabState extends State<GuideTab> {
     );
   }
 
-  Widget _buildGuideCard(GuideModel guide, bool isDark) {
+  Widget _buildGuideCard(GuideModel guide, bool isDark, BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -410,7 +412,17 @@ class _GuideTabState extends State<GuideTab> {
             width: double.infinity,
             height: 40,
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: () async {
+                try {
+                  DialogeUtils.showLoading(context: context, text: "loading_msg".tr());
+                  await context.read<BookingProvider>().bookItem('guide', guide.id);
+                  DialogeUtils.hideLoading(context: context);
+                  DialogeUtils.showMassage(context: context, masseage: 'Booking Successful', title: 'Success', posActionName: 'OK');
+                } catch (e) {
+                  DialogeUtils.hideLoading(context: context);
+                  DialogeUtils.showMassage(context: context, masseage: e.toString(), title: 'Error', posActionName: 'OK');
+                }
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: isDark ? const Color(0xFF1E3A5F) : AppColors.primaryColor.withOpacity(0.09),
                 foregroundColor: AppColors.yellowColor,

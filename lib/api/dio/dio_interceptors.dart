@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tourist_app/core/exceptions/app_exception.dart';
 
 // class DioInterceptor1 extends InterceptorsWrapper {
@@ -71,10 +72,16 @@ class DioInterceptor implements Interceptor {
   }
 
   @override
-  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
     print('onRequest:${options.baseUrl}');
-    // TODO: implement onRequest
-    // options.headers.addAll({'x-Api-key':ApiConst.apiKey});
+    
+    // Check if token exists
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('userToken');
+    if (token != null && token.isNotEmpty) {
+      options.headers['Authorization'] = 'Bearer $token';
+    }
+    
     handler.next(options);
   }
 
