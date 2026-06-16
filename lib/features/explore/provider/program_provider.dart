@@ -73,12 +73,41 @@ class ProgramProvider extends ChangeNotifier {
     }
   }
 
+  ProgramModel? _selectedProgramDetails;
+  bool _isLoadingDetails = false;
+  String? _errorMessageDetails;
+
+  ProgramModel? get selectedProgramDetails => _selectedProgramDetails;
+  bool get isLoadingDetails => _isLoadingDetails;
+  String? get errorMessageDetails => _errorMessageDetails;
+
+  Future<void> fetchProgramDetails(String id, {bool forceRefresh = false}) async {
+    if (_selectedProgramDetails?.id == id && !forceRefresh) return;
+
+    _isLoadingDetails = true;
+    _errorMessageDetails = null;
+    notifyListeners();
+
+    try {
+      final details = await _programService.fetchProgramDetails(id);
+      _selectedProgramDetails = details;
+    } catch (e) {
+      _errorMessageDetails = e.toString().replaceAll('Exception: ', '');
+    } finally {
+      _isLoadingDetails = false;
+      notifyListeners();
+    }
+  }
+
   void clearCache() {
     _hasFetched = false;
     _programs = [];
     _errorMessage = null;
     _currentPage = 1;
     _hasMore = true;
+    _selectedProgramDetails = null;
+    _isLoadingDetails = false;
+    _errorMessageDetails = null;
     notifyListeners();
   }
 }

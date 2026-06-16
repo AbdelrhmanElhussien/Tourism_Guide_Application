@@ -73,12 +73,41 @@ class GuideProvider extends ChangeNotifier {
     }
   }
 
+  GuideModel? _selectedGuideDetails;
+  bool _isLoadingDetails = false;
+  String? _errorMessageDetails;
+
+  GuideModel? get selectedGuideDetails => _selectedGuideDetails;
+  bool get isLoadingDetails => _isLoadingDetails;
+  String? get errorMessageDetails => _errorMessageDetails;
+
+  Future<void> fetchGuideDetails(String id, {bool forceRefresh = false}) async {
+    if (_selectedGuideDetails?.id == id && !forceRefresh) return;
+
+    _isLoadingDetails = true;
+    _errorMessageDetails = null;
+    notifyListeners();
+
+    try {
+      final details = await _guideService.fetchGuideDetails(id);
+      _selectedGuideDetails = details;
+    } catch (e) {
+      _errorMessageDetails = e.toString().replaceAll('Exception: ', '');
+    } finally {
+      _isLoadingDetails = false;
+      notifyListeners();
+    }
+  }
+
   void clearCache() {
     _hasFetched = false;
     _guides = [];
     _errorMessage = null;
     _currentPage = 1;
     _hasMore = true;
+    _selectedGuideDetails = null;
+    _isLoadingDetails = false;
+    _errorMessageDetails = null;
     notifyListeners();
   }
 }

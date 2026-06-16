@@ -73,12 +73,41 @@ class TransportProvider extends ChangeNotifier {
     }
   }
 
+  TransportModel? _selectedTransportDetails;
+  bool _isLoadingDetails = false;
+  String? _errorMessageDetails;
+
+  TransportModel? get selectedTransportDetails => _selectedTransportDetails;
+  bool get isLoadingDetails => _isLoadingDetails;
+  String? get errorMessageDetails => _errorMessageDetails;
+
+  Future<void> fetchTransportDetails(String id, {bool forceRefresh = false}) async {
+    if (_selectedTransportDetails?.id == id && !forceRefresh) return;
+
+    _isLoadingDetails = true;
+    _errorMessageDetails = null;
+    notifyListeners();
+
+    try {
+      final details = await _transportService.fetchTransportDetails(id);
+      _selectedTransportDetails = details;
+    } catch (e) {
+      _errorMessageDetails = e.toString().replaceAll('Exception: ', '');
+    } finally {
+      _isLoadingDetails = false;
+      notifyListeners();
+    }
+  }
+
   void clearCache() {
     _hasFetched = false;
     _transports = [];
     _errorMessage = null;
     _currentPage = 1;
     _hasMore = true;
+    _selectedTransportDetails = null;
+    _isLoadingDetails = false;
+    _errorMessageDetails = null;
     notifyListeners();
   }
 }
