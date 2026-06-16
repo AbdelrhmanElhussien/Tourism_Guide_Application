@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tourist_app/core/exceptions/app_exception.dart';
 
 // class DioInterceptor1 extends InterceptorsWrapper {
@@ -77,7 +78,7 @@ class DioInterceptor implements Interceptor {
   }
 
   @override
-  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
     print('onRequest:${options.baseUrl}');
     final token = CacheHelper.getData(key: 'token');
     if (token != null) {

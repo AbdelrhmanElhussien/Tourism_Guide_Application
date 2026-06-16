@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:tourist_app/core/exceptions/app_exception.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tourist_app/domain/entities/reqeuest/login/login_request.dart';
 import 'package:tourist_app/domain/use_cases/loginInUseCase.dart';
 import 'package:tourist_app/features/auth/cubit/auth_states.dart';

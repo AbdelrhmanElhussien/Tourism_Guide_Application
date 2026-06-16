@@ -14,7 +14,7 @@ import 'package:tourist_app/domain/use_cases/trips/create_trip_use_case.dart';
 import 'package:tourist_app/features/profile/cubit/profile_cubit.dart';
 import 'package:tourist_app/features/profile/cubit/profile_states.dart';
 
-enum DetailType { place, hotel, transport, guide, program }
+enum DetailType { place, hotel, transport, guide }
 
 class DetailArgs {
   final String? id;
@@ -28,15 +28,15 @@ class DetailArgs {
   final String about;
 
   // Type-specific properties
-  final String? price;          // Price: "200 EGP", "1500 EGP/night", etc.
-  final String? hours;          // Hours: "8:00 AM - 5:00 PM"
-  final String? duration;       // Duration: "3 hours"
-  final String? distance;       // Distance: "15 km from Cairo"
-  final String? speciality;     // Guide speciality: "Historical, Cultural"
-  final String? languages;      // Guide languages: "English, Arabic"
-  final String? hotelStars;     // Hotel stars: "5 Stars"
-  final String? capacity;       // Transport capacity: "4 Seats"
-  final String? transportType;  // Transport type: "Car", "Felucca"
+  final String? price; // Price: "200 EGP", "1500 EGP/night", etc.
+  final String? hours; // Hours: "8:00 AM - 5:00 PM"
+  final String? duration; // Duration: "3 hours"
+  final String? distance; // Distance: "15 km from Cairo"
+  final String? speciality; // Guide speciality: "Historical, Cultural"
+  final String? languages; // Guide languages: "English, Arabic"
+  final String? hotelStars; // Hotel stars: "5 Stars"
+  final String? capacity; // Transport capacity: "4 Seats"
+  final String? transportType; // Transport type: "Car", "Felucca"
 
   const DetailArgs({
     this.id,
@@ -67,7 +67,8 @@ class DetailArgs {
     rating: 4.9,
     reviewsCount: 12543,
     assetImage: "assets/images/ImagePyramidsofGiza.png",
-    about: "The Pyramids of Giza are among the most iconic monuments in the world. Built over 4,500 years ago, these ancient structures continue to captivate visitors with their engineering marvels and historical significance.",
+    about:
+        "The Pyramids of Giza are among the most iconic monuments in the world. Built over 4,500 years ago, these ancient structures continue to captivate visitors with their engineering marvels and historical significance.",
     hours: "8:00 AM - 5:00 PM",
     price: "200 EGP",
     distance: "15 km from Cairo",
@@ -86,8 +87,9 @@ class _DetailScreenState extends State<DetailScreen> {
   @override
   Widget build(BuildContext context) {
     // Retrieve arguments from ModalRoute or constructor fallback
-    final DetailArgs args = widget.args ?? 
-        (ModalRoute.of(context)?.settings.arguments as DetailArgs?) ?? 
+    final DetailArgs args =
+        widget.args ??
+        (ModalRoute.of(context)?.settings.arguments as DetailArgs?) ??
         DetailArgs.fallback;
 
     final double screenWidth = MediaQuery.of(context).size.width;
@@ -95,22 +97,19 @@ class _DetailScreenState extends State<DetailScreen> {
     final themeProvider = Provider.of<Themeprovider>(context);
     final bool isDark = themeProvider.apptheme == ThemeMode.dark;
 
-    return BlocProvider(
-      create: (context) => getIt<ProfileCubit>()..fetchProfileData(),
-      child: BlocBuilder<ProfileCubit, ProfileState>(
-        builder: (context, state) {
-          bool isFav = false;
-          bool isVisited = false;
-          if (state is ProfileSuccess && args.id != null) {
-            isFav = state.savedPlaces.any((place) => place.id == args.id);
-            isVisited = state.visitedPlaces.any((place) => place.id == args.id);
-          }
-
-          return Scaffold(
-            backgroundColor: isDark
-                ? AppColors.darkBlueColor
-                : const Color(0xffF8FAFC),
-            body: Stack(
+    return Scaffold(
+      backgroundColor: isDark
+          ? AppColors.darkBlueColor
+          : const Color(0xffF8FAFC),
+      body: Stack(
+        children: [
+          // Main Content
+          SingleChildScrollView(
+            padding: const EdgeInsets.only(
+              bottom: 100,
+            ), // Padding to avoid overlap with bottom navigation bar
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Main Content
                 SingleChildScrollView(
@@ -148,7 +147,8 @@ class _DetailScreenState extends State<DetailScreen> {
                       const SizedBox(height: 25),
 
                       // 6. Map Section (For places & hotels)
-                      if (args.type == DetailType.place || args.type == DetailType.hotel) ...[
+                      if (args.type == DetailType.place ||
+                          args.type == DetailType.hotel) ...[
                         _buildMapPlaceholder(args, isDark),
                         const SizedBox(height: 25),
                       ],
@@ -185,7 +185,9 @@ class _DetailScreenState extends State<DetailScreen> {
     } else if (args.networkImage != null) {
       imageProvider = NetworkImage(args.networkImage!);
     } else {
-      imageProvider = const NetworkImage('https://images.unsplash.com/photo-1503177119275-0aa32b3a9368');
+      imageProvider = const NetworkImage(
+        'https://images.unsplash.com/photo-1503177119275-0aa32b3a9368',
+      );
     }
 
     return Stack(
@@ -194,20 +196,14 @@ class _DetailScreenState extends State<DetailScreen> {
           height: 350,
           width: double.infinity,
           decoration: BoxDecoration(
-            image: DecorationImage(
-              image: imageProvider,
-              fit: BoxFit.cover,
-            ),
+            image: DecorationImage(image: imageProvider, fit: BoxFit.cover),
           ),
           child: Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [
-                  Colors.transparent,
-                  Colors.black.withOpacity(0.5),
-                ],
+                colors: [Colors.transparent, Colors.black.withOpacity(0.5)],
               ),
             ),
           ),
@@ -221,7 +217,10 @@ class _DetailScreenState extends State<DetailScreen> {
               if (Navigator.canPop(context)) {
                 Navigator.pop(context);
               } else {
-                Navigator.pushReplacementNamed(context, AppRoutes.HomeRouteName);
+                Navigator.pushReplacementNamed(
+                  context,
+                  AppRoutes.HomeRouteName,
+                );
               }
             },
             style: ElevatedButton.styleFrom(
@@ -248,28 +247,18 @@ class _DetailScreenState extends State<DetailScreen> {
                   // Share action
                 },
               ),
-              if (args.id != null) ...[
-                const SizedBox(width: 10),
-                Topcircularbutton(
-                  icon: isVisited
-                      ? Icons.check_circle
-                      : Icons.check_circle_outline,
-                  isSelected: isVisited,
-                  fun: () {
-                    context.read<ProfileCubit>().markAsVisited(args.id!);
-                  },
-                ),
-                const SizedBox(width: 10),
-                Topcircularbutton(
-                  icon: isFav
-                      ? Icons.favorite
-                      : Icons.favorite_border_outlined,
-                  isSelected: isFav,
-                  fun: () {
-                    context.read<ProfileCubit>().toggleSavePlace(args.id!, isFav);
-                  },
-                ),
-              ],
+              const SizedBox(width: 10),
+              Topcircularbutton(
+                icon: isFavorite
+                    ? Icons.favorite
+                    : Icons.favorite_border_outlined,
+                isSelected: isFavorite,
+                fun: () {
+                  setState(() {
+                    isFavorite = !isFavorite;
+                  });
+                },
+              ),
             ],
           ),
         ),
@@ -357,7 +346,9 @@ class _DetailScreenState extends State<DetailScreen> {
 
   // --- Dynamic Info Row ---
   Widget _buildDynamicInfoRow(DetailArgs args, bool isDark) {
-    final Color textColorPrimary = isDark ? AppColors.begiColor : AppColors.primaryColor;
+    final Color textColorPrimary = isDark
+        ? AppColors.begiColor
+        : AppColors.primaryColor;
     final Color textColorSec = isDark ? AppColors.blueColor : Colors.blueGrey;
 
     List<Widget> infoItems = [];
@@ -367,7 +358,7 @@ class _DetailScreenState extends State<DetailScreen> {
         infoItems = [
           _buildInfoItem(
             Icons.access_time,
-            "hours_label".trDefault("Hours"),
+            "hours_label".tr(),
             args.hours ?? "8:00 AM - 5:00 PM",
             Colors.orange.shade50,
             Colors.orange,
@@ -376,7 +367,7 @@ class _DetailScreenState extends State<DetailScreen> {
           ),
           _buildInfoItem(
             Icons.attach_money,
-            "price_label".trDefault("Price"),
+            "price_label".tr(),
             args.price ?? "200 EGP",
             Colors.yellow.shade50,
             Colors.orangeAccent,
@@ -385,7 +376,7 @@ class _DetailScreenState extends State<DetailScreen> {
           ),
           _buildInfoItem(
             Icons.location_on_outlined,
-            "distance_label".trDefault("Distance"),
+            "distance_label".tr(),
             args.distance ?? "15 km",
             Colors.teal.shade50,
             Colors.teal,
@@ -431,7 +422,7 @@ class _DetailScreenState extends State<DetailScreen> {
         infoItems = [
           _buildInfoItem(
             Icons.translate,
-            "languages_label".trDefault("Languages"),
+            "languages_label".tr(),
             args.languages ?? "En, Ar",
             Colors.blue.shade50,
             Colors.blue,
@@ -440,7 +431,7 @@ class _DetailScreenState extends State<DetailScreen> {
           ),
           _buildInfoItem(
             Icons.attach_money,
-            "rate_label".trDefault("Rate"),
+            "rate_label".tr(),
             args.price ?? "500 EGP/day",
             Colors.yellow.shade50,
             Colors.orangeAccent,
@@ -449,7 +440,7 @@ class _DetailScreenState extends State<DetailScreen> {
           ),
           _buildInfoItem(
             Icons.workspace_premium_outlined,
-            "speciality_label".trDefault("Speciality"),
+            "speciality_label".tr(),
             args.speciality ?? "History",
             Colors.purple.shade50,
             Colors.purple,
@@ -463,7 +454,7 @@ class _DetailScreenState extends State<DetailScreen> {
         infoItems = [
           _buildInfoItem(
             Icons.star_outline,
-            "stars_label".trDefault("Class"),
+            "stars_label".tr(),
             args.hotelStars ?? "5 Stars",
             Colors.amber.shade50,
             Colors.amber,
@@ -472,7 +463,7 @@ class _DetailScreenState extends State<DetailScreen> {
           ),
           _buildInfoItem(
             Icons.attach_money,
-            "price_label".trDefault("Price"),
+            "price_label".tr(),
             args.price ?? "1500 EGP/night",
             Colors.yellow.shade50,
             Colors.orangeAccent,
@@ -481,7 +472,7 @@ class _DetailScreenState extends State<DetailScreen> {
           ),
           _buildInfoItem(
             Icons.wifi,
-            "wifi_label".trDefault("Internet"),
+            "wifi_label".tr(),
             "Free WiFi",
             Colors.green.shade50,
             Colors.green,
@@ -495,7 +486,7 @@ class _DetailScreenState extends State<DetailScreen> {
         infoItems = [
           _buildInfoItem(
             Icons.directions_car_outlined,
-            "type_label".trDefault("Type"),
+            "type_label".tr(),
             args.transportType ?? "Car",
             Colors.blue.shade50,
             Colors.blue,
@@ -504,7 +495,7 @@ class _DetailScreenState extends State<DetailScreen> {
           ),
           _buildInfoItem(
             Icons.people_outline,
-            "capacity_label".trDefault("Capacity"),
+            "capacity_label".tr(),
             args.capacity ?? "4 Seats",
             Colors.teal.shade50,
             Colors.teal,
@@ -513,7 +504,7 @@ class _DetailScreenState extends State<DetailScreen> {
           ),
           _buildInfoItem(
             Icons.attach_money,
-            "price_label".trDefault("Price"),
+            "price_label".tr(),
             args.price ?? "400 EGP/day",
             Colors.yellow.shade50,
             Colors.orangeAccent,
@@ -537,7 +528,7 @@ class _DetailScreenState extends State<DetailScreen> {
             color: Colors.black.withOpacity(0.02),
             blurRadius: 10,
             offset: const Offset(0, 4),
-          )
+          ),
         ],
       ),
       child: Row(
@@ -593,11 +584,11 @@ class _DetailScreenState extends State<DetailScreen> {
 
   // --- About Section ---
   Widget _buildAboutSection(DetailArgs args, bool isDark) {
-    String aboutTitle = "about_label".trDefault("About");
+    String aboutTitle = "about_label".tr();
     if (args.type == DetailType.guide) {
-      aboutTitle = "bio_label".trDefault("Biography");
+      aboutTitle = "bio_label".tr();
     } else if (args.type == DetailType.hotel) {
-      aboutTitle = "overview_label".trDefault("Overview");
+      aboutTitle = "overview_label".tr();
     }
 
     return Column(
@@ -631,7 +622,7 @@ class _DetailScreenState extends State<DetailScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "details_label".trDefault("Guide Details"),
+            "details_label".tr(),
             style: GoogleFonts.inter(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -639,9 +630,21 @@ class _DetailScreenState extends State<DetailScreen> {
             ),
           ),
           const SizedBox(height: 12),
-          _buildDetailRow(Icons.check_circle_outline, "certified_guide".trDefault("Certified Local Guide"), isDark),
-          _buildDetailRow(Icons.chat_bubble_outline, "languages_fluent".trDefault("Fluent in English, Arabic"), isDark),
-          _buildDetailRow(Icons.history_edu_outlined, "specialized_history".trDefault("Specialized in Ancient Egyptian History"), isDark),
+          _buildDetailRow(
+            Icons.check_circle_outline,
+            "certified_guide".tr(),
+            isDark,
+          ),
+          _buildDetailRow(
+            Icons.chat_bubble_outline,
+            "languages_fluent".tr(),
+            isDark,
+          ),
+          _buildDetailRow(
+            Icons.history_edu_outlined,
+            "specialized_history".tr(),
+            isDark,
+          ),
         ],
       );
     } else if (args.type == DetailType.hotel) {
@@ -649,7 +652,7 @@ class _DetailScreenState extends State<DetailScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "amenities_label".trDefault("Amenities"),
+            "amenities_label".tr(),
             style: GoogleFonts.inter(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -675,7 +678,7 @@ class _DetailScreenState extends State<DetailScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "rental_includes".trDefault("Includes"),
+            "rental_includes".tr(),
             style: GoogleFonts.inter(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -683,9 +686,17 @@ class _DetailScreenState extends State<DetailScreen> {
             ),
           ),
           const SizedBox(height: 12),
-          _buildDetailRow(Icons.check_circle_outline, "air_conditioning".trDefault("Full Air Conditioning"), isDark),
-          _buildDetailRow(Icons.person, "with_driver".trDefault("Professional Driver included"), isDark),
-          _buildDetailRow(Icons.local_gas_station, "fuel_included".trDefault("Fuel and highway tolls included"), isDark),
+          _buildDetailRow(
+            Icons.check_circle_outline,
+            "air_conditioning".tr(),
+            isDark,
+          ),
+          _buildDetailRow(Icons.person, "with_driver".tr(), isDark),
+          _buildDetailRow(
+            Icons.local_gas_station,
+            "fuel_included".tr(),
+            isDark,
+          ),
         ],
       );
     }
@@ -715,7 +726,11 @@ class _DetailScreenState extends State<DetailScreen> {
 
   Widget _buildAmenityChip(IconData icon, String text, bool isDark) {
     return Chip(
-      avatar: Icon(icon, size: 16, color: isDark ? AppColors.yellowColor : AppColors.primaryColor),
+      avatar: Icon(
+        icon,
+        size: 16,
+        color: isDark ? AppColors.yellowColor : AppColors.primaryColor,
+      ),
       label: Text(
         text,
         style: GoogleFonts.inter(
@@ -723,7 +738,9 @@ class _DetailScreenState extends State<DetailScreen> {
           color: isDark ? Colors.white : Colors.black87,
         ),
       ),
-      backgroundColor: isDark ? AppColors.bottomNavigationColor : Colors.grey.shade100,
+      backgroundColor: isDark
+          ? AppColors.bottomNavigationColor
+          : Colors.grey.shade100,
       side: BorderSide(color: isDark ? Colors.white10 : Colors.grey.shade200),
     );
   }
@@ -764,7 +781,7 @@ class _DetailScreenState extends State<DetailScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "view_on_map".trDefault("View on Map"),
+                      "view_on_map".tr(),
                       style: GoogleFonts.inter(
                         fontWeight: FontWeight.bold,
                         color: isDark ? AppColors.begiColor : Colors.black,
@@ -782,7 +799,9 @@ class _DetailScreenState extends State<DetailScreen> {
                 Icon(
                   Icons.arrow_forward_ios,
                   size: 16,
-                  color: isDark ? AppColors.yellowColor : AppColors.primaryColor,
+                  color: isDark
+                      ? AppColors.yellowColor
+                      : AppColors.primaryColor,
                 ),
               ],
             ),
@@ -794,13 +813,13 @@ class _DetailScreenState extends State<DetailScreen> {
 
   // --- Dynamic Bottom Horizontal List Section ---
   Widget _buildBottomListSection(DetailArgs args, bool isDark) {
-    String sectionTitle = "nearby_places".trDefault("Nearby Places");
+    String sectionTitle = "nearby_places".tr();
     if (args.type == DetailType.guide) {
-      sectionTitle = "other_guides".trDefault("Other Top Guides");
+      sectionTitle = "other_guides".tr();
     } else if (args.type == DetailType.hotel) {
-      sectionTitle = "recommended_hotels".trDefault("Similar Hotels");
+      sectionTitle = "recommended_hotels".tr();
     } else if (args.type == DetailType.transport) {
-      sectionTitle = "other_transport".trDefault("Other Transport Options");
+      sectionTitle = "other_transport".tr();
     }
 
     final Color textColorPrimary = isDark ? AppColors.begiColor : Colors.black;
@@ -824,14 +843,24 @@ class _DetailScreenState extends State<DetailScreen> {
           height: 220,
           child: ListView(
             scrollDirection: Axis.horizontal,
-            children: _buildBottomListCards(args.type, textColorPrimary, textColorSec, isDark),
+            children: _buildBottomListCards(
+              args.type,
+              textColorPrimary,
+              textColorSec,
+              isDark,
+            ),
           ),
         ),
       ],
     );
   }
 
-  List<Widget> _buildBottomListCards(DetailType type, Color textColorPrimary, Color textColorSec, bool isDark) {
+  List<Widget> _buildBottomListCards(
+    DetailType type,
+    Color textColorPrimary,
+    Color textColorSec,
+    bool isDark,
+  ) {
     if (type == DetailType.guide) {
       return [
         _buildNearbyCard(
@@ -975,7 +1004,10 @@ class _DetailScreenState extends State<DetailScreen> {
                         loc,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.inter(color: Colors.grey, fontSize: 11),
+                        style: GoogleFonts.inter(
+                          color: Colors.grey,
+                          fontSize: 11,
+                        ),
                       ),
                     ),
                   ],
@@ -995,7 +1027,10 @@ class _DetailScreenState extends State<DetailScreen> {
                     const SizedBox(width: 4),
                     Text(
                       "($reviews)",
-                      style: GoogleFonts.inter(color: Colors.grey, fontSize: 11),
+                      style: GoogleFonts.inter(
+                        color: Colors.grey,
+                        fontSize: 11,
+                      ),
                     ),
                   ],
                 ),
@@ -1008,16 +1043,18 @@ class _DetailScreenState extends State<DetailScreen> {
   }
 
   // --- Bottom Action Bar Widget ---
-  Widget _buildBottomActionBar(BuildContext context, DetailArgs args, bool isDark) {
-    String buttonText = "book_now".trDefault("Book Now");
+  Widget _buildBottomActionBar(
+    BuildContext context,
+    DetailArgs args,
+    bool isDark,
+  ) {
+    String buttonText = "book_now".tr();
     if (args.type == DetailType.guide) {
-      buttonText = "book_guide".trDefault("Book Guide");
+      buttonText = "book_guide".tr();
     } else if (args.type == DetailType.hotel) {
-      buttonText = "book_room".trDefault("Book Room");
+      buttonText = "book_room".tr();
     } else if (args.type == DetailType.transport) {
-      buttonText = "rent_now".trDefault("Rent Now");
-    } else if (args.type == DetailType.program) {
-      buttonText = "book_program".tr() == "book_program" ? "Book Program" : "book_program".tr();
+      buttonText = "rent_now".tr();
     }
 
     final double screenWidth = MediaQuery.of(context).size.width;
@@ -1052,18 +1089,17 @@ class _DetailScreenState extends State<DetailScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "price_label".trDefault("Price"),
-                  style: GoogleFonts.inter(
-                    color: Colors.grey,
-                    fontSize: 12,
-                  ),
+                  "price_label".tr(),
+                  style: GoogleFonts.inter(color: Colors.grey, fontSize: 12),
                 ),
                 Text(
                   args.price!,
                   style: GoogleFonts.inter(
                     fontWeight: FontWeight.bold,
                     fontSize: 18,
-                    color: isDark ? AppColors.yellowColor : AppColors.primaryColor,
+                    color: isDark
+                        ? AppColors.yellowColor
+                        : AppColors.primaryColor,
                   ),
                 ),
               ],
@@ -1074,72 +1110,14 @@ class _DetailScreenState extends State<DetailScreen> {
             child: SizedBox(
               height: 52,
               child: ElevatedButton(
-onPressed: () async {
-                  if (args.type == DetailType.program) {
-                    final date = await showDatePicker(
-                      context: context,
-                      initialDate: DateTime.now(),
-                      firstDate: DateTime.now(),
-                      lastDate: DateTime.now().add(const Duration(days: 365)),
-                    );
-                    if (date != null) {
-                      try {
-                        DateTime start = date;
-                        DateTime end = start;
-                        if (args.duration != null) {
-                          final daysMatch = RegExp(r'(\d+)\s*day').firstMatch(args.duration!.toLowerCase());
-                          if (daysMatch != null) {
-                            final int days = int.parse(daysMatch.group(1)!);
-                            end = start.add(Duration(days: days));
-                          }
-                        }
-                        
-                        final String startDateStr = DateFormat('yyyy-MM-dd').format(start);
-                        final String endDateStr = DateFormat('yyyy-MM-dd').format(end);
-                        
-                        // Show loading dialog
-                        DialogeUtils.showLoading(context: context, text: "loading_msg".tr());
-                        
-                        await getIt<CreateTripUseCase>().invoke(
-                          args.title,
-                          startDateStr,
-                          endDateStr,
-                          args.about,
-                        );
-
-                        if (context.mounted) {
-                          DialogeUtils.hideLoading(context: context);
-                          DialogeUtils.showMassage(
-                            context: context,
-                            title: "success_title".tr(),
-                            masseage: "booking_success_msg".tr() == "booking_success_msg" ? "Program booked successfully!" : "booking_success_msg".tr(),
-                            posActionName: "ok_action".tr(),
-                            posFun: () {
-                              Navigator.pushNamed(context, AppRoutes.myTripsRouteName);
-                            }
-                          );
-                        }
-                      } catch (e) {
-                        if (context.mounted) {
-                          DialogeUtils.hideLoading(context: context);
-                          DialogeUtils.showMassage(
-                            context: context,
-                            title: "error_title".tr(),
-                            masseage: e.toString(),
-                            posActionName: "ok_action".tr(),
-                          );
-                        }
-                      }
-                    }
-                  } else {
-                    // Trigger booking success dialog
-                    DialogeUtils.showMassage(
-                      context: context,
-                      title: "success_title".tr(),
-                      masseage: "booking_success_msg".tr(),
-                      posActionName: "ok_action".tr(),
-                    );
-                  }
+                onPressed: () {
+                  // Trigger booking success dialog
+                  DialogeUtils.showMassage(
+                    context: context,
+                    title: "success_title".tr(),
+                    masseage: "booking_success_msg".tr(),
+                    posActionName: "ok_action".tr(),
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.yellowColor,

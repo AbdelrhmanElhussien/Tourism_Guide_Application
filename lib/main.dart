@@ -21,6 +21,11 @@ import 'package:tourist_app/features/auth/login/screens/login_screen.dart';
 import 'package:tourist_app/features/auth/signup/screens/signup_screen.dart';
 import 'package:tourist_app/features/map/provider/map_provider.dart';
 import 'package:tourist_app/features/profile/service_provider/screens/earnings_screen.dart';
+import 'package:tourist_app/features/guide/provider/guide_provider.dart';
+import 'package:tourist_app/features/explore/provider/hotel_provider.dart';
+import 'package:tourist_app/features/explore/provider/transport_provider.dart';
+import 'package:tourist_app/features/explore/provider/program_provider.dart';
+import 'package:tourist_app/features/booking/provider/booking_provider.dart';
 
 import 'package:tourist_app/core/utils/cache_helper.dart';
 
@@ -50,6 +55,11 @@ void main() async {
         providers: [
           ChangeNotifierProvider(create: (context) => Themeprovider()),
           ChangeNotifierProvider(create: (context) => MapProvider()),
+          ChangeNotifierProvider(create: (context) => GuideProvider()),
+          ChangeNotifierProvider(create: (context) => HotelProvider()),
+          ChangeNotifierProvider(create: (context) => TransportProvider()),
+          ChangeNotifierProvider(create: (context) => ProgramProvider()),
+          ChangeNotifierProvider(create: (context) => BookingProvider()),
         ],
         child: const MyApp(),
       ),
@@ -91,7 +101,7 @@ class MyApp extends StatelessWidget {
                 const AddServiceScreen(),
             AppRoutes.earningsRouteName: (context) => const EarningsScreen(),
           },
-          initialRoute: AppRoutes.loginRouteName,
+          initialRoute: AppRoutes.HomeRouteName,
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,
 

@@ -6,6 +6,9 @@ import 'package:tourist_app/core/utils/app_routes.dart';
 import 'package:tourist_app/features/home/screens/detailed_screen.dart';
 import 'package:tourist_app/features/home/widgets/tourism_destination.dart';
 
+import 'package:tourist_app/core/utils/app_routes.dart';
+import 'package:tourist_app/features/home/screens/detailed_screen.dart';
+
 class DestinationCard extends StatelessWidget {
   const DestinationCard({
     super.key,

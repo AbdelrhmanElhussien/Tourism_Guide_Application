@@ -10,6 +10,9 @@ import 'package:tourist_app/domain/entities/provider/provider_booking.dart';
 import 'package:tourist_app/features/profile/service_provider/cubits/provider_bookings_cubit.dart';
 import 'package:tourist_app/features/profile/service_provider/cubits/provider_bookings_states.dart';
 
+import 'package:tourist_app/features/booking/provider/booking_provider.dart';
+import 'package:tourist_app/core/utils/dialoge_utils.dart';
+
 class BookingsScreen extends StatefulWidget {
   const BookingsScreen({super.key});
 
@@ -19,6 +22,14 @@ class BookingsScreen extends StatefulWidget {
 
 class _BookingsScreenState extends State<BookingsScreen> {
   int _selectedTab = 0; // 0: Confirmed, 1: Pending, 2: Past
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<BookingProvider>().fetchMyBookings();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
