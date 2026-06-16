@@ -70,7 +70,13 @@ class BookingService {
     }
 
     try {
-      final response = await _dio.post(endpoint);
+      final response = await _dio.post(
+        endpoint,
+        data: {},
+        options: Options(
+          headers: {'Content-Type': 'application/json'},
+        ),
+      );
       if (response.statusCode != 200 && response.statusCode != 201) {
         throw Exception('Failed to book (Status: ${response.statusCode})');
       }
