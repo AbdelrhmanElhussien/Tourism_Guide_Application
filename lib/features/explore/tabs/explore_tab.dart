@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tourist_app/core/provider/themeProvider.dart';
 import 'package:tourist_app/core/utils/app_theme.dart';
+import 'package:tourist_app/core/utils/app_routes.dart';
+import 'package:tourist_app/features/home/screens/detailed_screen.dart';
 
 class ExploreTab extends StatefulWidget {
   final int initialSegment;
@@ -1032,18 +1034,7 @@ class _ExploreTabState extends State<ExploreTab> {
     required String buttonText,
     required bool isDark,
   }) {
-<<<<<<< Updated upstream
-    return Container(
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.bottomNavigationColor : Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: isDark
-              ? Colors.white.withOpacity(0.06)
-              : Colors.black.withOpacity(0.04),
-          width: 1.5,
-=======
-    return GestureDetector(
+return GestureDetector(
       onTap: () {
         Navigator.pushNamed(
           context,
@@ -1079,17 +1070,8 @@ class _ExploreTabState extends State<ExploreTab> {
               offset: const Offset(0, 4),
             ),
           ],
->>>>>>> Stashed changes
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
+        child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Image with duration badge
@@ -1221,8 +1203,9 @@ class _ExploreTabState extends State<ExploreTab> {
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildEmptyState() {
     return Center(

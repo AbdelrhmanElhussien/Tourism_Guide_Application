@@ -14,16 +14,7 @@ import 'package:tourist_app/domain/use_cases/trips/create_trip_use_case.dart';
 import 'package:tourist_app/features/profile/cubit/profile_cubit.dart';
 import 'package:tourist_app/features/profile/cubit/profile_states.dart';
 
-<<<<<<< Updated upstream
-enum DetailType {
-  place,
-  hotel,
-  transport,
-  guide,
-}
-=======
 enum DetailType { place, hotel, transport, guide, program }
->>>>>>> Stashed changes
 
 class DetailArgs {
   final String? id;
@@ -104,17 +95,6 @@ class _DetailScreenState extends State<DetailScreen> {
     final themeProvider = Provider.of<Themeprovider>(context);
     final bool isDark = themeProvider.apptheme == ThemeMode.dark;
 
-<<<<<<< Updated upstream
-    return Scaffold(
-      backgroundColor: isDark ? AppColors.darkBlueColor : const Color(0xffF8FAFC),
-      body: Stack(
-        children: [
-          // Main Content
-          SingleChildScrollView(
-            padding: const EdgeInsets.bottom(100), // Padding to avoid overlap with bottom navigation bar
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-=======
     return BlocProvider(
       create: (context) => getIt<ProfileCubit>()..fetchProfileData(),
       child: BlocBuilder<ProfileCubit, ProfileState>(
@@ -131,7 +111,6 @@ class _DetailScreenState extends State<DetailScreen> {
                 ? AppColors.darkBlueColor
                 : const Color(0xffF8FAFC),
             body: Stack(
->>>>>>> Stashed changes
               children: [
                 // Main Content
                 SingleChildScrollView(
@@ -269,18 +248,6 @@ class _DetailScreenState extends State<DetailScreen> {
                   // Share action
                 },
               ),
-<<<<<<< Updated upstream
-              const SizedBox(width: 10),
-              Topcircularbutton(
-                icon: isFavorite ? Icons.favorite : Icons.favorite_border_outlined,
-                isSelected: isFavorite,
-                fun: () {
-                  setState(() {
-                    isFavorite = !isFavorite;
-                  });
-                },
-              ),
-=======
               if (args.id != null) ...[
                 const SizedBox(width: 10),
                 Topcircularbutton(
@@ -303,7 +270,6 @@ class _DetailScreenState extends State<DetailScreen> {
                   },
                 ),
               ],
->>>>>>> Stashed changes
             ],
           ),
         ),
@@ -401,7 +367,7 @@ class _DetailScreenState extends State<DetailScreen> {
         infoItems = [
           _buildInfoItem(
             Icons.access_time,
-            "hours_label".tr(defaultValue: "Hours"),
+            "hours_label".trDefault("Hours"),
             args.hours ?? "8:00 AM - 5:00 PM",
             Colors.orange.shade50,
             Colors.orange,
@@ -410,7 +376,7 @@ class _DetailScreenState extends State<DetailScreen> {
           ),
           _buildInfoItem(
             Icons.attach_money,
-            "price_label".tr(defaultValue: "Price"),
+            "price_label".trDefault("Price"),
             args.price ?? "200 EGP",
             Colors.yellow.shade50,
             Colors.orangeAccent,
@@ -419,7 +385,7 @@ class _DetailScreenState extends State<DetailScreen> {
           ),
           _buildInfoItem(
             Icons.location_on_outlined,
-            "distance_label".tr(defaultValue: "Distance"),
+            "distance_label".trDefault("Distance"),
             args.distance ?? "15 km",
             Colors.teal.shade50,
             Colors.teal,
@@ -465,7 +431,7 @@ class _DetailScreenState extends State<DetailScreen> {
         infoItems = [
           _buildInfoItem(
             Icons.translate,
-            "languages_label".tr(defaultValue: "Languages"),
+            "languages_label".trDefault("Languages"),
             args.languages ?? "En, Ar",
             Colors.blue.shade50,
             Colors.blue,
@@ -474,7 +440,7 @@ class _DetailScreenState extends State<DetailScreen> {
           ),
           _buildInfoItem(
             Icons.attach_money,
-            "rate_label".tr(defaultValue: "Rate"),
+            "rate_label".trDefault("Rate"),
             args.price ?? "500 EGP/day",
             Colors.yellow.shade50,
             Colors.orangeAccent,
@@ -483,7 +449,7 @@ class _DetailScreenState extends State<DetailScreen> {
           ),
           _buildInfoItem(
             Icons.workspace_premium_outlined,
-            "speciality_label".tr(defaultValue: "Speciality"),
+            "speciality_label".trDefault("Speciality"),
             args.speciality ?? "History",
             Colors.purple.shade50,
             Colors.purple,
@@ -497,7 +463,7 @@ class _DetailScreenState extends State<DetailScreen> {
         infoItems = [
           _buildInfoItem(
             Icons.star_outline,
-            "stars_label".tr(defaultValue: "Class"),
+            "stars_label".trDefault("Class"),
             args.hotelStars ?? "5 Stars",
             Colors.amber.shade50,
             Colors.amber,
@@ -506,7 +472,7 @@ class _DetailScreenState extends State<DetailScreen> {
           ),
           _buildInfoItem(
             Icons.attach_money,
-            "price_label".tr(defaultValue: "Price"),
+            "price_label".trDefault("Price"),
             args.price ?? "1500 EGP/night",
             Colors.yellow.shade50,
             Colors.orangeAccent,
@@ -515,7 +481,7 @@ class _DetailScreenState extends State<DetailScreen> {
           ),
           _buildInfoItem(
             Icons.wifi,
-            "wifi_label".tr(defaultValue: "Internet"),
+            "wifi_label".trDefault("Internet"),
             "Free WiFi",
             Colors.green.shade50,
             Colors.green,
@@ -529,7 +495,7 @@ class _DetailScreenState extends State<DetailScreen> {
         infoItems = [
           _buildInfoItem(
             Icons.directions_car_outlined,
-            "type_label".tr(defaultValue: "Type"),
+            "type_label".trDefault("Type"),
             args.transportType ?? "Car",
             Colors.blue.shade50,
             Colors.blue,
@@ -538,7 +504,7 @@ class _DetailScreenState extends State<DetailScreen> {
           ),
           _buildInfoItem(
             Icons.people_outline,
-            "capacity_label".tr(defaultValue: "Capacity"),
+            "capacity_label".trDefault("Capacity"),
             args.capacity ?? "4 Seats",
             Colors.teal.shade50,
             Colors.teal,
@@ -547,7 +513,7 @@ class _DetailScreenState extends State<DetailScreen> {
           ),
           _buildInfoItem(
             Icons.attach_money,
-            "price_label".tr(defaultValue: "Price"),
+            "price_label".trDefault("Price"),
             args.price ?? "400 EGP/day",
             Colors.yellow.shade50,
             Colors.orangeAccent,
@@ -627,11 +593,11 @@ class _DetailScreenState extends State<DetailScreen> {
 
   // --- About Section ---
   Widget _buildAboutSection(DetailArgs args, bool isDark) {
-    String aboutTitle = "about_label".tr(defaultValue: "About");
+    String aboutTitle = "about_label".trDefault("About");
     if (args.type == DetailType.guide) {
-      aboutTitle = "bio_label".tr(defaultValue: "Biography");
+      aboutTitle = "bio_label".trDefault("Biography");
     } else if (args.type == DetailType.hotel) {
-      aboutTitle = "overview_label".tr(defaultValue: "Overview");
+      aboutTitle = "overview_label".trDefault("Overview");
     }
 
     return Column(
@@ -665,7 +631,7 @@ class _DetailScreenState extends State<DetailScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "details_label".tr(defaultValue: "Guide Details"),
+            "details_label".trDefault("Guide Details"),
             style: GoogleFonts.inter(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -673,9 +639,9 @@ class _DetailScreenState extends State<DetailScreen> {
             ),
           ),
           const SizedBox(height: 12),
-          _buildDetailRow(Icons.check_circle_outline, "certified_guide".tr(defaultValue: "Certified Local Guide"), isDark),
-          _buildDetailRow(Icons.chat_bubble_outline, "languages_fluent".tr(defaultValue: "Fluent in English, Arabic"), isDark),
-          _buildDetailRow(Icons.history_edu_outlined, "specialized_history".tr(defaultValue: "Specialized in Ancient Egyptian History"), isDark),
+          _buildDetailRow(Icons.check_circle_outline, "certified_guide".trDefault("Certified Local Guide"), isDark),
+          _buildDetailRow(Icons.chat_bubble_outline, "languages_fluent".trDefault("Fluent in English, Arabic"), isDark),
+          _buildDetailRow(Icons.history_edu_outlined, "specialized_history".trDefault("Specialized in Ancient Egyptian History"), isDark),
         ],
       );
     } else if (args.type == DetailType.hotel) {
@@ -683,7 +649,7 @@ class _DetailScreenState extends State<DetailScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "amenities_label".tr(defaultValue: "Amenities"),
+            "amenities_label".trDefault("Amenities"),
             style: GoogleFonts.inter(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -709,7 +675,7 @@ class _DetailScreenState extends State<DetailScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "rental_includes".tr(defaultValue: "Includes"),
+            "rental_includes".trDefault("Includes"),
             style: GoogleFonts.inter(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -717,9 +683,9 @@ class _DetailScreenState extends State<DetailScreen> {
             ),
           ),
           const SizedBox(height: 12),
-          _buildDetailRow(Icons.check_circle_outline, "air_conditioning".tr(defaultValue: "Full Air Conditioning"), isDark),
-          _buildDetailRow(Icons.person, "with_driver".tr(defaultValue: "Professional Driver included"), isDark),
-          _buildDetailRow(Icons.local_gas_station, "fuel_included".tr(defaultValue: "Fuel and highway tolls included"), isDark),
+          _buildDetailRow(Icons.check_circle_outline, "air_conditioning".trDefault("Full Air Conditioning"), isDark),
+          _buildDetailRow(Icons.person, "with_driver".trDefault("Professional Driver included"), isDark),
+          _buildDetailRow(Icons.local_gas_station, "fuel_included".trDefault("Fuel and highway tolls included"), isDark),
         ],
       );
     }
@@ -798,7 +764,7 @@ class _DetailScreenState extends State<DetailScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "view_on_map".tr(defaultValue: "View on Map"),
+                      "view_on_map".trDefault("View on Map"),
                       style: GoogleFonts.inter(
                         fontWeight: FontWeight.bold,
                         color: isDark ? AppColors.begiColor : Colors.black,
@@ -828,13 +794,13 @@ class _DetailScreenState extends State<DetailScreen> {
 
   // --- Dynamic Bottom Horizontal List Section ---
   Widget _buildBottomListSection(DetailArgs args, bool isDark) {
-    String sectionTitle = "nearby_places".tr(defaultValue: "Nearby Places");
+    String sectionTitle = "nearby_places".trDefault("Nearby Places");
     if (args.type == DetailType.guide) {
-      sectionTitle = "other_guides".tr(defaultValue: "Other Top Guides");
+      sectionTitle = "other_guides".trDefault("Other Top Guides");
     } else if (args.type == DetailType.hotel) {
-      sectionTitle = "recommended_hotels".tr(defaultValue: "Similar Hotels");
+      sectionTitle = "recommended_hotels".trDefault("Similar Hotels");
     } else if (args.type == DetailType.transport) {
-      sectionTitle = "other_transport".tr(defaultValue: "Other Transport Options");
+      sectionTitle = "other_transport".trDefault("Other Transport Options");
     }
 
     final Color textColorPrimary = isDark ? AppColors.begiColor : Colors.black;
@@ -1043,19 +1009,15 @@ class _DetailScreenState extends State<DetailScreen> {
 
   // --- Bottom Action Bar Widget ---
   Widget _buildBottomActionBar(BuildContext context, DetailArgs args, bool isDark) {
-    String buttonText = "book_now".tr(defaultValue: "Book Now");
+    String buttonText = "book_now".trDefault("Book Now");
     if (args.type == DetailType.guide) {
-      buttonText = "book_guide".tr(defaultValue: "Book Guide");
+      buttonText = "book_guide".trDefault("Book Guide");
     } else if (args.type == DetailType.hotel) {
-      buttonText = "book_room".tr(defaultValue: "Book Room");
+      buttonText = "book_room".trDefault("Book Room");
     } else if (args.type == DetailType.transport) {
-<<<<<<< Updated upstream
-      buttonText = "rent_now".tr(defaultValue: "Rent Now");
-=======
-      buttonText = "rent_now".tr();
+      buttonText = "rent_now".trDefault("Rent Now");
     } else if (args.type == DetailType.program) {
       buttonText = "book_program".tr() == "book_program" ? "Book Program" : "book_program".tr();
->>>>>>> Stashed changes
     }
 
     final double screenWidth = MediaQuery.of(context).size.width;
@@ -1090,7 +1052,7 @@ class _DetailScreenState extends State<DetailScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "price_label".tr(defaultValue: "Price"),
+                  "price_label".trDefault("Price"),
                   style: GoogleFonts.inter(
                     color: Colors.grey,
                     fontSize: 12,
@@ -1112,17 +1074,7 @@ class _DetailScreenState extends State<DetailScreen> {
             child: SizedBox(
               height: 52,
               child: ElevatedButton(
-<<<<<<< Updated upstream
-                onPressed: () {
-                  // Trigger booking success dialog
-                  DialogeUtils.showMassage(
-                    context: context,
-                    title: "success_title".tr(defaultValue: "Success"),
-                    masseage: "booking_success_msg".tr(defaultValue: "Booking request submitted successfully!"),
-                    posActionName: "ok_action".tr(defaultValue: "Ok"),
-                  );
-=======
-                onPressed: () async {
+onPressed: () async {
                   if (args.type == DetailType.program) {
                     final date = await showDatePicker(
                       context: context,
@@ -1188,7 +1140,6 @@ class _DetailScreenState extends State<DetailScreen> {
                       posActionName: "ok_action".tr(),
                     );
                   }
->>>>>>> Stashed changes
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.yellowColor,
@@ -1211,5 +1162,12 @@ class _DetailScreenState extends State<DetailScreen> {
         ],
       ),
     );
+  }
+}
+
+extension on String {
+  String trDefault(String defaultValue) {
+    final translated = this.tr();
+    return translated == this ? defaultValue : translated;
   }
 }

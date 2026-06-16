@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tourist_app/core/provider/themeProvider.dart';
 import 'package:tourist_app/core/utils/app_theme.dart';
+import 'package:tourist_app/core/utils/app_routes.dart';
+import 'package:tourist_app/features/home/screens/detailed_screen.dart';
 import 'package:tourist_app/features/home/widgets/tourism_destination.dart';
 
 class DestinationCard extends StatelessWidget {
@@ -29,18 +31,6 @@ class DestinationCard extends StatelessWidget {
         ? Colors.black.withOpacity(0.12)
         : Colors.black.withOpacity(0.05);
 
-<<<<<<< Updated upstream
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: cardColor,
-        borderRadius: borderRadius,
-        border: Border.all(color: borderColor),
-        boxShadow: [
-          BoxShadow(
-            color: shadowColor,
-            blurRadius: 12,
-            offset: const Offset(0, 5),
-=======
     return GestureDetector(
       onTap: () {
         Navigator.pushNamed(
@@ -60,35 +50,48 @@ class DestinationCard extends StatelessWidget {
             price: "150 EGP",
             hours: "9:00 AM - 5:00 PM",
             distance: "Nearby",
->>>>>>> Stashed changes
           ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: borderRadius,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              flex: compact ? 5 : 7,
-              child: _DestinationImage(destination: destination),
-            ),
-            Expanded(
-              flex: compact ? 3 : 4,
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(
-                  compact ? 12 : 16,
-                  compact ? 10 : 14,
-                  compact ? 10 : 16,
-                  compact ? 10 : 14,
-                ),
-                child: _DestinationMeta(
-                  destination: destination,
-                  compact: compact,
-                ),
-              ),
+        );
+      },
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: cardColor,
+          borderRadius: borderRadius,
+          border: Border.all(color: borderColor),
+          boxShadow: [
+            BoxShadow(
+              color: shadowColor,
+              blurRadius: 12,
+              offset: const Offset(0, 5),
             ),
           ],
+        ),
+        child: ClipRRect(
+          borderRadius: borderRadius,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                flex: compact ? 5 : 7,
+                child: _DestinationImage(destination: destination),
+              ),
+              Expanded(
+                flex: compact ? 3 : 4,
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    compact ? 12 : 16,
+                    compact ? 10 : 14,
+                    compact ? 10 : 16,
+                    compact ? 10 : 14,
+                  ),
+                  child: _DestinationMeta(
+                    destination: destination,
+                    compact: compact,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
