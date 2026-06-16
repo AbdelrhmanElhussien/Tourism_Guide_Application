@@ -102,7 +102,7 @@ class MyApp extends StatelessWidget {
                 const AddServiceScreen(),
             AppRoutes.earningsRouteName: (context) => const EarningsScreen(),
           },
-          initialRoute: AppRoutes.HomeRouteName,
+          initialRoute: AppRoutes.loginRouteName,
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,
 
