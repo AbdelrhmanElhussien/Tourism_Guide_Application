@@ -1,5 +1,6 @@
 class TourismDestination {
   const TourismDestination({
+    this.id,
     required this.title,
     required this.location,
     required this.rating,
@@ -9,6 +10,7 @@ class TourismDestination {
     this.networkImage,
   });
 
+  final String? id;
   final String title;
   final String location;
   final double rating;

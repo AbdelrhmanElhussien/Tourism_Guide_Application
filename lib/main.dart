@@ -27,10 +27,13 @@ import 'package:tourist_app/features/explore/provider/transport_provider.dart';
 import 'package:tourist_app/features/explore/provider/program_provider.dart';
 import 'package:tourist_app/features/booking/provider/booking_provider.dart';
 
+import 'package:tourist_app/core/utils/cache_helper.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   configureDependencies();
   await EasyLocalization.ensureInitialized();
+  await CacheHelper.init();
 
   runApp(
     EasyLocalization(

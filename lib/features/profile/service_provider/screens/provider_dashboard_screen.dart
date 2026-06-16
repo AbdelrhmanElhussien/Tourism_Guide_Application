@@ -2,9 +2,15 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tourist_app/core/di/di.dart';
 import 'package:tourist_app/core/provider/themeProvider.dart';
 import 'package:tourist_app/core/utils/app_theme.dart';
 import 'package:tourist_app/core/utils/app_routes.dart';
+import 'package:tourist_app/domain/entities/provider/provider_booking.dart';
+import 'package:tourist_app/domain/entities/provider/provider_dashboard.dart';
+import 'package:tourist_app/features/profile/service_provider/cubits/provider_dashboard_cubit.dart';
+import 'package:tourist_app/features/profile/service_provider/cubits/provider_dashboard_states.dart';
 
 class ServiceProviderScreen extends StatelessWidget {
   const ServiceProviderScreen({super.key});
@@ -15,43 +21,81 @@ class ServiceProviderScreen extends StatelessWidget {
     bool isLight = themeProvider.apptheme == ThemeMode.light;
     final size = MediaQuery.of(context).size;
 
-    return Scaffold(
-      backgroundColor: isLight ? const Color(0xffF8FAFC) : AppColors.darkBlueColor,
-      body: SafeArea(
-        top: false,
-        bottom: true,
-        child: Column(
-          children: [
-            // ── Header Section ──────────────────────────────────────────
-            _buildHeader(context, size),
+    return BlocProvider(
+      create: (context) => getIt<ProviderDashboardCubit>()..fetchDashboardData(),
+      child: Scaffold(
+        backgroundColor: isLight ? const Color(0xffF8FAFC) : AppColors.darkBlueColor,
+        body: SafeArea(
+          top: false,
+          bottom: true,
+          child: Column(
+            children: [
+              // ── Header Section ──────────────────────────────────────────
+              _buildHeader(context, size),
 
-            // ── Dashboard Content ───────────────────────────────────────
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // --- Stats Grid ---
-                    _buildStatsGrid(context, isLight),
-                    const SizedBox(height: 20),
+              // ── Dashboard Content ───────────────────────────────────────
+              Expanded(
+                child: BlocBuilder<ProviderDashboardCubit, ProviderDashboardState>(
+                  builder: (context, state) {
+                    if (state is ProviderDashboardLoading) {
+                      return const Center(
+                        child: CircularProgressIndicator(color: AppColors.primaryColor),
+                      );
+                    } else if (state is ProviderDashboardError) {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              state.errorMsg,
+                              style: TextStyle(color: isLight ? Colors.black : Colors.white),
+                            ),
+                            const SizedBox(height: 16),
+                            ElevatedButton(
+                              onPressed: () {
+                                context.read<ProviderDashboardCubit>().fetchDashboardData();
+                              },
+                              child: const Text('Retry'),
+                            ),
+                          ],
+                        ),
+                      );
+                    } else if (state is ProviderDashboardSuccess) {
+                      final db = state.dashboard;
+                      return RefreshIndicator(
+                        onRefresh: () => context.read<ProviderDashboardCubit>().fetchDashboardData(),
+                        child: SingleChildScrollView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // --- Stats Grid ---
+                              _buildStatsGrid(context, isLight, db),
+                              const SizedBox(height: 20),
 
-                    // --- Action Cards ---
-                    _buildActionCards(context, isLight),
-                    const SizedBox(height: 24),
+                              // --- Action Cards ---
+                              _buildActionCards(context, isLight),
+                              const SizedBox(height: 24),
 
-                    // --- Recent Bookings ---
-                    _buildRecentBookings(context, isLight),
-                    const SizedBox(height: 24),
+                              // --- Recent Bookings ---
+                              _buildRecentBookings(context, isLight, db.recentBookings),
+                              const SizedBox(height: 24),
 
-                    // --- View Earnings Banner ---
-                    _buildViewEarningsBanner(context),
-                    const SizedBox(height: 16),
-                  ],
+                              // --- View Earnings Banner ---
+                              _buildViewEarningsBanner(context, db.totalEarnings),
+                              const SizedBox(height: 16),
+                            ],
+                          ),
+                        ),
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  },
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -104,7 +148,7 @@ class ServiceProviderScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildStatsGrid(BuildContext context, bool isLight) {
+  Widget _buildStatsGrid(BuildContext context, bool isLight, ProviderDashboard dashboard) {
     return Column(
       children: [
         Row(
@@ -124,8 +168,8 @@ class ServiceProviderScreen extends StatelessWidget {
                     ? const Color(0xFFFEF9EC)
                     : AppColors.yellowColor.withOpacity(0.15),
                 title: "total_earnings".tr(),
-                value: "5,240 EGP",
-                growth: "+12%",
+                value: "${dashboard.totalEarnings.toInt()} EGP",
+                growth: dashboard.earningsGrowth,
                 isLight: isLight,
               ),
             ),
@@ -142,8 +186,8 @@ class ServiceProviderScreen extends StatelessWidget {
                     ? const Color(0xFFEBF7F5)
                     : const Color(0xFF1ABC9C).withOpacity(0.15),
                 title: "total_bookings".tr(),
-                value: "156",
-                growth: "+8%",
+                value: dashboard.totalBookings.toString(),
+                growth: dashboard.bookingsGrowth,
                 isLight: isLight,
               ),
             ),
@@ -164,8 +208,8 @@ class ServiceProviderScreen extends StatelessWidget {
                     ? const Color(0xFFEEF4F8)
                     : (isLight ? AppColors.primaryColor : AppColors.blueColor).withOpacity(0.15),
                 title: "this_month".tr(),
-                value: "23",
-                growth: "+15%",
+                value: dashboard.thisMonthBookings.toString(),
+                growth: dashboard.thisMonthGrowth,
                 isLight: isLight,
               ),
             ),
@@ -182,8 +226,8 @@ class ServiceProviderScreen extends StatelessWidget {
                     ? const Color(0xFFFEF9EC)
                     : AppColors.yellowColor.withOpacity(0.15),
                 title: "rating".tr(),
-                value: "4.8",
-                growth: "+0.2",
+                value: dashboard.rating.toString(),
+                growth: dashboard.ratingGrowth,
                 isLight: isLight,
               ),
             ),
@@ -379,7 +423,7 @@ class ServiceProviderScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildRecentBookings(BuildContext context, bool isLight) {
+  Widget _buildRecentBookings(BuildContext context, bool isLight, List<ProviderBooking> bookings) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -438,29 +482,27 @@ class ServiceProviderScreen extends StatelessWidget {
             ],
           ),
           child: Column(
-            children: [
-              _buildBookingItem(
-                title: "Pyramids Tour",
-                customer: "Sarah Johnson",
-                date: "Apr 30",
-                status: "confirmed",
-                isLight: isLight,
-              ),
-              _buildBookingItem(
-                title: "Nile Cruise",
-                customer: "Mike Chen",
-                date: "May 2",
-                status: "pending",
-                isLight: isLight,
-              ),
-              _buildBookingItem(
-                title: "Temple Visit",
-                customer: "Emma Wilson",
-                date: "May 5",
-                status: "confirmed",
-                isLight: isLight,
-              ),
-            ],
+            children: bookings.isEmpty
+                ? [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 20),
+                      child: Center(
+                        child: Text(
+                          "no_bookings_found".tr() == "no_bookings_found" ? "No recent bookings" : "no_bookings_found".tr(),
+                          style: TextStyle(color: isLight ? Colors.grey : Colors.white70),
+                        ),
+                      ),
+                    ),
+                  ]
+                : bookings.take(5).map((b) {
+                    return _buildBookingItem(
+                      title: b.title,
+                      customer: b.customerName,
+                      date: b.date,
+                      status: b.status,
+                      isLight: isLight,
+                    );
+                  }).toList(),
           ),
         ),
       ],
@@ -550,7 +592,7 @@ class ServiceProviderScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildViewEarningsBanner(BuildContext context) {
+  Widget _buildViewEarningsBanner(BuildContext context, double totalEarnings) {
     return GestureDetector(
       onTap: () {
         Navigator.pushNamed(context, AppRoutes.earningsRouteName);
@@ -585,7 +627,7 @@ class ServiceProviderScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  "5,240 EGP",
+                  "${totalEarnings.toInt()} EGP",
                   style: GoogleFonts.inter(
                     color: Colors.white,
                     fontSize: 22,

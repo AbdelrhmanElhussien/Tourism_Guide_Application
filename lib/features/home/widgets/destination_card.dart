@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tourist_app/core/provider/themeProvider.dart';
 import 'package:tourist_app/core/utils/app_theme.dart';
+import 'package:tourist_app/core/utils/app_routes.dart';
+import 'package:tourist_app/features/home/screens/detailed_screen.dart';
 import 'package:tourist_app/features/home/widgets/tourism_destination.dart';
 
 import 'package:tourist_app/core/utils/app_routes.dart';
@@ -38,6 +40,7 @@ class DestinationCard extends StatelessWidget {
           context,
           AppRoutes.DetailScreenRouteName,
           arguments: DetailArgs(
+            id: destination.id,
             type: DetailType.place,
             title: destination.title,
             location: destination.location,

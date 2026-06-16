@@ -3,8 +3,13 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tourist_app/core/di/di.dart';
 import 'package:tourist_app/core/provider/themeProvider.dart';
 import 'package:tourist_app/core/utils/app_theme.dart';
+import 'package:tourist_app/domain/entities/provider/provider_earnings.dart';
+import 'package:tourist_app/features/profile/service_provider/cubits/provider_dashboard_cubit.dart';
+import 'package:tourist_app/features/profile/service_provider/cubits/provider_dashboard_states.dart';
 
 class EarningsScreen extends StatefulWidget {
   const EarningsScreen({super.key});
@@ -20,38 +25,76 @@ class _EarningsScreenState extends State<EarningsScreen> {
     bool isLight = themeProvider.apptheme == ThemeMode.light;
     final size = MediaQuery.of(context).size;
 
-    return Scaffold(
-      backgroundColor: isLight ? const Color(0xffF8FAFC) : AppColors.darkBlueColor,
-      body: SafeArea(
-        top: false,
-        bottom: true,
-        child: Column(
-          children: [
-            // Header Section
-            _buildHeader(context, size),
+    return BlocProvider(
+      create: (context) => getIt<ProviderDashboardCubit>()..fetchDashboardData(),
+      child: Scaffold(
+        backgroundColor: isLight ? const Color(0xffF8FAFC) : AppColors.darkBlueColor,
+        body: SafeArea(
+          top: false,
+          bottom: true,
+          child: Column(
+            children: [
+              // Header Section
+              _buildHeader(context, size),
 
-            // Content
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Stats Banner
-                    _buildStatsCard(isLight),
-                    const SizedBox(height: 20),
+              // Content
+              Expanded(
+                child: BlocBuilder<ProviderDashboardCubit, ProviderDashboardState>(
+                  builder: (context, state) {
+                    if (state is ProviderDashboardLoading || state is ProviderDashboardInitial) {
+                      return const Center(
+                        child: CircularProgressIndicator(color: AppColors.primaryColor),
+                      );
+                    } else if (state is ProviderDashboardError) {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              state.errorMsg,
+                              style: TextStyle(color: isLight ? Colors.black : Colors.white),
+                            ),
+                            const SizedBox(height: 16),
+                            ElevatedButton(
+                              onPressed: () {
+                                context.read<ProviderDashboardCubit>().fetchDashboardData();
+                              },
+                              child: const Text('Retry'),
+                            ),
+                          ],
+                        ),
+                      );
+                    } else if (state is ProviderDashboardSuccess) {
+                      final earnings = state.earnings;
+                      return RefreshIndicator(
+                        onRefresh: () => context.read<ProviderDashboardCubit>().fetchDashboardData(),
+                        child: SingleChildScrollView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Stats Banner
+                              _buildStatsCard(isLight, earnings),
+                              const SizedBox(height: 20),
 
-                    // Monthly Overview with animated graph
-                    _buildOverviewCard(isLight),
-                    const SizedBox(height: 20),
+                              // Monthly Overview with animated graph
+                              _buildOverviewCard(isLight, earnings.monthlyOverview),
+                              const SizedBox(height: 20),
 
-                    // Recent Transactions
-                    _buildTransactionsCard(isLight),
-                  ],
+                              // Recent Transactions
+                              _buildTransactionsCard(isLight, earnings.recentTransactions),
+                            ],
+                          ),
+                        ),
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  },
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -104,7 +147,7 @@ class _EarningsScreenState extends State<EarningsScreen> {
     );
   }
 
-  Widget _buildStatsCard(bool isLight) {
+  Widget _buildStatsCard(bool isLight, ProviderEarnings earnings) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -139,7 +182,7 @@ class _EarningsScreenState extends State<EarningsScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                "5,240 EGP",
+                "${earnings.totalEarnings.toInt()} EGP",
                 style: GoogleFonts.inter(
                   color: isLight ? AppColors.primaryColor : Colors.white,
                   fontSize: 28,
@@ -156,7 +199,7 @@ class _EarningsScreenState extends State<EarningsScreen> {
                   ),
                   const SizedBox(width: 4),
                   Text(
-                    "+12% from last month",
+                    earnings.earningsGrowth,
                     style: GoogleFonts.inter(
                       color: const Color(0xFF10B981),
                       fontSize: 12,
@@ -184,7 +227,7 @@ class _EarningsScreenState extends State<EarningsScreen> {
     );
   }
 
-  Widget _buildOverviewCard(bool isLight) {
+  Widget _buildOverviewCard(bool isLight, List<double> monthlyOverview) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -210,7 +253,7 @@ class _EarningsScreenState extends State<EarningsScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "Monthly Overview",
+                "monthly_overview".tr() == "monthly_overview" ? "Monthly Overview" : "monthly_overview".tr(),
                 style: GoogleFonts.inter(
                   color: isLight ? AppColors.primaryColor : AppColors.yellowColor,
                   fontSize: 16,
@@ -220,7 +263,13 @@ class _EarningsScreenState extends State<EarningsScreen> {
               GestureDetector(
                 onTap: () {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Downloading report...')),
+                    SnackBar(
+                      content: Text(
+                        'downloading_report'.tr() == 'downloading_report' 
+                            ? 'Downloading report...' 
+                            : 'downloading_report'.tr(),
+                      ),
+                    ),
                   );
                 },
                 child: Container(
@@ -238,7 +287,7 @@ class _EarningsScreenState extends State<EarningsScreen> {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        "Export",
+                        "export".tr() == "export" ? "Export" : "export".tr(),
                         style: GoogleFonts.inter(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
@@ -256,12 +305,14 @@ class _EarningsScreenState extends State<EarningsScreen> {
             height: 180,
             width: double.infinity,
             child: TweenAnimationBuilder<double>(
+              key: ValueKey(monthlyOverview),
               tween: Tween<double>(begin: 0.0, end: 1.0),
               duration: const Duration(milliseconds: 1500),
               curve: Curves.easeInOutCubic,
               builder: (context, value, child) {
                 return CustomPaint(
                   painter: LineChartPainter(
+                    values: monthlyOverview,
                     animationValue: value,
                     isDark: !isLight,
                   ),
@@ -274,14 +325,7 @@ class _EarningsScreenState extends State<EarningsScreen> {
     );
   }
 
-  Widget _buildTransactionsCard(bool isLight) {
-    final list = [
-      _TransactionItem("Private Pyramids Tour", "Apr 30, 2026", 500.0, true),
-      _TransactionItem("Nile Sunset Cruise", "Apr 28, 2026", 350.0, true),
-      _TransactionItem("Platform Fee", "Apr 28, 2026", -85.0, false),
-      _TransactionItem("Luxor Temple Visit", "Apr 25, 2026", 450.0, true),
-    ];
-
+  Widget _buildTransactionsCard(bool isLight, List<ProviderTransaction> transactions) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -312,72 +356,81 @@ class _EarningsScreenState extends State<EarningsScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: list.length,
-            separatorBuilder: (context, index) => Divider(
-              color: isLight ? Colors.grey.withOpacity(0.2) : Colors.white.withOpacity(0.05),
-              height: 20,
-            ),
-            itemBuilder: (context, index) {
-              final item = list[index];
-              return Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        item.title,
-                        style: GoogleFonts.inter(
-                          color: isLight ? AppColors.primaryColor : Colors.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
+          if (transactions.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 20),
+              child: Center(
+                child: Text(
+                  "no_transactions_found".tr() == "no_transactions_found" ? "No transactions found" : "no_transactions_found".tr(),
+                  style: TextStyle(color: isLight ? Colors.grey : Colors.white70),
+                ),
+              ),
+            )
+          else
+            ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: transactions.length,
+              separatorBuilder: (context, index) => Divider(
+                color: isLight ? Colors.grey.withOpacity(0.2) : Colors.white.withOpacity(0.05),
+                height: 20,
+              ),
+              itemBuilder: (context, index) {
+                final item = transactions[index];
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            item.title,
+                            style: GoogleFonts.inter(
+                              color: isLight ? AppColors.primaryColor : Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            item.date,
+                            style: GoogleFonts.inter(
+                              color: isLight ? const Color(0xFF64748B) : AppColors.blueColor,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        item.date,
-                        style: GoogleFonts.inter(
-                          color: isLight ? const Color(0xFF64748B) : AppColors.blueColor,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Text(
-                    "${item.amount > 0 ? '+' : ''}${item.amount.toInt()} EGP",
-                    style: GoogleFonts.inter(
-                      color: item.isCredit ? const Color(0xFF10B981) : const Color(0xFFEF4444),
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
                     ),
-                  ),
-                ],
-              );
-            },
-          ),
+                    const SizedBox(width: 16),
+                    Text(
+                      "${item.amount > 0 ? '+' : ''}${item.amount.toInt()} EGP",
+                      style: GoogleFonts.inter(
+                        color: item.isCredit ? const Color(0xFF10B981) : const Color(0xFFEF4444),
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
         ],
       ),
     );
   }
 }
 
-class _TransactionItem {
-  final String title;
-  final String date;
-  final double amount;
-  final bool isCredit;
-  _TransactionItem(this.title, this.date, this.amount, this.isCredit);
-}
-
 class LineChartPainter extends CustomPainter {
+  final List<double> values;
   final double animationValue;
   final bool isDark;
 
-  LineChartPainter({required this.animationValue, required this.isDark});
+  LineChartPainter({required this.values, required this.animationValue, required this.isDark});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -394,14 +447,19 @@ class LineChartPainter extends CustomPainter {
       ..color = isDark ? Colors.white.withOpacity(0.04) : Colors.black.withOpacity(0.04)
       ..strokeWidth = 1.0;
 
+    // Determine max value
+    final double maxVal = values.isEmpty ? 1000.0 : values.reduce((curr, next) => curr > next ? curr : next);
+    final double chartMax = maxVal == 0 ? 1000.0 : (maxVal * 1.2); // 20% margin
+
     // Draw horizontal grid lines and labels
     for (int j = 1; j <= 3; j++) {
-      final double y = topPadding + chartHeight * (1 - j * 2000 / 6000);
+      final double gridVal = (chartMax / 4) * j;
+      final double y = topPadding + chartHeight * (1 - gridVal / chartMax);
       canvas.drawLine(Offset(leftPadding, y), Offset(leftPadding + chartWidth, y), gridPaint);
 
       final TextPainter tp = TextPainter(
         text: TextSpan(
-          text: '${j * 2}k',
+          text: gridVal >= 1000 ? '${(gridVal / 1000).toStringAsFixed(1)}k' : gridVal.toInt().toString(),
           style: TextStyle(
             color: isDark ? Colors.white30 : Colors.black38,
             fontSize: 10,
@@ -413,14 +471,14 @@ class LineChartPainter extends CustomPainter {
       tp.paint(canvas, Offset(5, y - tp.height / 2));
     }
 
-    // Coordinates representing: Jan, Feb, Mar, Apr
-    final List<double> values = [1200.0, 2800.0, 2100.0, 5240.0];
+    if (values.isEmpty) return;
+
     final List<double> xPoints = [];
     final List<double> yPoints = [];
 
     for (int i = 0; i < values.length; i++) {
-      final double x = leftPadding + (i * chartWidth / (values.length - 1));
-      final double y = topPadding + chartHeight * (1 - values[i] / 6000.0);
+      final double x = leftPadding + (values.length <= 1 ? 0 : (i * chartWidth / (values.length - 1)));
+      final double y = topPadding + chartHeight * (1 - values[i] / chartMax);
       xPoints.add(x);
       yPoints.add(y);
     }
@@ -501,12 +559,13 @@ class LineChartPainter extends CustomPainter {
       }
     }
 
-    // Bottom labels (Jan, Feb, Mar, Apr)
-    final List<String> months = ['Jan', 'Feb', 'Mar', 'Apr'];
-    for (int i = 0; i < months.length; i++) {
+    // Bottom labels (Jan, Feb, Mar, Apr, ...)
+    final List<String> defaultMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    for (int i = 0; i < values.length; i++) {
+      final String monthLabel = defaultMonths[i % defaultMonths.length];
       final TextPainter tp = TextPainter(
         text: TextSpan(
-          text: months[i],
+          text: monthLabel,
           style: TextStyle(
             color: isDark ? Colors.white54 : Colors.black54,
             fontSize: 11,
@@ -522,6 +581,8 @@ class LineChartPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant LineChartPainter oldDelegate) {
-    return oldDelegate.animationValue != animationValue || oldDelegate.isDark != isDark;
+    return oldDelegate.animationValue != animationValue || 
+        oldDelegate.isDark != isDark ||
+        oldDelegate.values != values;
   }
 }

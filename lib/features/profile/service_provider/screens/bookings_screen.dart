@@ -2,8 +2,13 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tourist_app/core/di/di.dart';
 import 'package:tourist_app/core/provider/themeProvider.dart';
 import 'package:tourist_app/core/utils/app_theme.dart';
+import 'package:tourist_app/domain/entities/provider/provider_booking.dart';
+import 'package:tourist_app/features/profile/service_provider/cubits/provider_bookings_cubit.dart';
+import 'package:tourist_app/features/profile/service_provider/cubits/provider_bookings_states.dart';
 
 import 'package:tourist_app/features/booking/provider/booking_provider.dart';
 import 'package:tourist_app/core/utils/dialoge_utils.dart';
@@ -32,30 +37,68 @@ class _BookingsScreenState extends State<BookingsScreen> {
     bool isLight = themeProvider.apptheme == ThemeMode.light;
     final size = MediaQuery.of(context).size;
 
-    return Scaffold(
-      backgroundColor: isLight ? const Color(0xffF8FAFC) : AppColors.darkBlueColor,
-      body: SafeArea(
-        top: false,
-        bottom: true,
-        child: Column(
-          children: [
-            // ── Header Section ──────────────────────────────────────────
-            _buildHeader(context, isLight, size),
+    return BlocProvider(
+      create: (context) => getIt<ProviderBookingsCubit>()..fetchBookings(),
+      child: BlocConsumer<ProviderBookingsCubit, ProviderBookingsState>(
+        listener: (context, state) {
+          if (state is ProviderBookingActionSuccess) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.message),
+                backgroundColor: Colors.green,
+              ),
+            );
+          } else if (state is ProviderBookingsError) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.errorMsg),
+                backgroundColor: Colors.redAccent,
+              ),
+            );
+          }
+        },
+        builder: (context, state) {
+          int totalCount = 0;
+          int confirmedCount = 0;
+          int pendingCount = 0;
+          int pastCount = 0;
+          List<ProviderBooking> bookings = [];
 
-            // ── Segmented Tab Selector ──────────────────────────────────
-            _buildTabSelector(isLight),
+          if (state is ProviderBookingsSuccess) {
+            bookings = state.bookings;
+            totalCount = bookings.length;
+            confirmedCount = bookings.where((b) => b.status == "confirmed").length;
+            pendingCount = bookings.where((b) => b.status == "pending").length;
+            pastCount = bookings.where((b) => b.status == "completed" || b.status == "declined").length;
+          }
 
-            // ── Bookings List Content ───────────────────────────────────
-            Expanded(
-              child: _buildBookingsList(isLight),
+          return Scaffold(
+            backgroundColor: isLight ? const Color(0xffF8FAFC) : AppColors.darkBlueColor,
+            body: SafeArea(
+              top: false,
+              bottom: true,
+              child: Column(
+                children: [
+                  // ── Header Section ──────────────────────────────────────────
+                  _buildHeader(context, isLight, size, totalCount),
+
+                  // ── Segmented Tab Selector ──────────────────────────────────
+                  _buildTabSelector(isLight, confirmedCount, pendingCount, pastCount),
+
+                  // ── Bookings List Content ───────────────────────────────────
+                  Expanded(
+                    child: _buildBody(context, isLight, state, bookings),
+                  ),
+                ],
+              ),
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
 
-  Widget _buildHeader(BuildContext context, bool isLight, Size size) {
+  Widget _buildHeader(BuildContext context, bool isLight, Size size, int totalCount) {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.fromLTRB(20, size.height * 0.06, 20, 20),
@@ -108,17 +151,13 @@ class _BookingsScreenState extends State<BookingsScreen> {
                   ),
                 ),
                 const SizedBox(height: 2),
-                Consumer<BookingProvider>(
-                  builder: (context, provider, child) {
-                    return Text(
-                      "${provider.bookings.length} ${"total_bookings_count".tr()}",
-                      style: GoogleFonts.inter(
-                        color: isLight ? AppColors.lightGrayColor : AppColors.blueColor,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    );
-                  },
+                Text(
+                  "$totalCount ${"total_bookings_count".tr()}",
+                  style: GoogleFonts.inter(
+                    color: isLight ? AppColors.lightGrayColor : AppColors.blueColor,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
+                  ),
                 ),
               ],
             ),
@@ -128,7 +167,7 @@ class _BookingsScreenState extends State<BookingsScreen> {
     );
   }
 
-  Widget _buildTabSelector(bool isLight) {
+  Widget _buildTabSelector(bool isLight, int confirmedCount, int pendingCount, int pastCount) {
     return Container(
       height: 48,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -139,9 +178,9 @@ class _BookingsScreenState extends State<BookingsScreen> {
       ),
       child: Row(
         children: [
-          _buildTabItem(0, "${"confirmed_tab".tr()} (2)", isLight),
-          _buildTabItem(1, "${"pending_tab".tr()} (1)", isLight),
-          _buildTabItem(2, "${"past_tab".tr()} (1)", isLight),
+          _buildTabItem(0, "${"confirmed_tab".tr()} ($confirmedCount)", isLight),
+          _buildTabItem(1, "${"pending_tab".tr()} ($pendingCount)", isLight),
+          _buildTabItem(2, "${"past_tab".tr()} ($pastCount)", isLight),
         ],
       ),
     );
@@ -188,83 +227,107 @@ class _BookingsScreenState extends State<BookingsScreen> {
     );
   }
 
-  Widget _buildBookingsList(bool isLight) {
-    return Consumer<BookingProvider>(
-      builder: (context, bookingProvider, child) {
-        if (bookingProvider.isLoading) {
-          return const Center(
-            child: CircularProgressIndicator(color: AppColors.yellowColor),
-          );
-        }
-
-        if (bookingProvider.hasError) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.error_outline, size: 50, color: Colors.red),
-                const SizedBox(height: 16),
-                Text(bookingProvider.errorMessage ?? 'Error', style: TextStyle(color: isLight ? Colors.black : Colors.white)),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () => bookingProvider.fetchMyBookings(forceRefresh: true),
-                  style: ElevatedButton.styleFrom(backgroundColor: AppColors.yellowColor),
-                  child: Text('retry'.tr(), style: const TextStyle(color: Colors.white)),
-                )
-              ],
+  Widget _buildBody(BuildContext context, bool isLight, ProviderBookingsState state, List<ProviderBooking> bookings) {
+    if (state is ProviderBookingsLoading || state is ProviderBookingsInitial) {
+      return const Center(
+        child: CircularProgressIndicator(color: AppColors.primaryColor),
+      );
+    } else if (state is ProviderBookingsError) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              state.errorMsg,
+              style: TextStyle(color: isLight ? Colors.black : Colors.white),
             ),
-          );
-        }
-
-        final bookings = bookingProvider.bookings;
-
-        if (bookings.isEmpty) {
-          return Center(
-            child: Text(
-              'No bookings found',
-              style: TextStyle(color: isLight ? Colors.grey : Colors.white54, fontSize: 16),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                context.read<ProviderBookingsCubit>().fetchBookings();
+              },
+              child: const Text('Retry'),
             ),
-          );
-        }
+          ],
+        ),
+      );
+    } else {
+      List<ProviderBooking> currentBookings = [];
+      if (_selectedTab == 0) {
+        currentBookings = bookings.where((b) => b.status == "confirmed").toList();
+      } else if (_selectedTab == 1) {
+        currentBookings = bookings.where((b) => b.status == "pending").toList();
+      } else {
+        currentBookings = bookings.where((b) => b.status == "completed" || b.status == "declined").toList();
+      }
 
-        return RefreshIndicator(
-          color: AppColors.yellowColor,
-          onRefresh: () => bookingProvider.fetchMyBookings(forceRefresh: true),
-          child: ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount: bookings.length,
-            itemBuilder: (context, index) {
-              final booking = bookings[index];
-              return _buildBookingCard(
-                title: booking.itemName ?? 'Unknown Item',
-                customer: 'User ${booking.userId ?? ''}',
-                date: booking.date ?? '',
-                price: booking.price != null ? '${booking.price} EGP' : 'N/A',
-                status: booking.status ?? 'pending',
-                isLight: isLight,
-                showActions: true,
-                action1Text: 'Delete',
-                action2Text: 'Details',
-                onAction1: () async {
-                  if (booking.id != null) {
-                    try {
-                      DialogeUtils.showLoading(context: context, text: "loading_msg".tr());
-                      await context.read<BookingProvider>().deleteBooking(booking.id!.toString());
-                      DialogeUtils.hideLoading(context: context);
-                      DialogeUtils.showMassage(context: context, masseage: 'Deleted Successfully', title: 'Success', posActionName: 'OK');
-                    } catch (e) {
-                      DialogeUtils.hideLoading(context: context);
-                      DialogeUtils.showMassage(context: context, masseage: e.toString(), title: 'Error', posActionName: 'OK');
-                    }
-                  }
-                },
-                onAction2: () {},
-              );
-            },
+      if (currentBookings.isEmpty) {
+        return Center(
+          child: Text(
+            "no_bookings_found".tr() == "no_bookings_found" ? "No bookings found" : "no_bookings_found".tr(),
+            style: TextStyle(color: isLight ? Colors.grey : Colors.white70),
           ),
         );
-      },
-    );
+      }
+
+      return RefreshIndicator(
+        onRefresh: () => context.read<ProviderBookingsCubit>().fetchBookings(),
+        child: ListView.builder(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          itemCount: currentBookings.length,
+          itemBuilder: (context, index) {
+            final b = currentBookings[index];
+            if (_selectedTab == 0) {
+              return _buildBookingCard(
+                title: b.title,
+                customer: b.customerName,
+                date: b.date,
+                price: "${b.price.toInt()} EGP",
+                status: b.status,
+                isLight: isLight,
+                showActions: true,
+                action1Text: "contact".tr(),
+                action2Text: "complete".tr(),
+                onAction1: () {
+                  context.read<ProviderBookingsCubit>().contactBooking(b.id);
+                },
+                onAction2: () {
+                  context.read<ProviderBookingsCubit>().completeBooking(b.id);
+                },
+              );
+            } else if (_selectedTab == 1) {
+              return _buildBookingCard(
+                title: b.title,
+                customer: b.customerName,
+                date: b.date,
+                price: "${b.price.toInt()} EGP",
+                status: b.status,
+                isLight: isLight,
+                showActions: true,
+                action1Text: "decline".tr(),
+                action2Text: "confirm".tr(),
+                onAction1: () {
+                  context.read<ProviderBookingsCubit>().declineBooking(b.id);
+                },
+                onAction2: () {
+                  context.read<ProviderBookingsCubit>().confirmBooking(b.id);
+                },
+              );
+            } else {
+              return _buildBookingCard(
+                title: b.title,
+                customer: b.customerName,
+                date: b.date,
+                price: "${b.price.toInt()} EGP",
+                status: b.status,
+                isLight: isLight,
+                showActions: false,
+              );
+            }
+          },
+        ),
+      );
+    }
   }
 
   Widget _buildBookingCard({
@@ -289,10 +352,13 @@ class _BookingsScreenState extends State<BookingsScreen> {
     } else if (status == "pending") {
       badgeBgColor = isLight ? const Color(0xFFFEF9EC) : const Color(0x15C9A646);
       badgeTextColor = AppColors.yellowColor;
-    } else {
-      // completed
+    } else if (status == "completed") {
       badgeBgColor = isLight ? const Color(0xFFFDF4E5) : const Color(0x15C9A646);
       badgeTextColor = isLight ? const Color(0xFFB8963E) : const Color(0xFFC9A646);
+    } else {
+      // declined
+      badgeBgColor = isLight ? const Color(0xFFFFECEF) : const Color(0x15FF4D4D);
+      badgeTextColor = Colors.red;
     }
 
     return Container(

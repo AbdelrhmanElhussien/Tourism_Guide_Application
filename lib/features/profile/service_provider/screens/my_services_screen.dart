@@ -2,9 +2,14 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tourist_app/core/di/di.dart';
 import 'package:tourist_app/core/provider/themeProvider.dart';
-import 'package:tourist_app/core/utils/app_assets.dart';
 import 'package:tourist_app/core/utils/app_theme.dart';
+import 'package:tourist_app/core/utils/app_routes.dart';
+import 'package:tourist_app/domain/entities/provider/provider_service.dart';
+import 'package:tourist_app/features/profile/service_provider/cubits/provider_services_cubit.dart';
+import 'package:tourist_app/features/profile/service_provider/cubits/provider_services_states.dart';
 
 class MyServicesScreen extends StatelessWidget {
   const MyServicesScreen({super.key});
@@ -15,95 +20,48 @@ class MyServicesScreen extends StatelessWidget {
     bool isLight = themeProvider.apptheme == ThemeMode.light;
     final size = MediaQuery.of(context).size;
 
-    return Scaffold(
-      backgroundColor: isLight ? const Color(0xffF8FAFC) : AppColors.darkBlueColor,
-      body: SafeArea(
-        top: false,
-        bottom: true,
-        child: Column(
-          children: [
-            // ── Header Section ──────────────────────────────────────────
-            _buildHeader(context, isLight, size),
-
-            // ── Services List Content ───────────────────────────────────
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.all(16.0),
+    return BlocProvider(
+      create: (context) => getIt<ProviderServicesCubit>()..fetchServices(),
+      child: Scaffold(
+        backgroundColor: isLight ? const Color(0xffF8FAFC) : AppColors.darkBlueColor,
+        body: SafeArea(
+          top: false,
+          bottom: true,
+          child: BlocConsumer<ProviderServicesCubit, ProviderServicesState>(
+            listener: (context, state) {
+              if (state is ProviderServiceActionSuccess) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(state.message),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+              }
+            },
+            builder: (context, state) {
+              int count = 0;
+              if (state is ProviderServicesSuccess) {
+                count = state.services.length;
+              }
+              return Column(
                 children: [
-                  // Card 1: Private Pyramids Tour
-                  _buildServiceCard(
-                    context: context,
-                    title: "Private Pyramids Tour",
-                    category: "Tour",
-                    price: "500 EGP",
-                    bookings: "45 ${"bookings".tr()}",
-                    rating: 4.9,
-                    assetImage: AppAssets.pyramidsofGiza,
-                    networkImage: null,
-                    isLight: isLight,
-                  ),
+                  // ── Header Section ──────────────────────────────────────────
+                  _buildHeader(context, isLight, size, count),
 
-                  // Card 2: Nile Sunset Cruise
-                  _buildServiceCard(
-                    context: context,
-                    title: "Nile Sunset Cruise",
-                    category: "Experience",
-                    price: "350 EGP",
-                    bookings: "32 ${"bookings".tr()}",
-                    rating: 4.8,
-                    assetImage: null,
-                    networkImage: "https://images.unsplash.com/photo-1572021335469-31706a17aaef?w=400&q=80",
-                    isLight: isLight,
+                  // ── Services List Content ───────────────────────────────────
+                  Expanded(
+                    child: _buildBody(context, isLight, state),
                   ),
-
-                  // Card 3: Luxor Temple Visit
-                  _buildServiceCard(
-                    context: context,
-                    title: "Luxor Temple Visit",
-                    category: "Tour",
-                    price: "400 EGP",
-                    bookings: "28 ${"bookings".tr()}",
-                    rating: 4.7,
-                    assetImage: null,
-                    networkImage: "https://images.unsplash.com/photo-1600577916048-804c9191e36c?w=400&q=80",
-                    isLight: isLight,
-                  ),
-
-                  const SizedBox(height: 8),
-
-                  // --- Add New Service Dotted Button ---
-                  CustomPaint(
-                    painter: DashedBorderPainter(
-                      color: isLight
-                          ? Colors.black.withOpacity(0.15)
-                          : Colors.white.withOpacity(0.15),
-                      borderRadius: 16.0,
-                    ),
-                    child: Container(
-                      width: double.infinity,
-                      height: 56,
-                      alignment: Alignment.center,
-                      child: Text(
-                        "+ ${"add_new_service".tr()}",
-                        style: GoogleFonts.inter(
-                          color: isLight ? AppColors.primaryColor : AppColors.blueColor,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
                 ],
-              ),
-            ),
-          ],
+              );
+            },
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildHeader(BuildContext context, bool isLight, Size size) {
+  Widget _buildHeader(BuildContext context, bool isLight, Size size, int count) {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.fromLTRB(20, size.height * 0.06, 20, 20),
@@ -157,7 +115,7 @@ class MyServicesScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  "3 ${"services_listed_count".tr()}",
+                  "$count ${"services_listed_count".tr()}",
                   style: GoogleFonts.inter(
                     color: isLight ? AppColors.lightGrayColor : AppColors.blueColor,
                     fontSize: 14,
@@ -172,15 +130,90 @@ class MyServicesScreen extends StatelessWidget {
     );
   }
 
+  Widget _buildBody(BuildContext context, bool isLight, ProviderServicesState state) {
+    if (state is ProviderServicesLoading || state is ProviderServicesInitial) {
+      return const Center(
+        child: CircularProgressIndicator(color: AppColors.primaryColor),
+      );
+    } else if (state is ProviderServicesError) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              state.errorMsg,
+              style: TextStyle(color: isLight ? Colors.black : Colors.white),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                context.read<ProviderServicesCubit>().fetchServices();
+              },
+              child: const Text('Retry'),
+            ),
+          ],
+        ),
+      );
+    } else {
+      // Success list
+      final services = state is ProviderServicesSuccess ? state.services : <ProviderService>[];
+      
+      return RefreshIndicator(
+        onRefresh: () => context.read<ProviderServicesCubit>().fetchServices(),
+        child: ListView.builder(
+          padding: const EdgeInsets.all(16.0),
+          itemCount: services.length + 1,
+          itemBuilder: (context, index) {
+            if (index == services.length) {
+              return _buildAddServiceButton(context, isLight);
+            }
+            final s = services[index];
+            return _buildServiceCard(
+              context: context,
+              service: s,
+              isLight: isLight,
+            );
+          },
+        ),
+      );
+    }
+  }
+
+  Widget _buildAddServiceButton(BuildContext context, bool isLight) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.pushNamed(context, AppRoutes.addServiceRouteName).then((_) {
+          // ignore: use_build_context_synchronously
+          context.read<ProviderServicesCubit>().fetchServices();
+        });
+      },
+      child: CustomPaint(
+        painter: DashedBorderPainter(
+          color: isLight
+              ? Colors.black.withOpacity(0.15)
+              : Colors.white.withOpacity(0.15),
+          borderRadius: 16.0,
+        ),
+        child: Container(
+          width: double.infinity,
+          height: 56,
+          alignment: Alignment.center,
+          child: Text(
+            "+ ${"add_new_service".tr()}",
+            style: GoogleFonts.inter(
+              color: isLight ? AppColors.primaryColor : AppColors.blueColor,
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildServiceCard({
     required BuildContext context,
-    required String title,
-    required String category,
-    required String price,
-    required String bookings,
-    required double rating,
-    required String? assetImage,
-    required String? networkImage,
+    required ProviderService service,
     required bool isLight,
   }) {
     return Container(
@@ -216,36 +249,31 @@ class MyServicesScreen extends StatelessWidget {
                   child: SizedBox(
                     width: 80,
                     height: 80,
-                    child: assetImage != null
-                        ? Image.asset(
-                            assetImage,
+                    child: service.imageUrl.isNotEmpty
+                        ? Image.network(
+                            service.imageUrl,
                             fit: BoxFit.cover,
-                          )
-                        : networkImage != null
-                            ? Image.network(
-                                networkImage,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Container(
-                                    color: isLight ? const Color(0xFFF1F3F6) : Colors.white12,
-                                    alignment: Alignment.center,
-                                    child: Icon(
-                                      Icons.image_not_supported_outlined,
-                                      color: isLight ? AppColors.lightGrayColor : AppColors.blueColor,
-                                      size: 20,
-                                    ),
-                                  );
-                                },
-                              )
-                            : Container(
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
                                 color: isLight ? const Color(0xFFF1F3F6) : Colors.white12,
                                 alignment: Alignment.center,
                                 child: Icon(
-                                  Icons.image,
+                                  Icons.image_not_supported_outlined,
                                   color: isLight ? AppColors.lightGrayColor : AppColors.blueColor,
                                   size: 20,
                                 ),
-                              ),
+                              );
+                            },
+                          )
+                        : Container(
+                            color: isLight ? const Color(0xFFF1F3F6) : Colors.white12,
+                            alignment: Alignment.center,
+                            child: Icon(
+                              Icons.image,
+                              color: isLight ? AppColors.lightGrayColor : AppColors.blueColor,
+                              size: 20,
+                            ),
+                          ),
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -259,7 +287,7 @@ class MyServicesScreen extends StatelessWidget {
                         children: [
                           Expanded(
                             child: Text(
-                              title,
+                              service.title,
                               style: GoogleFonts.inter(
                                 color: isLight ? AppColors.primaryColor : AppColors.whiteColor,
                                 fontSize: 16,
@@ -278,7 +306,7 @@ class MyServicesScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        category,
+                        service.category.tr(),
                         style: GoogleFonts.inter(
                           color: isLight ? AppColors.lightGrayColor : AppColors.blueColor,
                           fontSize: 13,
@@ -289,7 +317,7 @@ class MyServicesScreen extends StatelessWidget {
                       Row(
                         children: [
                           Text(
-                            price,
+                            "${service.price.toInt()} EGP",
                             style: GoogleFonts.inter(
                               color: AppColors.yellowColor,
                               fontSize: 14,
@@ -299,7 +327,7 @@ class MyServicesScreen extends StatelessWidget {
                           const SizedBox(width: 12),
                           Flexible(
                             child: Text(
-                              bookings,
+                              "${service.bookingsCount} ${"bookings".tr()}",
                               style: GoogleFonts.inter(
                                 color: isLight ? AppColors.lightGrayColor : AppColors.blueColor,
                                 fontSize: 13,
@@ -317,7 +345,7 @@ class MyServicesScreen extends StatelessWidget {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            rating.toString(),
+                            service.rating.toString(),
                             style: GoogleFonts.inter(
                               color: isLight ? AppColors.lightGrayColor : AppColors.blueColor,
                               fontSize: 13,
@@ -345,7 +373,16 @@ class MyServicesScreen extends StatelessWidget {
             children: [
               Expanded(
                 child: InkWell(
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.pushNamed(
+                      context,
+                      AppRoutes.addServiceRouteName,
+                      arguments: service,
+                    ).then((_) {
+                      // ignore: use_build_context_synchronously
+                      context.read<ProviderServicesCubit>().fetchServices();
+                    });
+                  },
                   borderRadius: const BorderRadius.only(
                     bottomLeft: Radius.circular(16),
                   ),
@@ -382,7 +419,30 @@ class MyServicesScreen extends StatelessWidget {
               ),
               Expanded(
                 child: InkWell(
-                  onTap: () {},
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (dialogCtx) => AlertDialog(
+                        title: Text('delete'.tr()),
+                        content: Text('are_you_sure_delete_service'.tr() == 'are_you_sure_delete_service' 
+                            ? 'Are you sure you want to delete this service?' 
+                            : 'are_you_sure_delete_service'.tr()),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(dialogCtx),
+                            child: Text('cancel'.tr() == 'cancel' ? 'Cancel' : 'cancel'.tr()),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pop(dialogCtx);
+                              context.read<ProviderServicesCubit>().deleteService(service.id);
+                            },
+                            child: Text('delete'.tr(), style: const TextStyle(color: Colors.red)),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
                   borderRadius: const BorderRadius.only(
                     bottomRight: Radius.circular(16),
                   ),

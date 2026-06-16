@@ -1,16 +1,23 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:tourist_app/core/di/di.dart';
 import 'package:tourist_app/core/provider/themeProvider.dart';
 import 'package:tourist_app/core/utils/app_theme.dart';
 import 'package:tourist_app/core/utils/app_routes.dart';
 import 'package:tourist_app/core/utils/dialoge_utils.dart';
 import 'package:tourist_app/features/home/widgets/top_circular_button.dart';
+import 'package:intl/intl.dart';
+import 'package:tourist_app/domain/use_cases/trips/create_trip_use_case.dart';
+import 'package:tourist_app/features/profile/cubit/profile_cubit.dart';
+import 'package:tourist_app/features/profile/cubit/profile_states.dart';
 
 enum DetailType { place, hotel, transport, guide }
 
 class DetailArgs {
+  final String? id;
   final DetailType type;
   final String title;
   final String location;
@@ -32,6 +39,7 @@ class DetailArgs {
   final String? transportType; // Transport type: "Car", "Felucca"
 
   const DetailArgs({
+    this.id,
     required this.type,
     required this.title,
     required this.location,
@@ -76,8 +84,6 @@ class DetailScreen extends StatefulWidget {
 }
 
 class _DetailScreenState extends State<DetailScreen> {
-  bool isFavorite = false;
-
   @override
   Widget build(BuildContext context) {
     // Retrieve arguments from ModalRoute or constructor fallback
@@ -105,8 +111,16 @@ class _DetailScreenState extends State<DetailScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 1. Header Image Section
-                _buildHeaderImage(context, args, isDark),
+                // Main Content
+                SingleChildScrollView(
+                  padding: const EdgeInsets.only(
+                    bottom: 100,
+                  ), // Padding to avoid overlap with bottom navigation bar
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // 1. Header Image Section
+                      _buildHeaderImage(context, args, isDark, isFav: isFav, isVisited: isVisited),
 
                 Padding(
                   padding: EdgeInsets.symmetric(
@@ -158,10 +172,13 @@ class _DetailScreenState extends State<DetailScreen> {
         ],
       ),
     );
+        },
+      ),
+    );
   }
 
   // --- Header Image Widget ---
-  Widget _buildHeaderImage(BuildContext context, DetailArgs args, bool isDark) {
+  Widget _buildHeaderImage(BuildContext context, DetailArgs args, bool isDark, {required bool isFav, required bool isVisited}) {
     ImageProvider imageProvider;
     if (args.assetImage != null) {
       imageProvider = AssetImage(args.assetImage!);
@@ -217,7 +234,7 @@ class _DetailScreenState extends State<DetailScreen> {
           ),
         ),
 
-        // Action Buttons (Share, Favorite)
+        // Action Buttons (Share, Visited, Favorite)
         Positioned(
           top: 50,
           right: 20,
@@ -361,6 +378,38 @@ class _DetailScreenState extends State<DetailScreen> {
             Icons.location_on_outlined,
             "distance_label".tr(),
             args.distance ?? "15 km",
+            Colors.teal.shade50,
+            Colors.teal,
+            textColorPrimary,
+            textColorSec,
+          ),
+        ];
+        break;
+
+      case DetailType.program:
+        infoItems = [
+          _buildInfoItem(
+            Icons.access_time,
+            "duration_label".tr() == "duration_label" ? "Duration" : "duration_label".tr(),
+            args.duration ?? "1 Day",
+            Colors.orange.shade50,
+            Colors.orange,
+            textColorPrimary,
+            textColorSec,
+          ),
+          _buildInfoItem(
+            Icons.attach_money,
+            "price_label".tr(),
+            args.price ?? "200 EGP",
+            Colors.yellow.shade50,
+            Colors.orangeAccent,
+            textColorPrimary,
+            textColorSec,
+          ),
+          _buildInfoItem(
+            Icons.location_on_outlined,
+            "distance_label".tr(),
+            args.distance ?? "Egypt",
             Colors.teal.shade50,
             Colors.teal,
             textColorPrimary,
@@ -1091,5 +1140,12 @@ class _DetailScreenState extends State<DetailScreen> {
         ],
       ),
     );
+  }
+}
+
+extension on String {
+  String trDefault(String defaultValue) {
+    final translated = this.tr();
+    return translated == this ? defaultValue : translated;
   }
 }

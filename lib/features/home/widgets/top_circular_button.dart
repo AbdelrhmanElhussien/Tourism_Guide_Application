@@ -27,7 +27,13 @@ class _TopcircularbuttonState extends State<Topcircularbutton> {
           color: Colors.white,
           shape: BoxShape.circle,
         ),
-        child: Icon(widget.icon, color: const Color(0xFF1D3557), size: 20),
+        child: Icon(
+          widget.icon,
+          color: widget.isSelected
+              ? (widget.icon == Icons.favorite ? Colors.red : (widget.icon == Icons.check_circle ? Colors.green : const Color(0xFF1D3557)))
+              : const Color(0xFF1D3557),
+          size: 20,
+        ),
       ),
     );
   }
