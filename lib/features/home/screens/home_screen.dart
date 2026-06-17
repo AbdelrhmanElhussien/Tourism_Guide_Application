@@ -6,6 +6,7 @@ import 'package:tourist_app/features/explore/tabs/explore_tab.dart';
 import 'package:tourist_app/features/map/tabs/map_tab.dart';
 import 'package:tourist_app/features/guide/tabs/guide_tab.dart';
 import 'package:tourist_app/features/profile/tabs/profile_tab.dart';
+import 'package:tourist_app/features/chatbot/widgets/floating_chat_button.dart';
 
 class Homescreen extends StatefulWidget {
   const Homescreen({super.key});
@@ -56,6 +57,8 @@ class _HomescreenState extends State<Homescreen> {
         index: selectedIndex,
         children: tabsList,
       ),
+      floatingActionButton: const FloatingChatButton(),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: selectedIndex,
         onTap: (index) {
