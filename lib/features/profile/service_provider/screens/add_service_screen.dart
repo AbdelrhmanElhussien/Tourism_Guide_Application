@@ -28,10 +28,7 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
 
   String? _selectedCategory;
   final List<String> _categories = ['guide', 'transportation', 'hotel', 'program'];
-  
-  // For Availability selection
-  final List<String> _days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  final List<String> _selectedDays = [];
+  final _availabilityController = TextEditingController();
 
   ProviderService? _editingService;
   bool _isInitialized = false;
@@ -50,8 +47,7 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
         _locationController.text = args.location;
         final String mappedCategory = args.category.toLowerCase();
         _selectedCategory = _categories.contains(mappedCategory) ? mappedCategory : null;
-        _selectedDays.clear();
-        _selectedDays.addAll(args.availability);
+        _availabilityController.text = args.availability.join(', ');
       }
       _isInitialized = true;
     }
@@ -64,6 +60,7 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
     _priceController.dispose();
     _durationController.dispose();
     _locationController.dispose();
+    _availabilityController.dispose();
     super.dispose();
   }
 
@@ -85,7 +82,12 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
       final duration = _durationController.text.trim();
       final location = _locationController.text.trim();
       final category = _selectedCategory!;
-      final availability = _selectedDays;
+      final availability = _availabilityController.text
+          .trim()
+          .split(',')
+          .map((e) => e.trim())
+          .where((e) => e.isNotEmpty)
+          .toList();
 
       if (_editingService != null) {
         context.read<ProviderServicesCubit>().updateService(
@@ -267,7 +269,18 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
 
                             // Availability
                             _buildLabel('availability_label'.tr(), isLight),
-                            _buildAvailabilityChips(isLight),
+                            _buildTextField(
+                              controller: _availabilityController,
+                              hintText: 'availability_hint'.tr() == 'availability_hint' ? 'e.g. Daily, Weekends, Mon, Tue' : 'availability_hint'.tr(),
+                              isLight: isLight,
+                              prefixIcon: const Icon(Icons.calendar_today_outlined, color: Colors.grey),
+                              validator: (value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return 'please_enter_availability'.tr() == 'please_enter_availability' ? 'Please enter availability' : 'please_enter_availability'.tr();
+                                }
+                                return null;
+                              },
+                            ),
                             const SizedBox(height: 32),
 
                             // Submit Button
@@ -533,44 +546,4 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
     );
   }
 
-  Widget _buildAvailabilityChips(bool isLight) {
-    return Wrap(
-      spacing: 8.0,
-      runSpacing: 8.0,
-      children: _days.map((day) {
-        final isSelected = _selectedDays.contains(day);
-        return ChoiceChip(
-          label: Text(day.tr()),
-          selected: isSelected,
-          onSelected: (selected) {
-            setState(() {
-              if (selected) {
-                _selectedDays.add(day);
-              } else {
-                _selectedDays.remove(day);
-              }
-            });
-          },
-          selectedColor: AppColors.yellowColor,
-          backgroundColor: isLight ? Colors.white : AppColors.cardColor,
-          showCheckmark: false,
-          labelStyle: GoogleFonts.inter(
-            color: isSelected
-                ? Colors.white
-                : (isLight ? AppColors.primaryColor : Colors.white70),
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-            side: BorderSide(
-              color: isSelected
-                  ? Colors.transparent
-                  : (isLight ? Colors.black.withOpacity(0.06) : Colors.white.withOpacity(0.06)),
-            ),
-          ),
-        );
-      }).toList(),
-    );
-  }
 }

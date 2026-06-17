@@ -535,28 +535,35 @@ class ServiceProviderScreen extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           // Left Column
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: GoogleFonts.inter(
-                  color: isLight ? AppColors.primaryColor : AppColors.whiteColor,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: GoogleFonts.inter(
+                    color: isLight ? AppColors.primaryColor : AppColors.whiteColor,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                customer,
-                style: GoogleFonts.inter(
-                  color: isLight ? AppColors.lightGrayColor : AppColors.blueColor,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w400,
+                const SizedBox(height: 4),
+                Text(
+                  customer,
+                  style: GoogleFonts.inter(
+                    color: isLight ? AppColors.lightGrayColor : AppColors.blueColor,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w400,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
+          const SizedBox(width: 16),
           // Right Column
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,

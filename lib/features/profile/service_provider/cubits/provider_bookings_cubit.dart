@@ -78,9 +78,9 @@ class ProviderBookingsCubit extends Cubit<ProviderBookingsState> {
     }
   }
 
-  Future<void> contactBooking(String id) async {
+  Future<void> contactBooking(String id, String message) async {
     try {
-      await _contactBookingUseCase.invoke(id);
+      await _contactBookingUseCase.invoke(id, message);
       emit(ProviderBookingActionSuccess(message: "Contact initialized!"));
     } catch (e) {
       emit(ProviderBookingsError(errorMsg: _getErrorMessage(e)));

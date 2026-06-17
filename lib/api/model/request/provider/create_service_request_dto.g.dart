@@ -9,25 +9,33 @@ part of 'create_service_request_dto.dart';
 CreateServiceRequestDto _$CreateServiceRequestDtoFromJson(
   Map<String, dynamic> json,
 ) => CreateServiceRequestDto(
+  placeId: json['placeId'] as String?,
   title: json['title'] as String?,
+  category: json['category'] as String?,
   description: json['description'] as String?,
   price: (json['price'] as num?)?.toDouble(),
+  currency: json['currency'] as String?,
   duration: json['duration'] as String?,
-  location: json['location'] as String?,
-  category: json['category'] as String?,
-  availability: (json['availability'] as List<dynamic>?)
-      ?.map((e) => e as String)
-      .toList(),
+  locationName: json['locationName'] as String?,
+  imageUrl: json['imageUrl'] as String?,
+  availability: json['availability'] as String?,
+  rating: (json['rating'] as num?)?.toDouble(),
+  isActive: json['isActive'] as bool? ?? true,
 );
 
 Map<String, dynamic> _$CreateServiceRequestDtoToJson(
   CreateServiceRequestDto instance,
 ) => <String, dynamic>{
+  'placeId': instance.placeId,
   'title': instance.title,
+  'category': instance.category,
   'description': instance.description,
   'price': instance.price,
+  'currency': instance.currency,
   'duration': instance.duration,
-  'location': instance.location,
-  'category': instance.category,
+  'locationName': instance.locationName,
+  'imageUrl': instance.imageUrl,
   'availability': instance.availability,
+  'rating': instance.rating,
+  'isActive': instance.isActive,
 };

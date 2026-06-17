@@ -289,7 +289,62 @@ class _BookingsScreenState extends State<BookingsScreen> {
                 action1Text: "contact".tr(),
                 action2Text: "complete".tr(),
                 onAction1: () {
-                  context.read<ProviderBookingsCubit>().contactBooking(b.id);
+                  final controller = TextEditingController();
+                  showDialog(
+                    context: context,
+                    builder: (dialContext) {
+                      return AlertDialog(
+                        backgroundColor: isLight ? Colors.white : AppColors.cardColor,
+                        title: Text(
+                          "contact_customer".tr() == "contact_customer" ? "Contact Customer" : "contact_customer".tr(),
+                          style: GoogleFonts.inter(
+                            color: isLight ? AppColors.primaryColor : Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        content: TextField(
+                          controller: controller,
+                          maxLines: 3,
+                          decoration: InputDecoration(
+                            hintText: "enter_message".tr() == "enter_message" ? "Type your message..." : "enter_message".tr(),
+                            hintStyle: GoogleFonts.inter(color: Colors.grey.withOpacity(0.6)),
+                            filled: true,
+                            fillColor: isLight ? const Color(0xFFF8FAFC) : Colors.white.withOpacity(0.03),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          style: GoogleFonts.inter(color: isLight ? Colors.black : Colors.white),
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(dialContext),
+                            child: Text(
+                              "cancel".tr(),
+                              style: GoogleFonts.inter(color: Colors.grey),
+                            ),
+                          ),
+                          ElevatedButton(
+                            onPressed: () {
+                              final msg = controller.text.trim();
+                              if (msg.isNotEmpty) {
+                                Navigator.pop(dialContext);
+                                context.read<ProviderBookingsCubit>().contactBooking(b.id, msg);
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.yellowColor,
+                              foregroundColor: Colors.white,
+                            ),
+                            child: Text(
+                              "send".tr() == "send" ? "Send" : "send".tr(),
+                              style: GoogleFonts.inter(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  );
                 },
                 onAction2: () {
                   context.read<ProviderBookingsCubit>().completeBooking(b.id);

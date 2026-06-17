@@ -14,6 +14,7 @@ ProviderBookingDto _$ProviderBookingDtoFromJson(Map<String, dynamic> json) =>
       date: json['date'] as String?,
       price: (json['price'] as num?)?.toDouble(),
       status: json['status'] as String?,
+      guests: (json['guests'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$ProviderBookingDtoToJson(ProviderBookingDto instance) =>
@@ -24,4 +25,5 @@ Map<String, dynamic> _$ProviderBookingDtoToJson(ProviderBookingDto instance) =>
       'date': instance.date,
       'price': instance.price,
       'status': instance.status,
+      'guests': instance.guests,
     };

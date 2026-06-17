@@ -87,7 +87,7 @@ abstract class ApiServices {
   @GET('provider/services')
   Future<List<ProviderServiceDto>> getProviderServices();
 
-  @POST('provider/services')
+  @POST('provider/Addservices')
   Future<ProviderServiceDto> createProviderService(@Body() CreateServiceRequestDto request);
 
   @GET('provider/services/{id}')
@@ -103,7 +103,7 @@ abstract class ApiServices {
   Future<List<ProviderBookingDto>> getProviderBookings();
 
   @PUT('provider/bookings/{id}/status')
-  Future<ProviderBookingDto> updateBookingStatus(@Path('id') String id, @Query('status') String status);
+  Future<ProviderBookingDto> updateBookingStatus(@Path('id') String id, @Body() Map<String, dynamic> body);
 
   @POST('provider/request')
   Future<void> submitProviderRequest();
@@ -124,5 +124,5 @@ abstract class ApiServices {
   Future<ProviderBookingDto> completeBooking(@Path('id') String id);
 
   @POST('provider/bookings/{id}/contact')
-  Future<void> contactBooking(@Path('id') String id);
+  Future<void> contactBooking(@Path('id') String id, @Body() Map<String, dynamic> body);
 }

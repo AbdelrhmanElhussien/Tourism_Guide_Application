@@ -35,5 +35,5 @@ abstract class ProviderRepoContract {
   Future<ProviderBooking> confirmBooking(String id);
   Future<ProviderBooking> declineBooking(String id);
   Future<ProviderBooking> completeBooking(String id);
-  Future<void> contactBooking(String id);
+  Future<void> contactBooking(String id, String message);
 }
