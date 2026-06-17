@@ -340,7 +340,7 @@ class _BecomeProviderScreenState extends State<BecomeProviderScreen> {
       child: Text(
         text,
         style: GoogleFonts.inter(
-          color: isDark ? Colors.white70 : Colors.black85,
+          color: isDark ? Colors.white70 : Colors.black87,
           fontSize: 14,
           fontWeight: FontWeight.w600,
         ),
@@ -395,7 +395,7 @@ class _BecomeProviderScreenState extends State<BecomeProviderScreen> {
         child: DropdownButton<String>(
           value: _selectedBusinessType,
           dropdownColor: isDark ? AppColors.darkBlueColor : Colors.white,
-          icon: Icon(Icons.arrow_drop_down, color: isDark ? Colors.white : Colors.black85),
+          icon: Icon(Icons.arrow_drop_down, color: isDark ? Colors.white : Colors.black87),
           style: GoogleFonts.inter(color: isDark ? Colors.white : Colors.black, fontSize: 15),
           isExpanded: true,
           onChanged: (String? newValue) {
