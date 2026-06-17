@@ -4,6 +4,7 @@ import 'package:tourist_app/domain/entities/provider/provider_dashboard.dart';
 import 'package:tourist_app/domain/entities/provider/provider_earnings.dart';
 import 'package:tourist_app/domain/entities/provider/provider_service.dart';
 import 'package:tourist_app/domain/repositories/provider/provider_repo_contract.dart';
+import 'package:tourist_app/api/model/response/provider/provider_request_response_dto.dart';
 
 @injectable
 class GetProviderServicesUseCase {
@@ -27,8 +28,9 @@ class CreateServiceUseCase {
     String duration,
     String location,
     String category,
-    List<String> availability,
-  ) {
+    List<String> availability, {
+    String? placeId,
+  }) {
     return _repository.createProviderService(
       title,
       description,
@@ -37,6 +39,7 @@ class CreateServiceUseCase {
       location,
       category,
       availability,
+      placeId: placeId,
     );
   }
 }
@@ -64,8 +67,9 @@ class UpdateServiceUseCase {
     String duration,
     String location,
     String category,
-    List<String> availability,
-  ) {
+    List<String> availability, {
+    String? placeId,
+  }) {
     return _repository.updateProviderService(
       id,
       title,
@@ -75,6 +79,7 @@ class UpdateServiceUseCase {
       location,
       category,
       availability,
+      placeId: placeId,
     );
   }
 }
@@ -164,8 +169,26 @@ class SubmitProviderRequestUseCase {
   final ProviderRepoContract _repository;
   SubmitProviderRequestUseCase(this._repository);
 
-  Future<void> invoke() {
-    return _repository.submitProviderRequest();
+  Future<void> invoke({
+    required String businessName,
+    required String businessType,
+    required String businessDescription,
+    required String contactNumber,
+    required String email,
+    required String taxNumber,
+    required String registrationNumber,
+    required String documentUrl,
+  }) {
+    return _repository.submitProviderRequest(
+      businessName,
+      businessType,
+      businessDescription,
+      contactNumber,
+      email,
+      taxNumber,
+      registrationNumber,
+      documentUrl,
+    );
   }
 }
 
@@ -174,7 +197,7 @@ class GetMyProviderRequestUseCase {
   final ProviderRepoContract _repository;
   GetMyProviderRequestUseCase(this._repository);
 
-  Future<dynamic> invoke() {
+  Future<ProviderRequestResponseDto> invoke() {
     return _repository.getMyProviderRequest();
   }
 }

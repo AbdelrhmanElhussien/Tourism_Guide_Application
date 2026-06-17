@@ -13,10 +13,14 @@ import 'package:tourist_app/api/model/request/trips/create_trip_request_dto.dart
 import 'package:tourist_app/api/model/request/trips/create_activity_request_dto.dart';
 
 import 'package:tourist_app/api/model/request/provider/create_service_request_dto.dart';
+import 'package:tourist_app/api/model/request/provider/update_service_request_dto.dart';
 import 'package:tourist_app/api/model/response/provider/provider_booking_dto.dart';
 import 'package:tourist_app/api/model/response/provider/provider_dashboard_dto.dart';
 import 'package:tourist_app/api/model/response/provider/provider_earnings_dto.dart';
 import 'package:tourist_app/api/model/response/provider/provider_service_dto.dart';
+
+import 'package:tourist_app/api/model/request/provider/provider_request_dto.dart';
+import 'package:tourist_app/api/model/response/provider/provider_request_response_dto.dart';
 
 part 'api_services.g.dart';
 
@@ -94,7 +98,7 @@ abstract class ApiServices {
   Future<ProviderServiceDto> getProviderServiceById(@Path('id') String id);
 
   @PUT('provider/services/{id}')
-  Future<ProviderServiceDto> updateProviderService(@Path('id') String id, @Body() CreateServiceRequestDto request);
+  Future<ProviderServiceDto> updateProviderService(@Path('id') String id, @Body() UpdateServiceRequestDto request);
 
   @DELETE('provider/services/{id}')
   Future<void> deleteProviderService(@Path('id') String id);
@@ -106,10 +110,10 @@ abstract class ApiServices {
   Future<ProviderBookingDto> updateBookingStatus(@Path('id') String id, @Body() Map<String, dynamic> body);
 
   @POST('provider/request')
-  Future<void> submitProviderRequest();
+  Future<void> submitProviderRequest(@Body() ProviderRequestDto request);
 
   @GET('provider/request/my')
-  Future<dynamic> getMyProviderRequest();
+  Future<ProviderRequestResponseDto> getMyProviderRequest();
 
   @GET('provider/earnings')
   Future<ProviderEarningsDto> getProviderEarnings();

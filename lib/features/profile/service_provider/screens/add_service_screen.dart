@@ -99,6 +99,7 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
           location: location,
           category: category,
           availability: availability,
+          placeId: _editingService!.placeId,
         );
       } else {
         context.read<ProviderServicesCubit>().createService(

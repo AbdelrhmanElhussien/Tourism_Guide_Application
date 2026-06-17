@@ -27,6 +27,8 @@ class ProviderServiceDto {
   final String? description;
   @JsonKey(name: "availability")
   final List<String>? availability;
+  @JsonKey(name: "placeId")
+  final String? placeId;
 
   ProviderServiceDto({
     this.id,
@@ -40,6 +42,7 @@ class ProviderServiceDto {
     this.location,
     this.description,
     this.availability,
+    this.placeId,
   });
 
   factory ProviderServiceDto.fromJson(Map<String, dynamic> json) {
@@ -52,9 +55,10 @@ class ProviderServiceDto {
       rating: json['rating'] != null ? double.tryParse(json['rating'].toString()) : null,
       imageUrl: json['imageUrl'] as String?,
       duration: json['duration'] as String?,
-      location: json['location'] as String?,
+      location: json['location'] as String? ?? json['locationName'] as String?,
       description: json['description'] as String?,
       availability: _availabilityFromJson(json['availability']),
+      placeId: json['placeId'] as String?,
     );
   }
 

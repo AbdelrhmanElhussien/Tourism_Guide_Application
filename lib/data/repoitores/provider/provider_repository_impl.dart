@@ -1,12 +1,16 @@
 import 'package:injectable/injectable.dart';
 import 'package:tourist_app/api/mapper/provider/provider_mappers.dart';
 import 'package:tourist_app/api/model/request/provider/create_service_request_dto.dart';
+import 'package:tourist_app/api/model/request/provider/update_service_request_dto.dart';
 import 'package:tourist_app/data/data_sources/remot/provider/provider_remote_data_source.dart';
 import 'package:tourist_app/domain/entities/provider/provider_booking.dart';
 import 'package:tourist_app/domain/entities/provider/provider_dashboard.dart';
 import 'package:tourist_app/domain/entities/provider/provider_earnings.dart';
 import 'package:tourist_app/domain/entities/provider/provider_service.dart';
 import 'package:tourist_app/domain/repositories/provider/provider_repo_contract.dart';
+
+import 'package:tourist_app/api/model/request/provider/provider_request_dto.dart';
+import 'package:tourist_app/api/model/response/provider/provider_request_response_dto.dart';
 
 @Injectable(as: ProviderRepoContract)
 class ProviderRepositoryImpl implements ProviderRepoContract {
@@ -34,9 +38,11 @@ class ProviderRepositoryImpl implements ProviderRepoContract {
     String duration,
     String location,
     String category,
-    List<String> availability,
-  ) async {
+    List<String> availability, {
+    String? placeId,
+  }) async {
     final dto = await _remoteDataSource.createProviderService(CreateServiceRequestDto(
+      placeId: placeId ?? "4cddac58-d326-420b-3a43-08deca6f1a42",
       title: title,
       description: description,
       price: price,
@@ -46,6 +52,8 @@ class ProviderRepositoryImpl implements ProviderRepoContract {
       availability: availability.join(', '),
       currency: "EGP",
       isActive: true,
+      imageUrl: "https://images.unsplash.com/photo-1539650116574-75c0c6d73f6e",
+      rating: 4.9,
     ));
     return dto.toProviderService();
   }
@@ -65,18 +73,22 @@ class ProviderRepositoryImpl implements ProviderRepoContract {
     String duration,
     String location,
     String category,
-    List<String> availability,
-  ) async {
-    final dto = await _remoteDataSource.updateProviderService(id, CreateServiceRequestDto(
+    List<String> availability, {
+    String? placeId,
+  }) async {
+    final dto = await _remoteDataSource.updateProviderService(id, UpdateServiceRequestDto(
+      placeId: placeId ?? "4cddac58-d326-420b-3a43-08deca6f1a42",
       title: title,
       description: description,
       price: price,
-      duration: duration,
       locationName: location,
       category: category,
-      availability: availability.join(', '),
       currency: "EGP",
+      startDateTime: DateTime.now().toIso8601String(),
+      endDateTime: DateTime.now().toIso8601String(),
       isActive: true,
+      imageUrl: "https://images.unsplash.com/photo-1539650116574-75c0c6d73f6e",
+      rating: 4.9,
     ));
     return dto.toProviderService();
   }
@@ -99,12 +111,30 @@ class ProviderRepositoryImpl implements ProviderRepoContract {
   }
 
   @override
-  Future<void> submitProviderRequest() async {
-    await _remoteDataSource.submitProviderRequest();
+  Future<void> submitProviderRequest(
+    String businessName,
+    String businessType,
+    String businessDescription,
+    String contactNumber,
+    String email,
+    String taxNumber,
+    String registrationNumber,
+    String documentUrl,
+  ) async {
+    await _remoteDataSource.submitProviderRequest(ProviderRequestDto(
+      businessName: businessName,
+      businessType: businessType,
+      businessDescription: businessDescription,
+      contactNumber: contactNumber,
+      email: email,
+      taxNumber: taxNumber,
+      registrationNumber: registrationNumber,
+      documentUrl: documentUrl,
+    ));
   }
 
   @override
-  Future<dynamic> getMyProviderRequest() async {
+  Future<ProviderRequestResponseDto> getMyProviderRequest() async {
     return await _remoteDataSource.getMyProviderRequest();
   }
 

@@ -1,11 +1,15 @@
 import 'package:injectable/injectable.dart';
 import 'package:tourist_app/api/api_services.dart';
 import 'package:tourist_app/api/model/request/provider/create_service_request_dto.dart';
+import 'package:tourist_app/api/model/request/provider/update_service_request_dto.dart';
 import 'package:tourist_app/api/model/response/provider/provider_booking_dto.dart';
 import 'package:tourist_app/api/model/response/provider/provider_dashboard_dto.dart';
 import 'package:tourist_app/api/model/response/provider/provider_earnings_dto.dart';
 import 'package:tourist_app/api/model/response/provider/provider_service_dto.dart';
 import 'package:tourist_app/data/data_sources/remot/provider/provider_remote_data_source.dart';
+
+import 'package:tourist_app/api/model/request/provider/provider_request_dto.dart';
+import 'package:tourist_app/api/model/response/provider/provider_request_response_dto.dart';
 
 @Injectable(as: ProviderRemoteDataSource)
 class ProviderRemoteDataSourceImpl implements ProviderRemoteDataSource {
@@ -34,7 +38,7 @@ class ProviderRemoteDataSourceImpl implements ProviderRemoteDataSource {
   }
 
   @override
-  Future<ProviderServiceDto> updateProviderService(String id, CreateServiceRequestDto request) async {
+  Future<ProviderServiceDto> updateProviderService(String id, UpdateServiceRequestDto request) async {
     return await _apiServices.updateProviderService(id, request);
   }
 
@@ -54,12 +58,12 @@ class ProviderRemoteDataSourceImpl implements ProviderRemoteDataSource {
   }
 
   @override
-  Future<void> submitProviderRequest() async {
-    await _apiServices.submitProviderRequest();
+  Future<void> submitProviderRequest(ProviderRequestDto request) async {
+    await _apiServices.submitProviderRequest(request);
   }
 
   @override
-  Future<dynamic> getMyProviderRequest() async {
+  Future<ProviderRequestResponseDto> getMyProviderRequest() async {
     return await _apiServices.getMyProviderRequest();
   }
 

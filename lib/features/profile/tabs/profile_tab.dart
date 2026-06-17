@@ -146,6 +146,20 @@ class ProfileTab extends StatelessWidget {
                                       );
                                     },
                                   ),
+                                if (!showServiceProvider)
+                                  _buildMenuItem(
+                                    icon: Icons.business_center_outlined,
+                                    iconColor: AppColors.yellowColor,
+                                    iconBgColor: const Color(0xFFFEF9EC),
+                                    title: 'become_provider'.tr() == 'become_provider' ? 'Become a Provider' : 'become_provider'.tr(),
+                                    isLight: isLight,
+                                    onTap: () {
+                                      Navigator.pushNamed(
+                                        context,
+                                        AppRoutes.becomeProviderRouteName,
+                                      );
+                                    },
+                                  ),
                               ],
                             ),
 
