@@ -36,7 +36,7 @@ class BookingService {
 
   Future<void> deleteBooking(String id) async {
     try {
-      final response = await _dio.delete('${ApiConstant.bookingsEndPoint}/$id');
+      final response = await _dio.delete('Bookings/CancelBooking/$id');
       if (response.statusCode != 200 && response.statusCode != 204) {
         throw Exception('Failed to delete booking (Status: ${response.statusCode})');
       }

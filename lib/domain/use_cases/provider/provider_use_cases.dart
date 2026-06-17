@@ -144,8 +144,8 @@ class ContactBookingUseCase {
   final ProviderRepoContract _repository;
   ContactBookingUseCase(this._repository);
 
-  Future<void> invoke(String id) {
-    return _repository.contactBooking(id);
+  Future<void> invoke(String id, String message) {
+    return _repository.contactBooking(id, message);
   }
 }
 

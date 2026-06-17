@@ -50,7 +50,7 @@ class ProviderRemoteDataSourceImpl implements ProviderRemoteDataSource {
 
   @override
   Future<ProviderBookingDto> updateBookingStatus(String id, String status) async {
-    return await _apiServices.updateBookingStatus(id, status);
+    return await _apiServices.updateBookingStatus(id, {'status': status});
   }
 
   @override
@@ -84,7 +84,10 @@ class ProviderRemoteDataSourceImpl implements ProviderRemoteDataSource {
   }
 
   @override
-  Future<void> contactBooking(String id) async {
-    await _apiServices.contactBooking(id);
+  Future<void> contactBooking(String id, String message) async {
+    await _apiServices.contactBooking(id, {
+      "bookingId": id,
+      "message": message,
+    });
   }
 }

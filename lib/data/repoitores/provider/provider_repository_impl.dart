@@ -41,9 +41,11 @@ class ProviderRepositoryImpl implements ProviderRepoContract {
       description: description,
       price: price,
       duration: duration,
-      location: location,
+      locationName: location,
       category: category,
-      availability: availability,
+      availability: availability.join(', '),
+      currency: "EGP",
+      isActive: true,
     ));
     return dto.toProviderService();
   }
@@ -70,9 +72,11 @@ class ProviderRepositoryImpl implements ProviderRepoContract {
       description: description,
       price: price,
       duration: duration,
-      location: location,
+      locationName: location,
       category: category,
-      availability: availability,
+      availability: availability.join(', '),
+      currency: "EGP",
+      isActive: true,
     ));
     return dto.toProviderService();
   }
@@ -129,7 +133,7 @@ class ProviderRepositoryImpl implements ProviderRepoContract {
   }
 
   @override
-  Future<void> contactBooking(String id) async {
-    await _remoteDataSource.contactBooking(id);
+  Future<void> contactBooking(String id, String message) async {
+    await _remoteDataSource.contactBooking(id, message);
   }
 }

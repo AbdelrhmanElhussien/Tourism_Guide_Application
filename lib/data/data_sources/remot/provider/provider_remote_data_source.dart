@@ -19,5 +19,5 @@ abstract class ProviderRemoteDataSource {
   Future<ProviderBookingDto> confirmBooking(String id);
   Future<ProviderBookingDto> declineBooking(String id);
   Future<ProviderBookingDto> completeBooking(String id);
-  Future<void> contactBooking(String id);
+  Future<void> contactBooking(String id, String message);
 }

@@ -1046,9 +1046,13 @@ class _ExploreTabState extends State<ExploreTab> {
                     children: [
                       const Icon(Icons.location_on_outlined, color: Colors.grey, size: 15),
                       const SizedBox(width: 4),
-                      Text(
-                        location,
-                        style: const TextStyle(color: Colors.grey, fontSize: 13),
+                      Expanded(
+                        child: Text(
+                          location,
+                          style: const TextStyle(color: Colors.grey, fontSize: 13),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ],
                   ),

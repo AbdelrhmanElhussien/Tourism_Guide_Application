@@ -498,7 +498,7 @@ class _ApiServices implements ApiServices {
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            'provider/services',
+            'provider/Addservices',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -627,12 +627,13 @@ class _ApiServices implements ApiServices {
   @override
   Future<ProviderBookingDto> updateBookingStatus(
     String id,
-    String status,
+    Map<String, dynamic> body,
   ) async {
     final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{r'status': status};
+    final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
-    const Map<String, dynamic>? _data = null;
+    final _data = <String, dynamic>{};
+    _data.addAll(body);
     final _options = _setStreamType<ProviderBookingDto>(
       Options(method: 'PUT', headers: _headers, extra: _extra)
           .compose(
@@ -803,11 +804,12 @@ class _ApiServices implements ApiServices {
   }
 
   @override
-  Future<void> contactBooking(String id) async {
+  Future<void> contactBooking(String id, Map<String, dynamic> body) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
-    const Map<String, dynamic>? _data = null;
+    final _data = <String, dynamic>{};
+    _data.addAll(body);
     final _options = _setStreamType<void>(
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
