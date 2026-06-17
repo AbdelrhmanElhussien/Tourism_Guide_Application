@@ -29,6 +29,7 @@ import 'package:tourist_app/features/booking/provider/booking_provider.dart';
 import 'package:tourist_app/features/home/provider/place_provider.dart';
 import 'package:tourist_app/core/utils/cache_helper.dart';
 import 'package:tourist_app/features/splash/screens/splash_screen.dart';
+import 'package:tourist_app/features/onboarding/screens/onboarding_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -88,6 +89,8 @@ class MyApp extends StatelessWidget {
           locale: context.locale,
           routes: {
             AppRoutes.splashRouteName: (context) => const SplashScreen(),
+            AppRoutes.onboardingRouteName: (context) =>
+                const OnboardingScreen(),
             AppRoutes.loginRouteName: (context) => LoginScreen(),
             AppRoutes.signUpRouteName: (context) => SignUpScreen(),
             AppRoutes.HomeRouteName: (context) => Homescreen(),
