@@ -27,7 +27,7 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
   final _locationController = TextEditingController();
 
   String? _selectedCategory;
-  final List<String> _categories = ['Tour', 'Experience', 'Accommodation', 'Transport', 'Guide'];
+  final List<String> _categories = ['guide', 'transportation', 'hotel', 'program'];
   
   // For Availability selection
   final List<String> _days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -48,7 +48,8 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
         _priceController.text = args.price.toString();
         _durationController.text = args.duration;
         _locationController.text = args.location;
-        _selectedCategory = args.category;
+        final String mappedCategory = args.category.toLowerCase();
+        _selectedCategory = _categories.contains(mappedCategory) ? mappedCategory : null;
         _selectedDays.clear();
         _selectedDays.addAll(args.availability);
       }

@@ -1,6 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
+import 'dart:convert';
+import 'package:tourist_app/features/home/widgets/tourism_destination.dart';
 import 'package:tourist_app/core/utils/cache_helper.dart';
+import 'package:tourist_app/domain/entities/response/auth/User.dart';
 import 'package:tourist_app/domain/entities/trips/trip_entity.dart';
 import 'package:tourist_app/domain/use_cases/profile/get_saved_places_use_case.dart';
 import 'package:tourist_app/domain/use_cases/profile/get_username_use_case.dart';
@@ -48,14 +51,44 @@ class ProfileCubit extends Cubit<ProfileState> {
         tripsFuture,
       ]);
 
-      final userName = results[0] as String;
+      final user = results[0] as User;
+      final userName = user.name ?? 'User';
+      final email = user.email ?? 'user@example.com';
+      final role = user.role;
       final savedPlaces = results[1] as List;
+      final List<TourismDestination> mergedSavedPlaces = List.from(savedPlaces.map((item) => item as TourismDestination));
+
+      // Load local favorites
+      try {
+        final localJson = CacheHelper.getData(key: 'local_favorites_$email');
+        if (localJson != null && localJson is String) {
+          final List<dynamic> localList = jsonDecode(localJson);
+          for (final raw in localList) {
+            final id = raw['id']?.toString();
+            if (id != null && !mergedSavedPlaces.any((item) => item.id == id)) {
+              mergedSavedPlaces.add(TourismDestination(
+                id: id,
+                title: raw['title']?.toString() ?? '',
+                location: raw['location']?.toString() ?? '',
+                rating: (raw['rating'] as num?)?.toDouble() ?? 0.0,
+                reviews: (raw['reviews'] as num?)?.toInt() ?? 0,
+                category: raw['category']?.toString() ?? 'Historical',
+                networkImage: raw['networkImage']?.toString(),
+                assetImage: raw['assetImage']?.toString(),
+              ));
+            }
+          }
+        }
+      } catch (_) {}
+
       final visitedPlaces = results[2] as List;
       final trips = results[3] as List<Trip>;
 
       await CacheHelper.saveData(key: 'userName', value: userName);
-
-      final email = CacheHelper.getData(key: 'email') as String? ?? 'user@example.com';
+      await CacheHelper.saveData(key: 'email', value: email);
+      if (role != null) {
+        await CacheHelper.saveData(key: 'role', value: role);
+      }
 
       // Calculate completed trips count
       final now = DateTime.now();
@@ -72,7 +105,7 @@ class ProfileCubit extends Cubit<ProfileState> {
       emit(ProfileSuccess(
         userName: userName,
         email: email,
-        savedPlaces: List.from(savedPlaces),
+        savedPlaces: mergedSavedPlaces,
         visitedPlaces: List.from(visitedPlaces),
         completedTripsCount: completedCount,
       ));

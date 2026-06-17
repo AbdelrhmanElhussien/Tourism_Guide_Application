@@ -15,7 +15,7 @@ import 'package:tourist_app/features/profile/service_provider/screens/provider_d
 import 'package:tourist_app/features/profile/service_provider/screens/my_services_screen.dart';
 import 'package:tourist_app/features/profile/service_provider/screens/bookings_screen.dart';
 import 'package:tourist_app/features/profile/service_provider/screens/add_service_screen.dart';
-import 'package:tourist_app/features/profile/screens/my_trips_screen.dart';
+import 'package:tourist_app/features/profile/screens/my_bookings_screen.dart';
 import 'package:tourist_app/features/profile/screens/saved_places_screen.dart';
 import 'package:tourist_app/features/auth/login/screens/login_screen.dart';
 import 'package:tourist_app/features/auth/signup/screens/signup_screen.dart';
@@ -100,7 +100,7 @@ class MyApp extends StatelessWidget {
             AppRoutes.myServicesRouteName: (context) =>
                 const MyServicesScreen(),
             AppRoutes.bookingsRouteName: (context) => const BookingsScreen(),
-            AppRoutes.myTripsRouteName: (context) => const MyTripsScreen(),
+            AppRoutes.myBookingsRouteName: (context) => const MyBookingsScreen(),
             AppRoutes.savedPlacesRouteName: (context) =>
                 const SavedPlacesScreen(),
             AppRoutes.addServiceRouteName: (context) =>

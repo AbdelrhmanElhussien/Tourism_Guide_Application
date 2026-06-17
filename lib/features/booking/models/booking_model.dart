@@ -1,7 +1,7 @@
 class BookingModel {
-  final int? id;
-  final int? userId;
-  final int? itemId;
+  final String? id;
+  final String? userId;
+  final String? itemId;
   final String? itemType;
   final String? itemName;
   final String? status;
@@ -20,15 +20,24 @@ class BookingModel {
   });
 
   factory BookingModel.fromJson(Map<String, dynamic> json) {
+    final idVal = json['id'] ?? json['Id'] ?? json['bookingId'] ?? json['BookingId'] ?? json['bookingID'];
+    final userIdVal = json['userId'] ?? json['UserId'] ?? json['userID'] ?? json['UserID'];
+    final itemIdVal = json['itemId'] ?? json['ItemId'] ?? json['itemID'] ?? json['ItemID'];
+    final itemTypeVal = json['itemType'] ?? json['ItemType'];
+    final itemNameVal = json['itemName'] ?? json['ItemName'] ?? json['title'] ?? json['Title'] ?? json['name'] ?? json['Name'];
+    final statusVal = json['status'] ?? json['Status'];
+    final dateVal = json['date'] ?? json['Date'] ?? json['bookingDate'] ?? json['BookingDate'] ?? json['createdAt'] ?? json['CreatedAt'] ?? json['bookingDateTime'];
+    final priceVal = json['price'] ?? json['Price'];
+
     return BookingModel(
-      id: json['id'] ?? json['bookingId'],
-      userId: json['userId'],
-      itemId: json['itemId'],
-      itemType: json['itemType'],
-      itemName: json['itemName'] ?? json['title'],
-      status: json['status'],
-      date: json['date'] ?? json['bookingDate'] ?? json['createdAt'],
-      price: json['price'] != null ? double.tryParse(json['price'].toString()) : null,
+      id: idVal?.toString(),
+      userId: userIdVal?.toString(),
+      itemId: itemIdVal?.toString(),
+      itemType: itemTypeVal?.toString(),
+      itemName: itemNameVal?.toString(),
+      status: statusVal?.toString(),
+      date: dateVal?.toString(),
+      price: priceVal != null ? double.tryParse(priceVal.toString()) : null,
     );
   }
 

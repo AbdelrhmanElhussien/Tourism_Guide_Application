@@ -5,6 +5,7 @@ import 'package:tourist_app/api/api_constant.dart';
 import 'package:tourist_app/api/model/request/login/login_request_dto.dart';
 import 'package:tourist_app/api/model/request/register/register_request_dto.dart';
 import 'package:tourist_app/api/model/response/auth/auth_response_dto.dart';
+import 'package:tourist_app/api/model/response/auth/UserDto.dart';
 import 'package:tourist_app/api/model/response/profile/place_dto.dart';
 import 'package:tourist_app/api/model/response/trips/trip_dto.dart';
 
@@ -31,6 +32,9 @@ abstract class ApiServices {
 
   @GET(ApiConstant.getUsernameEndPoint)
   Future<String> getUsername();
+
+  @GET('Profile/me')
+  Future<UserDto> getProfileMe();
 
   @GET('user/places/saved')
   Future<List<PlaceDto>> getSavedPlaces();

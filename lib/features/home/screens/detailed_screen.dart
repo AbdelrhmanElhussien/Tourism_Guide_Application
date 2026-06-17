@@ -16,6 +16,11 @@ import 'package:tourist_app/features/explore/provider/transport_provider.dart';
 import 'package:tourist_app/features/explore/provider/program_provider.dart';
 import 'package:intl/intl.dart';
 import 'package:tourist_app/domain/use_cases/trips/create_trip_use_case.dart';
+import 'package:tourist_app/domain/use_cases/profile/get_saved_places_use_case.dart';
+import 'package:tourist_app/domain/use_cases/profile/save_place_use_case.dart';
+import 'package:tourist_app/domain/use_cases/profile/unsave_place_use_case.dart';
+import 'dart:convert';
+import 'package:tourist_app/core/utils/cache_helper.dart';
 import 'package:tourist_app/features/profile/cubit/profile_cubit.dart';
 import 'package:tourist_app/features/profile/cubit/profile_states.dart';
 
@@ -103,9 +108,41 @@ class _DetailScreenState extends State<DetailScreen> {
           (ModalRoute.of(context)?.settings.arguments as DetailArgs?) ??
           DetailArgs.fallback;
       if (_args!.id != null) {
+        final id = _args!.id!;
+        getIt<GetSavedPlacesUseCase>().invoke().then((savedList) {
+          final isServerFavorite = savedList.any((item) => item.id == id);
+          if (isServerFavorite) {
+            if (mounted) {
+              setState(() {
+                isFavorite = true;
+              });
+            }
+          } else {
+            final localJson = CacheHelper.getData(key: _getLocalFavoritesKey());
+            if (localJson != null && localJson is String) {
+              final List<dynamic> localList = jsonDecode(localJson);
+              final isLocalFavorite = localList.any((item) => item['id'] == id);
+              if (mounted) {
+                setState(() {
+                  isFavorite = isLocalFavorite;
+                });
+              }
+            }
+          }
+        }).catchError((_) {
+          final localJson = CacheHelper.getData(key: _getLocalFavoritesKey());
+          if (localJson != null && localJson is String) {
+            final List<dynamic> localList = jsonDecode(localJson);
+            final isLocalFavorite = localList.any((item) => item['id'] == id);
+            if (mounted) {
+              setState(() {
+                isFavorite = isLocalFavorite;
+              });
+            }
+          }
+        });
         Future.microtask(() {
           if (!mounted) return;
-          final id = _args!.id!;
           switch (_args!.type) {
             case DetailType.place:
               context.read<PlaceProvider>().fetchPlaceDetails(id);
@@ -127,6 +164,44 @@ class _DetailScreenState extends State<DetailScreen> {
       }
       _isInit = false;
     }
+  }
+
+  String _getLocalFavoritesKey() {
+    final email = CacheHelper.getData(key: 'email');
+    if (email != null && email.toString().isNotEmpty) {
+      return 'local_favorites_${email.toString()}';
+    }
+    return 'local_favorites';
+  }
+
+  void _toggleLocalFavorite(String id, DetailArgs args, bool isCurrentlyFavorite) {
+    try {
+      final key = _getLocalFavoritesKey();
+      final localJson = CacheHelper.getData(key: key);
+      List<dynamic> localList = [];
+      if (localJson != null && localJson is String) {
+        localList = List.from(jsonDecode(localJson));
+      }
+      
+      if (isCurrentlyFavorite) {
+        localList.removeWhere((item) => item['id'] == id);
+      } else {
+        final newItem = {
+          'id': id,
+          'title': args.title,
+          'location': args.location,
+          'rating': args.rating,
+          'reviews': args.reviewsCount,
+          'category': args.type.name,
+          'networkImage': args.networkImage,
+          'assetImage': args.assetImage,
+        };
+        if (!localList.any((item) => item['id'] == id)) {
+          localList.add(newItem);
+        }
+      }
+      CacheHelper.saveData(key: key, value: jsonEncode(localList));
+    } catch (_) {}
   }
 
   @override
@@ -442,10 +517,26 @@ class _DetailScreenState extends State<DetailScreen> {
                     ? Icons.favorite
                     : Icons.favorite_border_outlined,
                 isSelected: isFavorite,
-                fun: () {
-                  setState(() {
-                    isFavorite = !isFavorite;
-                  });
+                fun: () async {
+                  if (_args!.id == null) return;
+                  final id = _args!.id!;
+                  try {
+                    if (isFavorite) {
+                      await getIt<UnsavePlaceUseCase>().invoke(id);
+                    } else {
+                      await getIt<SavePlaceUseCase>().invoke(id);
+                    }
+                    _toggleLocalFavorite(id, args, isFavorite);
+                    setState(() {
+                      isFavorite = !isFavorite;
+                    });
+                  } catch (e) {
+                    // Fallback to saving/unsaving locally if the server fails (e.g., mock IDs or non-place categories)
+                    _toggleLocalFavorite(id, args, isFavorite);
+                    setState(() {
+                      isFavorite = !isFavorite;
+                    });
+                  }
                 },
               ),
             ],

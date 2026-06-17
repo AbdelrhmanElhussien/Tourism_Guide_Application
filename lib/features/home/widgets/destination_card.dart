@@ -33,6 +33,23 @@ class DestinationCard extends StatelessWidget {
         ? Colors.black.withOpacity(0.12)
         : Colors.black.withOpacity(0.05);
 
+    DetailType detailType = DetailType.place;
+    switch (place.category.toLowerCase()) {
+      case 'hotel':
+        detailType = DetailType.hotel;
+        break;
+      case 'guide':
+        detailType = DetailType.guide;
+        break;
+      case 'transport':
+      case 'transportation':
+        detailType = DetailType.transport;
+        break;
+      case 'program':
+        detailType = DetailType.program;
+        break;
+    }
+
     return GestureDetector(
       onTap: () {
         Navigator.pushNamed(
@@ -40,7 +57,7 @@ class DestinationCard extends StatelessWidget {
           AppRoutes.DetailScreenRouteName,
           arguments: DetailArgs(
             id: place.id,
-            type: DetailType.place,
+            type: detailType,
             title: place.name,
             location: place.locationName,
             rating: place.rating,

@@ -8,7 +8,7 @@ class AppRoutes {
   static const String serviceProviderRouteName = 'ServiceProviderScreen';
   static const String myServicesRouteName = 'MyServicesScreen';
   static const String bookingsRouteName = 'BookingsScreen';
-  static const String myTripsRouteName = 'myTrips';
+  static const String myBookingsRouteName = 'myBookings';
   static const String savedPlacesRouteName = 'savedPlaces';
   static const String addServiceRouteName = 'addService';
   static const String earningsRouteName = 'earnings';
