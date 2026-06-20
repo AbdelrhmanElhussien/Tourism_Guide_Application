@@ -19,6 +19,8 @@ import 'package:tourist_app/domain/use_cases/trips/create_trip_use_case.dart';
 import 'package:tourist_app/domain/use_cases/profile/get_saved_places_use_case.dart';
 import 'package:tourist_app/domain/use_cases/profile/save_place_use_case.dart';
 import 'package:tourist_app/domain/use_cases/profile/unsave_place_use_case.dart';
+import 'package:tourist_app/domain/use_cases/profile/get_visited_places_use_case.dart';
+import 'package:tourist_app/domain/use_cases/profile/visit_place_use_case.dart';
 import 'dart:convert';
 import 'package:tourist_app/core/utils/cache_helper.dart';
 import 'package:tourist_app/features/profile/cubit/profile_cubit.dart';
@@ -109,6 +111,8 @@ class _DetailScreenState extends State<DetailScreen> {
           DetailArgs.fallback;
       if (_args!.id != null) {
         final id = _args!.id!;
+        
+        // Fetch saved status
         getIt<GetSavedPlacesUseCase>().invoke().then((savedList) {
           final isServerFavorite = savedList.any((item) => item.id == id);
           if (isServerFavorite) {
@@ -141,6 +145,21 @@ class _DetailScreenState extends State<DetailScreen> {
             }
           }
         });
+
+        // Fetch visited status
+        getIt<GetVisitedPlacesUseCase>().invoke().then((visitedList) {
+          final isServerVisited = visitedList.any((item) => item.id == id);
+          if (isServerVisited) {
+            if (mounted) {
+              setState(() {
+                isVisited = true;
+              });
+            }
+          }
+        }).catchError((e) {
+          print('Error fetching visited status: $e');
+        });
+
         Future.microtask(() {
           if (!mounted) return;
           switch (_args!.type) {
@@ -509,6 +528,25 @@ class _DetailScreenState extends State<DetailScreen> {
                 isSelected: false,
                 fun: () {
                   // Share action
+                },
+              ),
+              const SizedBox(width: 10),
+              Topcircularbutton(
+                icon: isVisited
+                    ? Icons.check_circle
+                    : Icons.check_circle_outline,
+                isSelected: isVisited,
+                fun: () async {
+                  if (_args!.id == null) return;
+                  final id = _args!.id!;
+                  try {
+                    await getIt<VisitPlaceUseCase>().invoke(id);
+                    setState(() {
+                      isVisited = true;
+                    });
+                  } catch (e) {
+                    print('Error marking place as visited: $e');
+                  }
                 },
               ),
               const SizedBox(width: 10),
@@ -1385,6 +1423,39 @@ class _DetailScreenState extends State<DetailScreen> {
               ],
             ),
             const SizedBox(width: 30),
+          ],
+          if (args.type == DetailType.guide) ...[
+            Container(
+              height: 52,
+              width: 52,
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: AppColors.yellowColor,
+                  width: 1.5,
+                ),
+                borderRadius: BorderRadius.circular(15),
+              ),
+              child: IconButton(
+                icon: const Icon(
+                  Icons.chat_bubble_outline,
+                  color: AppColors.yellowColor,
+                ),
+                onPressed: () {
+                  if (args.id != null) {
+                    Navigator.pushNamed(
+                      context,
+                      AppRoutes.chatRoomRouteName,
+                      arguments: {
+                        'guideId': args.id!,
+                        'guideName': args.title,
+                        'guideImageUrl': args.networkImage ?? '',
+                      },
+                    );
+                  }
+                },
+              ),
+            ),
+            const SizedBox(width: 12),
           ],
           Expanded(
             child: SizedBox(

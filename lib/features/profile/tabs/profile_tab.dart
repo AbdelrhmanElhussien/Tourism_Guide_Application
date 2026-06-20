@@ -148,7 +148,12 @@ class ProfileTab extends StatelessWidget {
                                   iconBgColor: const Color(0xFFEEF4F8),
                                   title: 'visited_places'.tr(),
                                   isLight: isLight,
-                                  onTap: () {},
+                                  onTap: () async {
+                                    await Navigator.pushNamed(context, AppRoutes.visitedPlacesRouteName);
+                                    if (context.mounted) {
+                                      context.read<ProfileCubit>().fetchProfileData();
+                                    }
+                                  },
                                 ),
                                 if (isAdmin)
                                   _buildMenuItem(

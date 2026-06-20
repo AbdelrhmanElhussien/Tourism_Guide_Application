@@ -89,8 +89,8 @@ class DeleteServiceUseCase {
   final ProviderRepoContract _repository;
   DeleteServiceUseCase(this._repository);
 
-  Future<void> invoke(String id) {
-    return _repository.deleteProviderService(id);
+  Future<void> invoke(String id, String category) {
+    return _repository.deleteProviderService(id, category);
   }
 }
 

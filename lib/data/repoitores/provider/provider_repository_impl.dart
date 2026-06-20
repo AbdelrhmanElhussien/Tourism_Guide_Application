@@ -76,7 +76,7 @@ class ProviderRepositoryImpl implements ProviderRepoContract {
     List<String> availability, {
     String? placeId,
   }) async {
-    final dto = await _remoteDataSource.updateProviderService(id, UpdateServiceRequestDto(
+    final dto = await _remoteDataSource.updateProviderService(id, category, UpdateServiceRequestDto(
       placeId: placeId ?? "4cddac58-d326-420b-3a43-08deca6f1a42",
       title: title,
       description: description,
@@ -94,8 +94,13 @@ class ProviderRepositoryImpl implements ProviderRepoContract {
   }
 
   @override
-  Future<void> deleteProviderService(String id) async {
-    await _remoteDataSource.deleteProviderService(id);
+  Future<void> deleteProviderService(String id, String category) async {
+    await _remoteDataSource.deleteProviderService(id, category);
+  }
+
+  @override
+  Future<void> createCategorizedService(String category, Map<String, dynamic> data) async {
+    await _remoteDataSource.createCategorizedService(category, data);
   }
 
   @override

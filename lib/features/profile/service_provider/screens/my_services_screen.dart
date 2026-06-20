@@ -11,8 +11,45 @@ import 'package:tourist_app/domain/entities/provider/provider_service.dart';
 import 'package:tourist_app/features/profile/service_provider/cubits/provider_services_cubit.dart';
 import 'package:tourist_app/features/profile/service_provider/cubits/provider_services_states.dart';
 
-class MyServicesScreen extends StatelessWidget {
+class MyServicesScreen extends StatefulWidget {
   const MyServicesScreen({super.key});
+
+  @override
+  State<MyServicesScreen> createState() => _MyServicesScreenState();
+}
+
+class _MyServicesScreenState extends State<MyServicesScreen> {
+  String selectedFilter = 'All';
+
+  Widget _buildFilterChip(String value, String label, bool isLight) {
+    final isSelected = selectedFilter == value;
+    return ChoiceChip(
+      label: Text(label),
+      selected: isSelected,
+      onSelected: (selected) {
+        if (selected) {
+          setState(() {
+            selectedFilter = value;
+          });
+        }
+      },
+      selectedColor: AppColors.primaryColor,
+      backgroundColor: isLight ? Colors.grey[200] : const Color(0xFF1E2E3E),
+      labelStyle: GoogleFonts.inter(
+        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+        color: isSelected ? Colors.white : (isLight ? Colors.black87 : Colors.white70),
+      ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: BorderSide(
+          color: isSelected
+              ? AppColors.primaryColor
+              : (isLight ? Colors.grey[300]! : Colors.white.withOpacity(0.08)),
+        ),
+      ),
+      showCheckmark: false,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,9 +81,32 @@ class MyServicesScreen extends StatelessWidget {
                 count = state.services.length;
               }
               return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // ── Header Section ──────────────────────────────────────────
                   _buildHeader(context, isLight, size, count),
+
+                  // ── Filter Chips ───────────────────────────────────────────
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      physics: const BouncingScrollPhysics(),
+                      child: Row(
+                        children: [
+                          _buildFilterChip('All', 'all'.tr() == 'all' ? 'All' : 'all'.tr(), isLight),
+                          const SizedBox(width: 8),
+                          _buildFilterChip('Guide', 'guide'.tr() == 'guide' ? 'Guide' : 'guide'.tr(), isLight),
+                          const SizedBox(width: 8),
+                          _buildFilterChip('Transportation', 'transportation'.tr() == 'transportation' ? 'Transportation' : 'transportation'.tr(), isLight),
+                          const SizedBox(width: 8),
+                          _buildFilterChip('Hotels', 'hotels'.tr() == 'hotels' ? 'Hotels' : 'hotels'.tr(), isLight),
+                          const SizedBox(width: 8),
+                          _buildFilterChip('Programs', 'programs'.tr() == 'programs' ? 'Programs' : 'programs'.tr(), isLight),
+                        ],
+                      ),
+                    ),
+                  ),
 
                   // ── Services List Content ───────────────────────────────────
                   Expanded(
@@ -155,8 +215,21 @@ class MyServicesScreen extends StatelessWidget {
         ),
       );
     } else {
-      // Success list
-      final services = state is ProviderServicesSuccess ? state.services : <ProviderService>[];
+      final allServices = state is ProviderServicesSuccess ? state.services : <ProviderService>[];
+      final services = allServices.where((service) {
+        if (selectedFilter == 'All') return true;
+        final category = service.category.toLowerCase();
+        if (selectedFilter == 'Transportation') {
+          return category == 'transportation' || category == 'transport';
+        }
+        if (selectedFilter == 'Hotels') {
+          return category == 'hotel' || category == 'hotels';
+        }
+        if (selectedFilter == 'Programs') {
+          return category == 'program' || category == 'programs';
+        }
+        return category == selectedFilter.toLowerCase();
+      }).toList();
       
       return RefreshIndicator(
         onRefresh: () => context.read<ProviderServicesCubit>().fetchServices(),
@@ -435,7 +508,7 @@ class MyServicesScreen extends StatelessWidget {
                           TextButton(
                             onPressed: () {
                               Navigator.pop(dialogCtx);
-                              context.read<ProviderServicesCubit>().deleteService(service.id);
+                              context.read<ProviderServicesCubit>().deleteService(service.id, service.category);
                             },
                             child: Text('delete'.tr(), style: const TextStyle(color: Colors.red)),
                           ),
