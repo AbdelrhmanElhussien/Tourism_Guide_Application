@@ -14,8 +14,12 @@ class TripsRepositoryImpl implements TripsRepoContract {
 
   @override
   Future<List<Trip>> getTrips() async {
-    final list = await _remoteDataSource.getTrips();
-    return list.map((dto) => dto.toTrip()).toList();
+    try {
+      final list = await _remoteDataSource.getTrips();
+      return list.map((dto) => dto.toTrip()).toList();
+    } catch (e) {
+      return [];
+    }
   }
 
   @override

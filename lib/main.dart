@@ -103,34 +103,23 @@ class MyApp extends StatelessWidget {
           supportedLocales: context.supportedLocales,
           locale: context.locale,
           routes: {
-            AppRoutes.loginRouteName: (context) => LoginScreen(),
-            AppRoutes.signUpRouteName: (context) => SignUpScreen(),
-            AppRoutes.resetPasswordRouteName: (context) =>
-                const ResetPasswordScreen(),
-            AppRoutes.HomeRouteName: (context) => Homescreen(),
+            AppRoutes.loginRouteName: (context) => const LoginScreen(),
+            AppRoutes.signUpRouteName: (context) => const SignUpScreen(),
+            AppRoutes.resetPasswordRouteName: (context) => const ResetPasswordScreen(),
+            AppRoutes.HomeRouteName: (context) => const Homescreen(),
             AppRoutes.DetailScreenRouteName: (context) => const DetailScreen(),
-            AppRoutes.serviceProviderRouteName: (context) =>
-                const ServiceProviderScreen(),
-            AppRoutes.myServicesRouteName: (context) =>
-                const MyServicesScreen(),
+            AppRoutes.serviceProviderRouteName: (context) => const ServiceProviderScreen(),
+            AppRoutes.myServicesRouteName: (context) => const MyServicesScreen(),
             AppRoutes.bookingsRouteName: (context) => const BookingsScreen(),
-            AppRoutes.myBookingsRouteName: (context) =>
-                const MyBookingsScreen(),
-            AppRoutes.savedPlacesRouteName: (context) =>
-                const SavedPlacesScreen(),
-            AppRoutes.addServiceRouteName: (context) =>
-                const AddServiceScreen(),
+            AppRoutes.myBookingsRouteName: (context) => const MyBookingsScreen(),
+            AppRoutes.savedPlacesRouteName: (context) => const SavedPlacesScreen(),
+            AppRoutes.addServiceRouteName: (context) => const AddServiceScreen(),
             AppRoutes.earningsRouteName: (context) => const EarningsScreen(),
-            AppRoutes.becomeProviderRouteName: (context) =>
-                const BecomeProviderScreen(),
-            AppRoutes.messagesListRouteName: (context) =>
-                const ConversationsScreen(),
-            AppRoutes.chatRoomRouteName: (context) => const ChatDetailsScreen(),
-            AppRoutes.visitedPlacesRouteName: (context) => const VisitedPlacesScreen(),
-                const MessagesListScreen(),
+            AppRoutes.becomeProviderRouteName: (context) => const BecomeProviderScreen(),
+            AppRoutes.messagesListRouteName: (context) => const MessagesListScreen(),
             AppRoutes.chatRoomRouteName: (context) => const ChatRoomScreen(),
-            AppRoutes.changePasswordRouteName: (context) =>
-                const ChangePasswordScreen(),
+            AppRoutes.visitedPlacesRouteName: (context) => const VisitedPlacesScreen(),
+            AppRoutes.changePasswordRouteName: (context) => const ChangePasswordScreen(),
           },
           initialRoute: AppRoutes.loginRouteName,
           theme: AppTheme.lightTheme,

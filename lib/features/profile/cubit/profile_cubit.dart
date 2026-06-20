@@ -41,7 +41,9 @@ class ProfileCubit extends Cubit<ProfileState> {
       final usernameFuture = _getUsernameUseCase.invoke();
       final savedPlacesFuture = _getSavedPlacesUseCase.invoke();
       final visitedPlacesFuture = _getVisitedPlacesUseCase.invoke();
-      final tripsFuture = _getTripsUseCase.invoke();
+      final tripsFuture = _getTripsUseCase.invoke().catchError((e) {
+        return <Trip>[];
+      });
 
       // Fetch all in parallel
       final results = await Future.wait([
