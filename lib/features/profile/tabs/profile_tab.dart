@@ -28,23 +28,24 @@ class ProfileTab extends StatelessWidget {
     final size = MediaQuery.of(context).size;
 
     final String? role = CacheHelper.getData(key: 'role') as String?;
-    final bool showServiceProvider = role != null &&
+    final bool showServiceProvider =
+        role != null &&
         (role.toLowerCase() == 'serviceprovider' ||
-         role.toLowerCase() == 'service provider' ||
-         role.toLowerCase() == 'provider' ||
-         role.toLowerCase() == 'admin');
+            role.toLowerCase() == 'service provider' ||
+            role.toLowerCase() == 'provider' ||
+            role.toLowerCase() == 'admin');
 
     return BlocProvider(
       create: (context) => getIt<ProfileCubit>()..fetchProfileData(),
       child: Scaffold(
-        backgroundColor: isLight ? const Color(0xffF8FAFC) : AppColors.darkBlueColor,
+        backgroundColor: isLight
+            ? const Color(0xffF8FAFC)
+            : AppColors.darkBlueColor,
         body: BlocBuilder<ProfileCubit, ProfileState>(
           builder: (context, state) {
             if (state is ProfileLoading) {
               return const Center(
-                child: CircularProgressIndicator(
-                  color: AppColors.primaryColor,
-                ),
+                child: CircularProgressIndicator(color: AppColors.primaryColor),
               );
             } else if (state is ProfileError) {
               return Center(
@@ -74,7 +75,8 @@ class ProfileTab extends StatelessWidget {
               );
             } else if (state is ProfileSuccess) {
               return RefreshIndicator(
-                onRefresh: () => context.read<ProfileCubit>().fetchProfileData(),
+                onRefresh: () =>
+                    context.read<ProfileCubit>().fetchProfileData(),
                 child: SingleChildScrollView(
                   physics: const AlwaysScrollableScrollPhysics(),
                   child: Column(
@@ -93,7 +95,10 @@ class ProfileTab extends StatelessWidget {
 
                       // ── Menu Options List ─────────────────────────────────────────
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16.0,
+                          vertical: 16.0,
+                        ),
                         child: Column(
                           children: [
                             // --- Group 1 ---
@@ -108,7 +113,10 @@ class ProfileTab extends StatelessWidget {
                                   title: 'my_bookings'.tr(),
                                   isLight: isLight,
                                   onTap: () {
-                                    Navigator.pushNamed(context, AppRoutes.myBookingsRouteName);
+                                    Navigator.pushNamed(
+                                      context,
+                                      AppRoutes.myBookingsRouteName,
+                                    );
                                   },
                                 ),
                                 _buildMenuItem(
@@ -118,15 +126,22 @@ class ProfileTab extends StatelessWidget {
                                   title: 'saved'.tr(),
                                   isLight: isLight,
                                   onTap: () async {
-                                    await Navigator.pushNamed(context, AppRoutes.savedPlacesRouteName);
+                                    await Navigator.pushNamed(
+                                      context,
+                                      AppRoutes.savedPlacesRouteName,
+                                    );
                                     if (context.mounted) {
-                                      context.read<ProfileCubit>().fetchProfileData();
+                                      context
+                                          .read<ProfileCubit>()
+                                          .fetchProfileData();
                                     }
                                   },
                                 ),
                                 _buildMenuItem(
                                   icon: Icons.location_on_outlined,
-                                  iconColor: isLight ? AppColors.primaryColor : AppColors.blueColor,
+                                  iconColor: isLight
+                                      ? AppColors.primaryColor
+                                      : AppColors.blueColor,
                                   iconBgColor: const Color(0xFFEEF4F8),
                                   title: 'visited_places'.tr(),
                                   isLight: isLight,
@@ -156,7 +171,11 @@ class ProfileTab extends StatelessWidget {
                                     icon: Icons.business_center_outlined,
                                     iconColor: AppColors.yellowColor,
                                     iconBgColor: const Color(0xFFFEF9EC),
-                                    title: 'become_provider'.tr() == 'become_provider' ? 'Become a Provider' : 'become_provider'.tr(),
+                                    title:
+                                        'become_provider'.tr() ==
+                                            'become_provider'
+                                        ? 'Become a Provider'
+                                        : 'become_provider'.tr(),
                                     isLight: isLight,
                                     onTap: () {
                                       Navigator.pushNamed(
@@ -174,10 +193,18 @@ class ProfileTab extends StatelessWidget {
                               cardColor: Theme.of(context).cardColor,
                               children: [
                                 _buildMenuItem(
-                                  icon: isLight ? Icons.nightlight_outlined : Icons.wb_sunny_outlined,
-                                  iconColor: isLight ? AppColors.primaryColor : AppColors.yellowColor,
-                                  iconBgColor: isLight ? const Color(0xFFF1F3F6) : const Color(0xFFFEF9EC),
-                                  title: isLight ? 'night_mode'.tr() : 'light_mode'.tr(),
+                                  icon: isLight
+                                      ? Icons.nightlight_outlined
+                                      : Icons.wb_sunny_outlined,
+                                  iconColor: isLight
+                                      ? AppColors.primaryColor
+                                      : AppColors.yellowColor,
+                                  iconBgColor: isLight
+                                      ? const Color(0xFFF1F3F6)
+                                      : const Color(0xFFFEF9EC),
+                                  title: isLight
+                                      ? 'night_mode'.tr()
+                                      : 'light_mode'.tr(),
                                   isLight: isLight,
                                   trailing: Switch(
                                     value: !isLight,
@@ -187,21 +214,27 @@ class ProfileTab extends StatelessWidget {
                                     inactiveTrackColor: Colors.grey[300],
                                     onChanged: (value) {
                                       themeProvider.changeTheme(
-                                        value ? ThemeMode.dark : ThemeMode.light,
+                                        value
+                                            ? ThemeMode.dark
+                                            : ThemeMode.light,
                                       );
                                     },
                                   ),
                                 ),
                                 _buildMenuItem(
                                   icon: Icons.language,
-                                  iconColor: isLight ? AppColors.primaryColor : AppColors.blueColor,
+                                  iconColor: isLight
+                                      ? AppColors.primaryColor
+                                      : AppColors.blueColor,
                                   iconBgColor: const Color(0xFFF1F3F6),
                                   title: 'language'.tr(),
                                   isLight: isLight,
                                   trailing: Text(
                                     context.locale.languageCode.toUpperCase(),
                                     style: TextStyle(
-                                      color: isLight ? AppColors.primaryColor : AppColors.blueColor,
+                                      color: isLight
+                                          ? AppColors.primaryColor
+                                          : AppColors.blueColor,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
@@ -211,15 +244,34 @@ class ProfileTab extends StatelessWidget {
                                 ),
                                 _buildMenuItem(
                                   icon: Icons.settings_outlined,
-                                  iconColor: isLight ? AppColors.primaryColor : AppColors.blueColor,
+                                  iconColor: isLight
+                                      ? AppColors.primaryColor
+                                      : AppColors.blueColor,
                                   iconBgColor: const Color(0xFFF1F3F6),
                                   title: 'settings'.tr(),
                                   isLight: isLight,
                                   onTap: () {},
                                 ),
                                 _buildMenuItem(
+                                  icon: Icons.lock_outline,
+                                  iconColor: isLight
+                                      ? AppColors.primaryColor
+                                      : AppColors.blueColor,
+                                  iconBgColor: const Color(0xFFF1F3F6),
+                                  title: 'Change Password',
+                                  isLight: isLight,
+                                  onTap: () {
+                                    Navigator.pushNamed(
+                                      context,
+                                      AppRoutes.changePasswordRouteName,
+                                    );
+                                  },
+                                ),
+                                _buildMenuItem(
                                   icon: Icons.help_outline,
-                                  iconColor: isLight ? AppColors.primaryColor : AppColors.blueColor,
+                                  iconColor: isLight
+                                      ? AppColors.primaryColor
+                                      : AppColors.blueColor,
                                   iconBgColor: const Color(0xFFF1F3F6),
                                   title: 'help_support'.tr(),
                                   isLight: isLight,
@@ -249,22 +301,40 @@ class ProfileTab extends StatelessWidget {
                                       posFun: () async {
                                         // 1. Clear caches of all providers
                                         try {
-                                          Provider.of<PlaceProvider>(context, listen: false).clearCache();
+                                          Provider.of<PlaceProvider>(
+                                            context,
+                                            listen: false,
+                                          ).clearCache();
                                         } catch (_) {}
                                         try {
-                                          Provider.of<GuideProvider>(context, listen: false).clearCache();
+                                          Provider.of<GuideProvider>(
+                                            context,
+                                            listen: false,
+                                          ).clearCache();
                                         } catch (_) {}
                                         try {
-                                          Provider.of<HotelProvider>(context, listen: false).clearCache();
+                                          Provider.of<HotelProvider>(
+                                            context,
+                                            listen: false,
+                                          ).clearCache();
                                         } catch (_) {}
                                         try {
-                                          Provider.of<TransportProvider>(context, listen: false).clearCache();
+                                          Provider.of<TransportProvider>(
+                                            context,
+                                            listen: false,
+                                          ).clearCache();
                                         } catch (_) {}
                                         try {
-                                          Provider.of<ProgramProvider>(context, listen: false).clearCache();
+                                          Provider.of<ProgramProvider>(
+                                            context,
+                                            listen: false,
+                                          ).clearCache();
                                         } catch (_) {}
                                         try {
-                                          Provider.of<BookingProvider>(context, listen: false).clearCache();
+                                          Provider.of<BookingProvider>(
+                                            context,
+                                            listen: false,
+                                          ).clearCache();
                                         } catch (_) {}
 
                                         // 2. Clear credentials from CacheHelper
@@ -399,7 +469,10 @@ class ProfileTab extends StatelessWidget {
                   width: 1,
                   color: Colors.white.withOpacity(0.2),
                 ),
-                _buildStatItem(completedTripsCount.toString(), 'trips_count'.tr()),
+                _buildStatItem(
+                  completedTripsCount.toString(),
+                  'trips_count'.tr(),
+                ),
                 Container(
                   height: 30,
                   width: 1,
@@ -474,9 +547,7 @@ class ProfileTab extends StatelessWidget {
           ),
         ],
       ),
-      child: Column(
-        children: childrenWithDividers,
-      ),
+      child: Column(children: childrenWithDividers),
     );
   }
 
@@ -489,7 +560,9 @@ class ProfileTab extends StatelessWidget {
     Widget? trailing,
     VoidCallback? onTap,
   }) {
-    Color activeTitleColor = isLight ? AppColors.primaryColor : AppColors.whiteColor;
+    Color activeTitleColor = isLight
+        ? AppColors.primaryColor
+        : AppColors.whiteColor;
     if (iconColor == Colors.red) {
       activeTitleColor = Colors.red;
     }
@@ -517,7 +590,8 @@ class ProfileTab extends StatelessWidget {
           color: activeTitleColor,
         ),
       ),
-      trailing: trailing ??
+      trailing:
+          trailing ??
           Icon(
             Icons.arrow_forward_ios,
             size: 14,
@@ -543,8 +617,12 @@ class ProfileTab extends StatelessWidget {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: isDark ? AppColors.bottomNavigationColor : Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          backgroundColor: isDark
+              ? AppColors.bottomNavigationColor
+              : Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
           title: Text(
             'select_language'.tr(),
             style: TextStyle(color: isDark ? Colors.white : Colors.black),
@@ -560,7 +638,9 @@ class ProfileTab extends StatelessWidget {
                     entry.value,
                     style: TextStyle(
                       color: isDark ? Colors.white : Colors.black,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                      fontWeight: isSelected
+                          ? FontWeight.bold
+                          : FontWeight.normal,
                     ),
                   ),
                   trailing: isSelected

@@ -37,6 +37,10 @@ import 'package:tourist_app/features/chat/presentation/providers/conversations_p
 import 'package:tourist_app/features/chat/presentation/providers/chat_provider.dart' as chat_feature;
 import 'package:tourist_app/features/chat/presentation/screens/conversations_screen.dart';
 import 'package:tourist_app/features/chat/presentation/screens/chat_details_screen.dart';
+import 'package:tourist_app/features/chat/screens/messages_list_screen.dart';
+import 'package:tourist_app/features/chat/screens/chat_room_screen.dart';
+import 'package:tourist_app/features/auth/reset_password/screens/reset_password_screen.dart';
+import 'package:tourist_app/features/profile/screens/change_password_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -101,6 +105,8 @@ class MyApp extends StatelessWidget {
           routes: {
             AppRoutes.loginRouteName: (context) => LoginScreen(),
             AppRoutes.signUpRouteName: (context) => SignUpScreen(),
+            AppRoutes.resetPasswordRouteName: (context) =>
+                const ResetPasswordScreen(),
             AppRoutes.HomeRouteName: (context) => Homescreen(),
             AppRoutes.DetailScreenRouteName: (context) => const DetailScreen(),
             AppRoutes.serviceProviderRouteName: (context) =>
@@ -121,6 +127,10 @@ class MyApp extends StatelessWidget {
                 const ConversationsScreen(),
             AppRoutes.chatRoomRouteName: (context) => const ChatDetailsScreen(),
             AppRoutes.visitedPlacesRouteName: (context) => const VisitedPlacesScreen(),
+                const MessagesListScreen(),
+            AppRoutes.chatRoomRouteName: (context) => const ChatRoomScreen(),
+            AppRoutes.changePasswordRouteName: (context) =>
+                const ChangePasswordScreen(),
           },
           initialRoute: AppRoutes.loginRouteName,
           theme: AppTheme.lightTheme,
