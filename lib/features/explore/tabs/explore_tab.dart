@@ -464,12 +464,13 @@ class _ExploreTabState extends State<ExploreTab> {
   Widget _buildTransportView(double horizontalPadding) {
     final themeProvider = Provider.of<Themeprovider>(context);
     final isDark = themeProvider.apptheme == ThemeMode.dark;
-    final subcatKeys = ['cars', 'cruises', 'carriage', 'felucca'];
+    final subcatKeys = ['cars', 'cruises', 'carriage', 'felucca', 'others'];
     final subcatIcons = [
       Icons.directions_car_outlined,
       Icons.directions_boat_outlined,
       Icons.airport_shuttle_outlined,
       Icons.sailing_outlined,
+      Icons.more_horiz_outlined,
     ];
 
     return Consumer<TransportProvider>(
@@ -499,19 +500,23 @@ class _ExploreTabState extends State<ExploreTab> {
           );
         }
 
-        String targetType = '';
-        if (_selectedTransportSubcat == 0) targetType = 'Car';
-        else if (_selectedTransportSubcat == 1) targetType = 'Train'; 
-        else if (_selectedTransportSubcat == 2) targetType = 'Carriage';
-        else if (_selectedTransportSubcat == 3) targetType = 'Boat';
-
         final filteredList = transportProvider.transports.where((item) {
           bool matchesType = false;
-          if (_selectedTransportSubcat == 1) {
-            matchesType = item.type == 'Train' || item.type == 'Ferry' || item.type == 'Cruise';
-          } else {
-            matchesType = item.type == targetType;
+          final typeLower = item.type.toLowerCase().trim();
+
+          if (_selectedTransportSubcat == 0) {
+            matchesType = typeLower == 'car' || typeLower == 'cars';
+          } else if (_selectedTransportSubcat == 1) {
+            matchesType = typeLower == 'train' || typeLower == 'ferry' || typeLower == 'cruise' || typeLower == 'cruises';
+          } else if (_selectedTransportSubcat == 2) {
+            matchesType = typeLower == 'carriage';
+          } else if (_selectedTransportSubcat == 3) {
+            matchesType = typeLower == 'boat' || typeLower == 'felucca';
+          } else if (_selectedTransportSubcat == 4) {
+            final knownTypes = ['car', 'cars', 'train', 'ferry', 'cruise', 'cruises', 'carriage', 'boat', 'felucca'];
+            matchesType = !knownTypes.contains(typeLower);
           }
+
           bool matchesQuery = item.name.toLowerCase().contains(_searchQuery) ||
               item.departureLocation.toLowerCase().contains(_searchQuery) ||
               item.arrivalLocation.toLowerCase().contains(_searchQuery);
@@ -630,8 +635,15 @@ class _ExploreTabState extends State<ExploreTab> {
       '4_star_hotels',
       '3_star_hotels',
       '2_star_hotels',
+      'others',
     ];
-    final subcatIcons = [Icons.star, Icons.star, Icons.star, Icons.star];
+    final subcatIcons = [
+      Icons.star,
+      Icons.star,
+      Icons.star,
+      Icons.star,
+      Icons.star_border_rounded,
+    ];
 
     return Consumer<HotelProvider>(
       builder: (context, hotelProvider, child) {
@@ -660,9 +672,18 @@ class _ExploreTabState extends State<ExploreTab> {
           );
         }
 
-        int targetStars = 5 - _selectedHotelSubcat;
         final filteredList = hotelProvider.hotels.where((item) {
-          bool matchesStars = item.starRating == targetStars;
+          bool matchesStars = false;
+          if (_selectedHotelSubcat == 4) {
+            matchesStars = item.starRating != 5 &&
+                item.starRating != 4 &&
+                item.starRating != 3 &&
+                item.starRating != 2;
+          } else {
+            int targetStars = 5 - _selectedHotelSubcat;
+            matchesStars = item.starRating == targetStars;
+          }
+
           bool matchesQuery = item.name.toLowerCase().contains(_searchQuery) ||
               item.location.toLowerCase().contains(_searchQuery);
           return matchesStars && matchesQuery;

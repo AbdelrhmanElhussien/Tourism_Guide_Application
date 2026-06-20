@@ -8,6 +8,8 @@ import 'package:tourist_app/api/model/response/provider/provider_earnings_dto.da
 import 'package:tourist_app/api/model/response/provider/provider_service_dto.dart';
 import 'package:tourist_app/data/data_sources/remot/provider/provider_remote_data_source.dart';
 
+import 'package:dio/dio.dart';
+import 'package:tourist_app/core/di/di.dart';
 import 'package:tourist_app/api/model/request/provider/provider_request_dto.dart';
 import 'package:tourist_app/api/model/response/provider/provider_request_response_dto.dart';
 
@@ -22,13 +24,65 @@ class ProviderRemoteDataSourceImpl implements ProviderRemoteDataSource {
     return await _apiServices.getProviderDashboard();
   }
 
-  @override
-  Future<List<ProviderServiceDto>> getProviderServices() async {
-    return await _apiServices.getProviderServices();
+  String _getApiSegment(String category) {
+    switch (category.toLowerCase()) {
+      case 'transport':
+      case 'transportation':
+        return 'Transport';
+      case 'program':
+      case 'programs':
+        return 'Programs';
+      case 'hotel':
+      case 'hotels':
+        return 'Hotels';
+      default:
+        return 'Services';
+    }
   }
 
   @override
-  Future<ProviderServiceDto> createProviderService(CreateServiceRequestDto request) async {
+  Future<List<ProviderServiceDto>> getProviderServices() async {
+    final dio = getIt<Dio>();
+    final categories = ['Transport', 'Programs', 'Hotels'];
+    final List<ProviderServiceDto> allServices = [];
+
+    for (final category in categories) {
+      try {
+        final response = await dio.get('${category}/my');
+        if (response.statusCode == 200 && response.data != null) {
+          final data = response.data;
+          List<dynamic> itemsList = [];
+          if (data is List) {
+            itemsList = data;
+          } else if (data is Map<String, dynamic> && data['data'] is List) {
+            itemsList = data['data'];
+          } else if (data is Map<String, dynamic> &&
+              data['success'] == true &&
+              data['data'] is List) {
+            itemsList = data['data'];
+          }
+
+          for (final item in itemsList) {
+            if (item is Map<String, dynamic>) {
+              final itemCategory = category == 'Transport'
+                  ? 'transportation'
+                  : (category == 'Hotels' ? 'hotel' : 'program');
+              item['category'] = itemCategory;
+              allServices.add(ProviderServiceDto.fromJson(item));
+            }
+          }
+        }
+      } catch (e) {
+        print('Error fetching services for $category: $e');
+      }
+    }
+    return allServices;
+  }
+
+  @override
+  Future<ProviderServiceDto> createProviderService(
+    CreateServiceRequestDto request,
+  ) async {
     return await _apiServices.createProviderService(request);
   }
 
@@ -38,13 +92,79 @@ class ProviderRemoteDataSourceImpl implements ProviderRemoteDataSource {
   }
 
   @override
-  Future<ProviderServiceDto> updateProviderService(String id, UpdateServiceRequestDto request) async {
-    return await _apiServices.updateProviderService(id, request);
+  Future<ProviderServiceDto> updateProviderService(
+    String id,
+    String category,
+    UpdateServiceRequestDto request,
+  ) async {
+    final dio = getIt<Dio>();
+    final apiSegment = _getApiSegment(category);
+    final response = await dio.put(
+      '${apiSegment}/$id',
+      data: request.toJson(),
+      options: Options(headers: {'Content-Type': 'application/json'}),
+    );
+    if (response.statusCode == 200 || response.statusCode == 204) {
+      if (response.data != null && response.data is Map<String, dynamic>) {
+        return ProviderServiceDto.fromJson(response.data);
+      }
+      return ProviderServiceDto(id: id, category: category);
+    }
+    throw Exception(
+      'Failed to update service (Status: ${response.statusCode})',
+    );
   }
 
   @override
-  Future<void> deleteProviderService(String id) async {
-    await _apiServices.deleteProviderService(id);
+  Future<void> deleteProviderService(String id, String category) async {
+    final dio = getIt<Dio>();
+    final apiSegment = _getApiSegment(category);
+    final response = await dio.delete('${apiSegment}/$id');
+    if (response.statusCode != 200 && response.statusCode != 204) {
+      throw Exception(
+        'Failed to delete service (Status: ${response.statusCode})',
+      );
+    }
+  }
+
+  @override
+  Future<void> createCategorizedService(
+    String category,
+    Map<String, dynamic> data,
+  ) async {
+    final dio = getIt<Dio>();
+    String endpoint;
+    switch (category.toLowerCase()) {
+      case 'guide':
+        endpoint = 'Guides';
+        break;
+      case 'hotel':
+      case 'hotels':
+        endpoint = 'Hotels';
+        break;
+      case 'transport':
+      case 'transportation':
+        endpoint = 'Transport';
+        break;
+      case 'program':
+      case 'programs':
+        endpoint = 'Programs';
+        break;
+      default:
+        throw Exception('Unknown category: $category');
+    }
+
+    final response = await dio.post(
+      endpoint,
+      data: data,
+      options: Options(headers: {'Content-Type': 'application/json'}),
+    );
+
+    if (response.statusCode != 200 &&
+        response.statusCode != 201 &&
+        response.statusCode != 204) {
+      throw Exception('Failed to add service (Status: ${response.statusCode})');
+    }
   }
 
   @override
@@ -53,7 +173,10 @@ class ProviderRemoteDataSourceImpl implements ProviderRemoteDataSource {
   }
 
   @override
-  Future<ProviderBookingDto> updateBookingStatus(String id, String status) async {
+  Future<ProviderBookingDto> updateBookingStatus(
+    String id,
+    String status,
+  ) async {
     return await _apiServices.updateBookingStatus(id, {'status': status});
   }
 
