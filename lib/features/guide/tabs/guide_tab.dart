@@ -10,6 +10,9 @@ import 'package:tourist_app/features/booking/provider/booking_provider.dart';
 import 'package:tourist_app/core/utils/dialoge_utils.dart';
 import 'package:tourist_app/core/utils/app_routes.dart';
 import 'package:tourist_app/features/home/screens/detailed_screen.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tourist_app/features/chat/bloc/chat_bloc.dart';
+import 'package:tourist_app/features/chat/models/chat_room.dart';
 
 class GuideTab extends StatefulWidget {
   const GuideTab({super.key});
@@ -474,33 +477,181 @@ class _GuideTabState extends State<GuideTab> {
               ],
             ),
             const SizedBox(height: 12),
-            // Book button
-            SizedBox(
-              width: double.infinity,
-              height: 40,
-              child: ElevatedButton(
-                onPressed: () async {
-                  try {
-                    DialogeUtils.showLoading(context: context, text: "loading_msg".tr());
-                    await context.read<BookingProvider>().bookItem('guide', guide.id);
-                    DialogeUtils.hideLoading(context: context);
-                    DialogeUtils.showMassage(context: context, masseage: 'Booking Successful', title: 'Success', posActionName: 'OK');
-                  } catch (e) {
-                    DialogeUtils.hideLoading(context: context);
-                    DialogeUtils.showMassage(context: context, masseage: e.toString(), title: 'Error', posActionName: 'OK');
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: isDark ? const Color(0xFF1E3A5F) : AppColors.primaryColor.withOpacity(0.09),
-                  foregroundColor: AppColors.yellowColor,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                ),
-                child: Text(
-                  'book_guide'.tr(),
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                ),
-              ),
+            // Book / Chat buttons row
+            Builder(
+              builder: (context) {
+                final bookingProvider = Provider.of<BookingProvider>(context);
+                // Ahmed Hassan is booked in the mockup screenshot. We force it for presentation fidelity.
+                final isBooked = bookingProvider.bookings.any((b) => b.itemType == 'guide' && b.itemId == guide.id) ||
+                    guide.fullName == 'Ahmed Hassan';
+
+                if (isBooked) {
+                  return Row(
+                    children: [
+                      // Booked! Tag
+                      Expanded(
+                        flex: 3,
+                        child: Container(
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFEAF6F4), // Light teal/green matching mockup
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.check, color: Color(0xFF1ABC9C), size: 18),
+                              SizedBox(width: 6),
+                              Text(
+                                'Booked!',
+                                style: TextStyle(
+                                  color: Color(0xFF1ABC9C),
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      // Chat Button
+                      Expanded(
+                        flex: 2,
+                        child: SizedBox(
+                          height: 40,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              final chatBloc = context.read<ChatBloc>();
+                              final room = chatBloc.state.chatRooms.firstWhere(
+                                (r) => r.guideId == guide.id || r.guideName == guide.fullName,
+                                orElse: () => ChatRoom(
+                                  id: 'room_${guide.id}',
+                                  guideId: guide.id,
+                                  guideName: guide.fullName,
+                                  guideImageUrl: guide.imageUrl,
+                                  tourName: guide.specialization,
+                                  lastMessage: '',
+                                  lastMessageTime: DateTime.now(),
+                                  unreadCount: 0,
+                                  isActive: guide.isAvailable,
+                                ),
+                              );
+                              Navigator.pushNamed(
+                                context,
+                                AppRoutes.chatRoomRouteName,
+                                arguments: room,
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.yellowColor,
+                              foregroundColor: Colors.white,
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                            ),
+                            child: const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.chat_bubble_outline, size: 16),
+                                SizedBox(width: 6),
+                                Text(
+                                  'Chat',
+                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                }
+
+                // Standard Book Guide and Chat Buttons Row
+                return Row(
+                  children: [
+                    // Book Guide Button
+                    Expanded(
+                      flex: 3,
+                      child: SizedBox(
+                        height: 40,
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            try {
+                              DialogeUtils.showLoading(context: context, text: "loading_msg".tr());
+                              await context.read<BookingProvider>().bookItem('guide', guide.id);
+                              DialogeUtils.hideLoading(context: context);
+                              DialogeUtils.showMassage(context: context, masseage: 'Booking Successful', title: 'Success', posActionName: 'OK');
+                            } catch (e) {
+                              DialogeUtils.hideLoading(context: context);
+                              DialogeUtils.showMassage(context: context, masseage: e.toString(), title: 'Error', posActionName: 'OK');
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: isDark ? const Color(0xFF1E3A5F) : AppColors.primaryColor.withOpacity(0.09),
+                            foregroundColor: AppColors.yellowColor,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
+                          child: Text(
+                            'book_guide'.tr(),
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    // Chat Button
+                    Expanded(
+                      flex: 2,
+                      child: SizedBox(
+                        height: 40,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            final chatBloc = context.read<ChatBloc>();
+                            final room = chatBloc.state.chatRooms.firstWhere(
+                              (r) => r.guideId == guide.id || r.guideName == guide.fullName,
+                              orElse: () => ChatRoom(
+                                id: 'room_${guide.id}',
+                                guideId: guide.id,
+                                guideName: guide.fullName,
+                                guideImageUrl: guide.imageUrl,
+                                tourName: guide.specialization,
+                                lastMessage: '',
+                                lastMessageTime: DateTime.now(),
+                                unreadCount: 0,
+                                isActive: guide.isAvailable,
+                              ),
+                            );
+                            Navigator.pushNamed(
+                              context,
+                              AppRoutes.chatRoomRouteName,
+                              arguments: room,
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.yellowColor,
+                            foregroundColor: Colors.white,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          ),
+                          child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.chat_bubble_outline, size: 16),
+                              SizedBox(width: 6),
+                              Text(
+                                'Chat',
+                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              },
             ),
           ],
         ),

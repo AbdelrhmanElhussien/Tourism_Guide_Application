@@ -29,6 +29,10 @@ import 'package:tourist_app/features/explore/provider/program_provider.dart';
 import 'package:tourist_app/features/booking/provider/booking_provider.dart';
 import 'package:tourist_app/features/home/provider/place_provider.dart';
 import 'package:tourist_app/features/chatbot/providers/chat_provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tourist_app/features/chat/bloc/chat_bloc.dart';
+import 'package:tourist_app/features/chat/screens/messages_list_screen.dart';
+import 'package:tourist_app/features/chat/screens/chat_room_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -63,6 +67,7 @@ void main() async {
           ChangeNotifierProvider(create: (context) => BookingProvider()),
           ChangeNotifierProvider(create: (context) => PlaceProvider()),
           ChangeNotifierProvider(create: (context) => ChatProvider()),
+          BlocProvider(create: (context) => ChatBloc()),
         ],
         child: const MyApp(),
       ),
@@ -104,9 +109,11 @@ class MyApp extends StatelessWidget {
             AppRoutes.addServiceRouteName: (context) =>
                 const AddServiceScreen(),
             AppRoutes.earningsRouteName: (context) => const EarningsScreen(),
+            AppRoutes.messagesListRouteName: (context) =>
+                const MessagesListScreen(),
+            AppRoutes.chatRoomRouteName: (context) => const ChatRoomScreen(),
           },
           initialRoute: AppRoutes.loginRouteName,
-          //initialRoute: AppRoutes.HomeRouteName,
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,
 

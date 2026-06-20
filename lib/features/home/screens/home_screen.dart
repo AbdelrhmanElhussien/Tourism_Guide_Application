@@ -1,6 +1,5 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:tourist_app/features/home/tabs/home_tab.dart';
 import 'package:tourist_app/features/explore/tabs/explore_tab.dart';
 import 'package:tourist_app/features/map/tabs/map_tab.dart';
