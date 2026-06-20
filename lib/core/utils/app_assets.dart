@@ -12,6 +12,4 @@ class AppAssets {
   static const String cruisesIcon = 'assets/images/cruisesIcon.png';
   static const String EventIcon = 'assets/images/EventIcon.png';
   static const String historicallIcon = 'assets/images/historicalIcon.png';
-
 }
-

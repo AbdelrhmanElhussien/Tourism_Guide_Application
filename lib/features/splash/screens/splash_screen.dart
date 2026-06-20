@@ -45,7 +45,7 @@ class _SplashScreenState extends State<SplashScreen>
     _animationController.forward();
 
     Timer(const Duration(seconds: 7), () {
-      Navigator.pushReplacementNamed(context, AppRoutes.loginRouteName);
+      Navigator.pushReplacementNamed(context, AppRoutes.onboardingRouteName);
     });
   }
 

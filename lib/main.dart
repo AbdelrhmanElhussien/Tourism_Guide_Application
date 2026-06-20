@@ -9,6 +9,7 @@ import 'package:tourist_app/core/utils/BlocObserver.dart';
 import 'package:tourist_app/core/utils/app_loclization.dart';
 import 'package:tourist_app/core/utils/app_routes.dart';
 import 'package:tourist_app/core/utils/app_theme.dart';
+import 'package:tourist_app/core/utils/cache_helper.dart';
 import 'package:tourist_app/features/home/screens/home_screen.dart';
 import 'package:tourist_app/features/home/screens/detailed_screen.dart';
 import 'package:tourist_app/features/profile/service_provider/screens/provider_dashboard_screen.dart';
@@ -20,8 +21,8 @@ import 'package:tourist_app/features/profile/screens/saved_places_screen.dart';
 import 'package:tourist_app/features/auth/login/screens/login_screen.dart';
 import 'package:tourist_app/features/auth/signup/screens/signup_screen.dart';
 import 'package:tourist_app/features/map/provider/map_provider.dart';
-import 'package:tourist_app/features/profile/service_provider/screens/earnings_screen.dart';
 import 'package:tourist_app/features/guide/provider/guide_provider.dart';
+import 'package:tourist_app/features/profile/service_provider/screens/earnings_screen.dart';
 import 'package:tourist_app/features/explore/provider/hotel_provider.dart';
 import 'package:tourist_app/features/explore/provider/transport_provider.dart';
 import 'package:tourist_app/features/explore/provider/program_provider.dart';
@@ -30,6 +31,11 @@ import 'package:tourist_app/features/home/provider/place_provider.dart';
 import 'package:tourist_app/core/utils/cache_helper.dart';
 import 'package:tourist_app/features/splash/screens/splash_screen.dart';
 import 'package:tourist_app/features/profile/screens/become_provider_screen.dart';
+import 'package:tourist_app/features/chatbot/providers/chat_provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tourist_app/features/chat/bloc/chat_bloc.dart';
+import 'package:tourist_app/features/chat/screens/messages_list_screen.dart';
+import 'package:tourist_app/features/chat/screens/chat_room_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -63,6 +69,8 @@ void main() async {
           ChangeNotifierProvider(create: (context) => ProgramProvider()),
           ChangeNotifierProvider(create: (context) => BookingProvider()),
           ChangeNotifierProvider(create: (context) => PlaceProvider()),
+          ChangeNotifierProvider(create: (context) => ChatProvider()),
+          BlocProvider(create: (context) => ChatBloc()),
         ],
         child: const MyApp(),
       ),
@@ -88,7 +96,6 @@ class MyApp extends StatelessWidget {
           supportedLocales: context.supportedLocales,
           locale: context.locale,
           routes: {
-            AppRoutes.splashRouteName: (context) => const SplashScreen(),
             AppRoutes.loginRouteName: (context) => LoginScreen(),
             AppRoutes.signUpRouteName: (context) => SignUpScreen(),
             AppRoutes.HomeRouteName: (context) => Homescreen(),
@@ -98,7 +105,8 @@ class MyApp extends StatelessWidget {
             AppRoutes.myServicesRouteName: (context) =>
                 const MyServicesScreen(),
             AppRoutes.bookingsRouteName: (context) => const BookingsScreen(),
-            AppRoutes.myBookingsRouteName: (context) => const MyBookingsScreen(),
+            AppRoutes.myBookingsRouteName: (context) =>
+                const MyBookingsScreen(),
             AppRoutes.savedPlacesRouteName: (context) =>
                 const SavedPlacesScreen(),
             AppRoutes.addServiceRouteName: (context) =>
@@ -106,8 +114,11 @@ class MyApp extends StatelessWidget {
             AppRoutes.earningsRouteName: (context) => const EarningsScreen(),
             AppRoutes.becomeProviderRouteName: (context) =>
                 const BecomeProviderScreen(),
+            AppRoutes.messagesListRouteName: (context) =>
+                const MessagesListScreen(),
+            AppRoutes.chatRoomRouteName: (context) => const ChatRoomScreen(),
           },
-          initialRoute: AppRoutes.splashRouteName,
+          initialRoute: AppRoutes.loginRouteName,
           theme: AppTheme.lightTheme,
           darkTheme: AppTheme.darkTheme,
 

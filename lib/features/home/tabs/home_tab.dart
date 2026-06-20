@@ -9,8 +9,10 @@ import 'package:tourist_app/core/utils/cache_helper.dart';
 import 'package:tourist_app/features/home/widgets/categories_section.dart';
 import 'package:tourist_app/features/home/widgets/popular_widget.dart';
 import 'package:tourist_app/features/home/widgets/recommended_widget.dart';
-import 'package:tourist_app/features/home/widgets/search_widget.dart';
 import 'package:tourist_app/features/home/provider/place_provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:tourist_app/features/chat/bloc/chat_bloc.dart';
+import 'package:tourist_app/features/chat/bloc/chat_state.dart';
 
 class HomeTab extends StatefulWidget {
   final Function(String) onCategorySelected;
@@ -22,57 +24,6 @@ class HomeTab extends StatefulWidget {
 }
 
 class _HomeTabState extends State<HomeTab> {
-  void _showLanguageDialog(BuildContext context, bool isDark) {
-    final Map<String, String> languages = {
-      'en': 'English',
-      'ar': 'العربية',
-      'de': 'Deutsch',
-      'fr': 'Français',
-      'it': 'Italiano',
-      'es': 'Español',
-      'ru': 'Русский',
-      'zh': '中文',
-    };
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: isDark ? AppColors.bottomNavigationColor : Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: Text(
-            'select_language'.tr(),
-            style: TextStyle(color: isDark ? Colors.white : Colors.black),
-          ),
-          content: SizedBox(
-            width: double.maxFinite,
-            child: ListView(
-              shrinkWrap: true,
-              children: languages.entries.map((entry) {
-                final isSelected = context.locale.languageCode == entry.key;
-                return ListTile(
-                  title: Text(
-                    entry.value,
-                    style: TextStyle(
-                      color: isDark ? Colors.white : Colors.black,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                    ),
-                  ),
-                  trailing: isSelected
-                      ? const Icon(Icons.check, color: AppColors.yellowColor)
-                      : null,
-                  onTap: () {
-                    context.setLocale(Locale(entry.key));
-                    Navigator.pop(context);
-                  },
-                );
-              }).toList(),
-            ),
-          ),
-        );
-      },
-    );
-  }
 
   @override
   void initState() {
@@ -158,30 +109,56 @@ class _HomeTabState extends State<HomeTab> {
             ),
           ),
           const SizedBox(width: 4),
-          // Language EN/AR Button
-          GestureDetector(
-            onTap: () {
-              _showLanguageDialog(context, isDark);
-            },
-            child: Container(
-              alignment: Alignment.center,
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF3B82F6),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  context.locale.languageCode.toUpperCase(),
-                  style: GoogleFonts.inter(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
+          // Chat Icon Button with Unread Badge
+          BlocBuilder<ChatBloc, ChatState>(
+            builder: (context, state) {
+              final totalUnread = state.chatRooms.fold(0, (sum, room) => sum + room.unreadCount);
+              return GestureDetector(
+                onTap: () {
+                  Navigator.pushNamed(context, AppRoutes.messagesListRouteName);
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  alignment: Alignment.center,
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      const Icon(
+                        Icons.chat_bubble_outline,
+                        color: Colors.white,
+                        size: 24,
+                      ),
+                      if (totalUnread > 0)
+                        Positioned(
+                          right: -4,
+                          top: -4,
+                          child: Container(
+                            padding: const EdgeInsets.all(3),
+                            decoration: const BoxDecoration(
+                              color: AppColors.yellowColor,
+                              shape: BoxShape.circle,
+                            ),
+                            constraints: const BoxConstraints(
+                              minWidth: 16,
+                              minHeight: 16,
+                            ),
+                            child: Center(
+                              child: Text(
+                                '$totalUnread',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 8,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
-              ),
-            ),
+              );
+            },
           ),
           SizedBox(width: size.width * 0.03),
         ],

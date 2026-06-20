@@ -1,5 +1,6 @@
 class AppRoutes {
   static const String splashRouteName = 'SplashScreen';
+  static const String onboardingRouteName = 'OnboardingScreen';
   static const String loginRouteName = 'LoginScreen';
   static const String signUpRouteName = 'SignUpScreen';
   static const String HomeRouteName = 'Homescreen';
@@ -12,5 +13,7 @@ class AppRoutes {
   static const String addServiceRouteName = 'addService';
   static const String earningsRouteName = 'earnings';
   static const String becomeProviderRouteName = 'becomeProvider';
+  static const String messagesListRouteName = 'MessagesListScreen';
+  static const String chatRoomRouteName = 'ChatRoomScreen';
 }
 
