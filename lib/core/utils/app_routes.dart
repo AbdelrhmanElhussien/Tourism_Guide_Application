@@ -3,6 +3,7 @@ class AppRoutes {
   static const String onboardingRouteName = 'OnboardingScreen';
   static const String loginRouteName = 'LoginScreen';
   static const String signUpRouteName = 'SignUpScreen';
+  static const String resetPasswordRouteName = 'ResetPasswordScreen';
   static const String HomeRouteName = 'Homescreen';
   static const String DetailScreenRouteName = 'DetailScreen';
   static const String serviceProviderRouteName = 'ServiceProviderScreen';
@@ -16,4 +17,3 @@ class AppRoutes {
   static const String messagesListRouteName = 'MessagesListScreen';
   static const String chatRoomRouteName = 'ChatRoomScreen';
 }
-
