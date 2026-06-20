@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:tourist_app/features/chatbot/models/chat_message_model.dart';
-import 'package:tourist_app/features/chatbot/services/ai_chat_service.dart';
+import 'package:tourist_app/features/chatbot/data/repositories/chatbot_repository.dart';
 
 class ChatProvider extends ChangeNotifier {
-  final AIChatService _chatService = AIChatService();
+  final ChatBotRepository _chatbotRepository = ChatBotRepository();
   final List<ChatMessageModel> _messages = [];
   bool _isTyping = false;
 
@@ -19,10 +19,10 @@ class ChatProvider extends ChangeNotifier {
       _messages.add(
         ChatMessageModel(
           id: 'greeting_${DateTime.now().millisecondsSinceEpoch}',
-          text: 'Marhaba! 👋 I\'m Nefertiti, your AI travel assistant for Egypt. I can help you discover amazing places, find hotels, book guides, and plan your perfect Egyptian adventure.\n\nHow can I help you today?',
+          text: 'Marhaba! 👋 I\'m Nefertiti, your AI travel assistant specialized in Aswan tourism. I can help you discover amazing historical sites, find hotels, book local guides, and plan transportation.\n\nHow can I help you today?',
           isUser: false,
           timestamp: DateTime.now(),
-          quickActions: ['Recommend Places', 'Find Hotels', 'Plan My Trip'],
+          quickActions: ['Recommend Places', 'Find Hotels', 'Find Guides', 'Transportation Options'],
         ),
       );
     }
@@ -31,6 +31,7 @@ class ChatProvider extends ChangeNotifier {
   Future<void> sendMessage(String text) async {
     if (text.trim().isEmpty) return;
 
+    // 1. Add User message immediately to the UI
     final userMessage = ChatMessageModel(
       id: 'msg_${DateTime.now().millisecondsSinceEpoch}_user',
       text: text,
@@ -43,19 +44,24 @@ class ChatProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final aiResponseText = await _chatService.getResponse(text);
+      // 2. Call the backend ChatBot endpoint with timeout/error safety
+      final response = await _chatbotRepository.sendMessage(text);
       
-      // We can also suggest different quick actions based on what was asked, or keep it general
+      // Determine relevant quick actions based on what was asked/received
       List<String>? newQuickActions;
-      if (text.contains('Hotel') || text.contains('stay')) {
-        newQuickActions = ['Plan My Trip', 'Transportation Options'];
-      } else if (text.contains('Place') || text.contains('recommend')) {
-        newQuickActions = ['Find Hotels', 'Find Guides'];
+      final textLower = text.toLowerCase();
+      if (textLower.contains('hotel') || textLower.contains('stay') || textLower.contains('accommodation')) {
+        newQuickActions = ['Find Guides', 'Transportation Options'];
+      } else if (textLower.contains('place') || textLower.contains('recommend') || textLower.contains('attract')) {
+        newQuickActions = ['Find Hotels', 'Plan My Trip'];
+      } else {
+        newQuickActions = ['Recommend Places', 'Nearby Attractions', 'Find Hotels'];
       }
 
+      // 3. Add the AI response message to the UI
       final aiMessage = ChatMessageModel(
         id: 'msg_${DateTime.now().millisecondsSinceEpoch}_ai',
-        text: aiResponseText,
+        text: response.message,
         isUser: false,
         timestamp: DateTime.now(),
         quickActions: newQuickActions,
@@ -63,9 +69,11 @@ class ChatProvider extends ChangeNotifier {
 
       _messages.add(aiMessage);
     } catch (e) {
+      // 4. Handle errors and display a friendly system message
+      final errString = e.toString().replaceAll('Exception: ', '');
       final errorMessage = ChatMessageModel(
         id: 'msg_${DateTime.now().millisecondsSinceEpoch}_error',
-        text: 'Sorry, I encountered an error. Please try again. 😕',
+        text: 'Sorry, I couldn\'t fetch a reply from Nefertiti AI. 😕\n\n*Error Detail:* $errString\nPlease verify your connection and try again.',
         isUser: false,
         timestamp: DateTime.now(),
       );
@@ -78,7 +86,6 @@ class ChatProvider extends ChangeNotifier {
 
   void clearChat() {
     _messages.clear();
-    _chatService.resetConversation();
     _addInitialGreeting();
     _isTyping = false;
     notifyListeners();
