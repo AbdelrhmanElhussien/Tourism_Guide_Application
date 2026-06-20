@@ -1386,6 +1386,39 @@ class _DetailScreenState extends State<DetailScreen> {
             ),
             const SizedBox(width: 30),
           ],
+          if (args.type == DetailType.guide) ...[
+            Container(
+              height: 52,
+              width: 52,
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: AppColors.yellowColor,
+                  width: 1.5,
+                ),
+                borderRadius: BorderRadius.circular(15),
+              ),
+              child: IconButton(
+                icon: const Icon(
+                  Icons.chat_bubble_outline,
+                  color: AppColors.yellowColor,
+                ),
+                onPressed: () {
+                  if (args.id != null) {
+                    Navigator.pushNamed(
+                      context,
+                      AppRoutes.chatRoomRouteName,
+                      arguments: {
+                        'guideId': args.id!,
+                        'guideName': args.title,
+                        'guideImageUrl': args.networkImage ?? '',
+                      },
+                    );
+                  }
+                },
+              ),
+            ),
+            const SizedBox(width: 12),
+          ],
           Expanded(
             child: SizedBox(
               height: 52,
