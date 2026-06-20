@@ -70,7 +70,7 @@ class ProfileTab extends StatelessWidget {
                   (CacheHelper.getData(key: 'role') as String? ?? '')
                       .trim()
                       .toLowerCase();
-              final bool isAdmin = role == 'admin';
+              final bool isAdmin = role.contains('admin');
               final bool showServiceProvider =
                   role == 'serviceprovider' ||
                   role == 'service provider' ||
