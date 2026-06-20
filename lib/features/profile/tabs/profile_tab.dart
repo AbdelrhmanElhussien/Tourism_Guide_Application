@@ -27,14 +27,6 @@ class ProfileTab extends StatelessWidget {
     bool isLight = themeProvider.apptheme == ThemeMode.light;
     final size = MediaQuery.of(context).size;
 
-    final String? role = CacheHelper.getData(key: 'role') as String?;
-    final bool showServiceProvider =
-        role != null &&
-        (role.toLowerCase() == 'serviceprovider' ||
-            role.toLowerCase() == 'service provider' ||
-            role.toLowerCase() == 'provider' ||
-            role.toLowerCase() == 'admin');
-
     return BlocProvider(
       create: (context) => getIt<ProfileCubit>()..fetchProfileData(),
       child: Scaffold(
@@ -74,6 +66,17 @@ class ProfileTab extends StatelessWidget {
                 ),
               );
             } else if (state is ProfileSuccess) {
+              final String role =
+                  (CacheHelper.getData(key: 'role') as String? ?? '')
+                      .trim()
+                      .toLowerCase();
+              final bool isAdmin = role.contains('admin');
+              final bool showServiceProvider =
+                  role == 'serviceprovider' ||
+                  role == 'service provider' ||
+                  role == 'provider' ||
+                  isAdmin;
+
               return RefreshIndicator(
                 onRefresh: () =>
                     context.read<ProfileCubit>().fetchProfileData(),
@@ -152,6 +155,21 @@ class ProfileTab extends StatelessWidget {
                                     }
                                   },
                                 ),
+                                if (isAdmin)
+                                  _buildMenuItem(
+                                    icon: Icons.admin_panel_settings_outlined,
+                                    iconColor: const Color(0xFF1ABC9C),
+                                    iconBgColor: const Color(0xFFEBF7F5),
+                                    title: 'Admin Panel',
+                                    isLight: isLight,
+                                    onTap: () {
+                                      Navigator.pushNamed(
+                                        context,
+                                        AppRoutes
+                                            .adminProviderRequestsRouteName,
+                                      );
+                                    },
+                                  ),
                                 if (showServiceProvider)
                                   _buildMenuItem(
                                     icon: Icons.business_center_outlined,

@@ -47,20 +47,31 @@ class Auth_response_dto {
   });
 
   factory Auth_response_dto.fromJson(Map<String, dynamic> json) {
-    final email = json['email'] as String? ?? json['Email'] as String?;
-    final userName = json['userName'] as String? ?? json['UserName'] as String? ?? json['username'] as String? ?? json['Username'] as String?;
-    final role = json['role'] as String? ?? json['Role'] as String?;
+    final data = json['data'] is Map<String, dynamic>
+        ? json['data'] as Map<String, dynamic>
+        : json['Data'] is Map<String, dynamic>
+            ? json['Data'] as Map<String, dynamic>
+            : json;
+
+    final email = data['email'] as String? ?? data['Email'] as String?;
+    final userName = data['userName'] as String? ??
+        data['UserName'] as String? ??
+        data['username'] as String? ??
+        data['Username'] as String?;
+    final role = data['role'] as String? ?? data['Role'] as String?;
     
     TokensDto? tokens;
-    final tokensVal = json['tokens'] ?? json['Tokens'];
+    final tokensVal = data['tokens'] ?? data['Tokens'];
     if (tokensVal != null && tokensVal is Map<String, dynamic>) {
       tokens = TokensDto.fromJson(tokensVal);
     } else {
-      final directToken = json['token'] as String? ?? json['Token'] as String? ?? json['token_key'] as String?;
+      final directToken = data['token'] as String? ??
+          data['Token'] as String? ??
+          data['token_key'] as String?;
       if (directToken != null) {
         tokens = TokensDto(
           token: directToken,
-          message: json['message'] as String? ?? json['Message'] as String?,
+          message: data['message'] as String? ?? data['Message'] as String?,
         );
       }
     }

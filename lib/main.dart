@@ -29,6 +29,7 @@ import 'package:tourist_app/features/explore/provider/program_provider.dart';
 import 'package:tourist_app/features/booking/provider/booking_provider.dart';
 import 'package:tourist_app/features/home/provider/place_provider.dart';
 import 'package:tourist_app/features/profile/screens/become_provider_screen.dart';
+import 'package:tourist_app/features/profile/admin/screens/admin_provider_requests_screen.dart';
 import 'package:tourist_app/features/profile/screens/visited_places_screen.dart';
 import 'package:tourist_app/features/chatbot/providers/chat_provider.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -123,6 +124,8 @@ class MyApp extends StatelessWidget {
             AppRoutes.earningsRouteName: (context) => const EarningsScreen(),
             AppRoutes.becomeProviderRouteName: (context) =>
                 const BecomeProviderScreen(),
+            AppRoutes.adminProviderRequestsRouteName: (context) =>
+                const AdminProviderRequestsScreen(),
             AppRoutes.messagesListRouteName: (context) =>
                 const ConversationsScreen(),
             AppRoutes.chatRoomRouteName: (context) => const ChatDetailsScreen(),

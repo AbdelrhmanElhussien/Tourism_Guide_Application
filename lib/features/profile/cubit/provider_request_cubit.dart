@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import 'package:dio/dio.dart';
 import 'package:tourist_app/core/exceptions/app_exception.dart';
+import 'package:tourist_app/core/utils/cache_helper.dart';
 import 'package:tourist_app/domain/use_cases/provider/provider_use_cases.dart';
 import 'provider_request_states.dart';
 
@@ -33,6 +34,10 @@ class ProviderRequestCubit extends Cubit<ProviderRequestState> {
     try {
       emit(ProviderRequestLoading());
       final response = await _getMyProviderRequestUseCase.invoke();
+      final status = response.data?.status?.trim().toLowerCase();
+      if (status == 'approved') {
+        await CacheHelper.saveData(key: 'role', value: 'provider');
+      }
       emit(ProviderRequestLoaded(response));
     } catch (e) {
       // If the backend returns a 404 or success=false because no request exists, handle it gracefully

@@ -5,7 +5,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:tourist_app/core/di/di.dart';
 import 'package:tourist_app/core/provider/themeProvider.dart';
+import 'package:tourist_app/core/utils/app_routes.dart';
 import 'package:tourist_app/core/utils/app_theme.dart';
+import 'package:tourist_app/core/utils/cache_helper.dart';
 import 'package:tourist_app/features/profile/cubit/provider_request_cubit.dart';
 import 'package:tourist_app/features/profile/cubit/provider_request_states.dart';
 
@@ -151,7 +153,7 @@ class _BecomeProviderScreenState extends State<BecomeProviderScreen> {
       if (req != null && req.success == true && req.data != null) {
         final status = req.data!.status?.toLowerCase() ?? 'pending';
         if (status == 'approved') {
-          return _buildApprovedState(isDark);
+          return _buildApprovedState(context, isDark);
         } else if (status == 'pending' || status == 'submitted') {
           return _buildPendingState(isDark, req.data!.businessName ?? '', req.data!.businessType ?? '');
         } else if (status == 'rejected' || status == 'declined') {
@@ -477,7 +479,7 @@ class _BecomeProviderScreenState extends State<BecomeProviderScreen> {
     );
   }
 
-  Widget _buildApprovedState(bool isDark) {
+  Widget _buildApprovedState(BuildContext context, bool isDark) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24.0),
@@ -504,13 +506,40 @@ class _BecomeProviderScreenState extends State<BecomeProviderScreen> {
             const SizedBox(height: 12),
             Text(
               'request_approved_desc'.tr() == 'request_approved_desc'
-                  ? 'Congratulations! Your business request has been approved. Please sign out and log back in to activate your provider dashboard.'
+                  ? 'Congratulations! Your provider permissions are now active. You can manage services from your provider dashboard.'
                   : 'request_approved_desc'.tr(),
               style: GoogleFonts.inter(
                 color: isDark ? Colors.white70 : Colors.grey[600],
                 fontSize: 14,
               ),
               textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 28),
+            ElevatedButton(
+              onPressed: () async {
+                await CacheHelper.saveData(key: 'role', value: 'provider');
+                if (context.mounted) {
+                  Navigator.pushReplacementNamed(
+                    context,
+                    AppRoutes.serviceProviderRouteName,
+                  );
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.yellowColor,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 22,
+                  vertical: 12,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: Text(
+                'Open Provider Dashboard',
+                style: GoogleFonts.inter(fontWeight: FontWeight.bold),
+              ),
             ),
           ],
         ),

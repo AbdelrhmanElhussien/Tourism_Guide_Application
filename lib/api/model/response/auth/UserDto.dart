@@ -29,13 +29,31 @@ class UserDto {
   });
 
   factory UserDto.fromJson(Map<String, dynamic> json) {
-    final name = json['name'] as String? ?? json['Name'] as String?;
-    final userName = json['userName'] as String? ?? json['UserName'] as String? ?? json['username'] as String? ?? json['Username'] as String?;
-    final username = json['username'] as String? ?? json['Username'] as String? ?? json['userName'] as String? ?? json['UserName'] as String?;
-    final fullName = json['fullName'] as String? ?? json['FullName'] as String? ?? json['fullname'] as String? ?? json['Fullname'] as String?;
-    final fullname = json['fullname'] as String? ?? json['Fullname'] as String? ?? json['fullName'] as String? ?? json['FullName'] as String?;
-    final email = json['email'] as String? ?? json['Email'] as String?;
-    final role = json['role'] as String? ?? json['Role'] as String?;
+    final data = json['data'] is Map<String, dynamic>
+        ? json['data'] as Map<String, dynamic>
+        : json['Data'] is Map<String, dynamic>
+            ? json['Data'] as Map<String, dynamic>
+            : json;
+
+    final name = data['name'] as String? ?? data['Name'] as String?;
+    final userName = data['userName'] as String? ??
+        data['UserName'] as String? ??
+        data['username'] as String? ??
+        data['Username'] as String?;
+    final username = data['username'] as String? ??
+        data['Username'] as String? ??
+        data['userName'] as String? ??
+        data['UserName'] as String?;
+    final fullName = data['fullName'] as String? ??
+        data['FullName'] as String? ??
+        data['fullname'] as String? ??
+        data['Fullname'] as String?;
+    final fullname = data['fullname'] as String? ??
+        data['Fullname'] as String? ??
+        data['fullName'] as String? ??
+        data['FullName'] as String?;
+    final email = data['email'] as String? ?? data['Email'] as String?;
+    final role = data['role'] as String? ?? data['Role'] as String?;
     return UserDto(
       name: name,
       userName: userName,

@@ -120,10 +120,10 @@ abstract class ApiServices {
     @Body() Map<String, dynamic> body,
   );
 
-  @POST('provider/request')
+  @POST(ApiConstant.providerRequestEndPoint)
   Future<void> submitProviderRequest(@Body() ProviderRequestDto request);
 
-  @GET('provider/request/my')
+  @GET(ApiConstant.myProviderRequestEndPoint)
   Future<ProviderRequestResponseDto> getMyProviderRequest();
 
   @GET('provider/earnings')
