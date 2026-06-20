@@ -282,6 +282,11 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
         statusColor = Colors.blue;
         statusText = 'completed'.tr() == 'completed' ? 'Completed' : 'completed'.tr();
         break;
+      case 'cancel':
+      case 'cancelled':
+        statusColor = Colors.redAccent;
+        statusText = 'cancelled'.tr() == 'cancelled' ? 'Cancelled' : 'cancelled'.tr();
+        break;
     }
 
     return GestureDetector(
@@ -416,14 +421,17 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                         )
                       else
                         const SizedBox.shrink(),
-                      IconButton(
-                        icon: const Icon(Icons.delete_forever_outlined, color: Colors.redAccent, size: 22),
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
-                        onPressed: () {
-                          _showCancelConfirmation(context, booking.id.toString());
-                        },
-                      ),
+                      if (booking.status?.toLowerCase() != 'cancel' && booking.status?.toLowerCase() != 'cancelled')
+                        IconButton(
+                          icon: const Icon(Icons.delete_forever_outlined, color: Colors.redAccent, size: 22),
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                          onPressed: () {
+                            _showCancelConfirmation(context, booking.id.toString());
+                          },
+                        )
+                      else
+                        const SizedBox.shrink(),
                     ],
                   ),
                 ],

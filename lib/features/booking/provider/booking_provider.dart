@@ -52,7 +52,20 @@ class BookingProvider extends ChangeNotifier {
 
     try {
       await _bookingService.deleteBooking(id);
-      _bookings.removeWhere((booking) => booking.id.toString() == id);
+      final index = _bookings.indexWhere((booking) => booking.id.toString() == id);
+      if (index != -1) {
+        final b = _bookings[index];
+        _bookings[index] = BookingModel(
+          id: b.id,
+          userId: b.userId,
+          itemId: b.itemId,
+          itemType: b.itemType,
+          itemName: b.itemName,
+          status: 'cancel',
+          date: b.date,
+          price: b.price,
+        );
+      }
     } catch (e) {
       _errorMessage = e.toString().replaceAll('Exception: ', '');
       throw Exception(_errorMessage);
