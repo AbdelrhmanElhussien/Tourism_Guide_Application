@@ -30,7 +30,8 @@ abstract class ProviderRepoContract {
     List<String> availability, {
     String? placeId,
   });
-  Future<void> deleteProviderService(String id);
+  Future<void> deleteProviderService(String id, String category);
+  Future<void> createCategorizedService(String category, Map<String, dynamic> data);
   Future<List<ProviderBooking>> getProviderBookings();
   Future<ProviderBooking> updateBookingStatus(String id, String status);
   Future<void> submitProviderRequest(

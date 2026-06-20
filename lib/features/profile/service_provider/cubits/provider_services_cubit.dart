@@ -3,6 +3,8 @@ import 'package:injectable/injectable.dart';
 import 'package:dio/dio.dart';
 import 'package:tourist_app/core/exceptions/app_exception.dart';
 import 'package:tourist_app/domain/use_cases/provider/provider_use_cases.dart';
+import 'package:tourist_app/core/di/di.dart';
+import 'package:tourist_app/domain/repositories/provider/provider_repo_contract.dart';
 import 'provider_services_states.dart';
 
 @injectable
@@ -103,11 +105,22 @@ class ProviderServicesCubit extends Cubit<ProviderServicesState> {
     }
   }
 
-  Future<void> deleteService(String id) async {
+  Future<void> deleteService(String id, String category) async {
     try {
       emit(ProviderServicesLoading());
-      await _deleteServiceUseCase.invoke(id);
+      await _deleteServiceUseCase.invoke(id, category);
       emit(ProviderServiceActionSuccess(message: "Service deleted successfully!"));
+      await fetchServices();
+    } catch (e) {
+      emit(ProviderServicesError(errorMsg: _getErrorMessage(e)));
+    }
+  }
+
+  Future<void> createCategorizedService(String category, Map<String, dynamic> data) async {
+    try {
+      emit(ProviderServicesLoading());
+      await getIt<ProviderRepoContract>().createCategorizedService(category, data);
+      emit(ProviderServiceActionSuccess(message: "Service created successfully!"));
       await fetchServices();
     } catch (e) {
       emit(ProviderServicesError(errorMsg: _getErrorMessage(e)));

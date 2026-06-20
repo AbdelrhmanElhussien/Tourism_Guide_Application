@@ -65,7 +65,10 @@ abstract class ApiServices {
   Future<TripDto> getTripById(@Path('id') String id);
 
   @PUT('Trips/{id}')
-  Future<TripDto> updateTrip(@Path('id') String id, @Body() CreateTripRequestDto request);
+  Future<TripDto> updateTrip(
+    @Path('id') String id,
+    @Body() CreateTripRequestDto request,
+  );
 
   @DELETE('Trips/{id}')
   Future<void> deleteTrip(@Path('id') String id);
@@ -92,13 +95,18 @@ abstract class ApiServices {
   Future<List<ProviderServiceDto>> getProviderServices();
 
   @POST('provider/Addservices')
-  Future<ProviderServiceDto> createProviderService(@Body() CreateServiceRequestDto request);
+  Future<ProviderServiceDto> createProviderService(
+    @Body() CreateServiceRequestDto request,
+  );
 
   @GET('provider/services/{id}')
   Future<ProviderServiceDto> getProviderServiceById(@Path('id') String id);
 
   @PUT('provider/services/{id}')
-  Future<ProviderServiceDto> updateProviderService(@Path('id') String id, @Body() UpdateServiceRequestDto request);
+  Future<ProviderServiceDto> updateProviderService(
+    @Path('id') String id,
+    @Body() UpdateServiceRequestDto request,
+  );
 
   @DELETE('provider/services/{id}')
   Future<void> deleteProviderService(@Path('id') String id);
@@ -107,7 +115,10 @@ abstract class ApiServices {
   Future<List<ProviderBookingDto>> getProviderBookings();
 
   @PUT('provider/bookings/{id}/status')
-  Future<ProviderBookingDto> updateBookingStatus(@Path('id') String id, @Body() Map<String, dynamic> body);
+  Future<ProviderBookingDto> updateBookingStatus(
+    @Path('id') String id,
+    @Body() Map<String, dynamic> body,
+  );
 
   @POST('provider/request')
   Future<void> submitProviderRequest(@Body() ProviderRequestDto request);
@@ -128,5 +139,8 @@ abstract class ApiServices {
   Future<ProviderBookingDto> completeBooking(@Path('id') String id);
 
   @POST('provider/bookings/{id}/contact')
-  Future<void> contactBooking(@Path('id') String id, @Body() Map<String, dynamic> body);
+  Future<void> contactBooking(
+    @Path('id') String id,
+    @Body() Map<String, dynamic> body,
+  );
 }
