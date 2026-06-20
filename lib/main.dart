@@ -36,6 +36,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tourist_app/features/chat/bloc/chat_bloc.dart';
 import 'package:tourist_app/features/chat/screens/messages_list_screen.dart';
 import 'package:tourist_app/features/chat/screens/chat_room_screen.dart';
+import 'package:tourist_app/features/auth/reset_password/screens/reset_password_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -98,6 +99,8 @@ class MyApp extends StatelessWidget {
           routes: {
             AppRoutes.loginRouteName: (context) => LoginScreen(),
             AppRoutes.signUpRouteName: (context) => SignUpScreen(),
+            AppRoutes.resetPasswordRouteName: (context) =>
+                const ResetPasswordScreen(),
             AppRoutes.HomeRouteName: (context) => Homescreen(),
             AppRoutes.DetailScreenRouteName: (context) => const DetailScreen(),
             AppRoutes.serviceProviderRouteName: (context) =>
