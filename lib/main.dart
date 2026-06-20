@@ -28,14 +28,19 @@ import 'package:tourist_app/features/explore/provider/transport_provider.dart';
 import 'package:tourist_app/features/explore/provider/program_provider.dart';
 import 'package:tourist_app/features/booking/provider/booking_provider.dart';
 import 'package:tourist_app/features/home/provider/place_provider.dart';
-import 'package:tourist_app/core/utils/cache_helper.dart';
-import 'package:tourist_app/features/splash/screens/splash_screen.dart';
 import 'package:tourist_app/features/profile/screens/become_provider_screen.dart';
+import 'package:tourist_app/features/profile/screens/visited_places_screen.dart';
 import 'package:tourist_app/features/chatbot/providers/chat_provider.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tourist_app/features/chat/bloc/chat_bloc.dart';
+import 'package:tourist_app/features/chat/presentation/providers/conversations_provider.dart';
+import 'package:tourist_app/features/chat/presentation/providers/chat_provider.dart' as chat_feature;
+import 'package:tourist_app/features/chat/presentation/screens/conversations_screen.dart';
+import 'package:tourist_app/features/chat/presentation/screens/chat_details_screen.dart';
 import 'package:tourist_app/features/chat/screens/messages_list_screen.dart';
 import 'package:tourist_app/features/chat/screens/chat_room_screen.dart';
+import 'package:tourist_app/features/auth/reset_password/screens/reset_password_screen.dart';
+import 'package:tourist_app/features/profile/screens/change_password_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -70,6 +75,8 @@ void main() async {
           ChangeNotifierProvider(create: (context) => BookingProvider()),
           ChangeNotifierProvider(create: (context) => PlaceProvider()),
           ChangeNotifierProvider(create: (context) => ChatProvider()),
+          ChangeNotifierProvider(create: (context) => ConversationsProvider()),
+          ChangeNotifierProvider(create: (context) => chat_feature.ChatProvider()),
           BlocProvider(create: (context) => ChatBloc()),
         ],
         child: const MyApp(),
@@ -98,6 +105,8 @@ class MyApp extends StatelessWidget {
           routes: {
             AppRoutes.loginRouteName: (context) => LoginScreen(),
             AppRoutes.signUpRouteName: (context) => SignUpScreen(),
+            AppRoutes.resetPasswordRouteName: (context) =>
+                const ResetPasswordScreen(),
             AppRoutes.HomeRouteName: (context) => Homescreen(),
             AppRoutes.DetailScreenRouteName: (context) => const DetailScreen(),
             AppRoutes.serviceProviderRouteName: (context) =>
@@ -115,8 +124,13 @@ class MyApp extends StatelessWidget {
             AppRoutes.becomeProviderRouteName: (context) =>
                 const BecomeProviderScreen(),
             AppRoutes.messagesListRouteName: (context) =>
+                const ConversationsScreen(),
+            AppRoutes.chatRoomRouteName: (context) => const ChatDetailsScreen(),
+            AppRoutes.visitedPlacesRouteName: (context) => const VisitedPlacesScreen(),
                 const MessagesListScreen(),
             AppRoutes.chatRoomRouteName: (context) => const ChatRoomScreen(),
+            AppRoutes.changePasswordRouteName: (context) =>
+                const ChangePasswordScreen(),
           },
           initialRoute: AppRoutes.loginRouteName,
           theme: AppTheme.lightTheme,
