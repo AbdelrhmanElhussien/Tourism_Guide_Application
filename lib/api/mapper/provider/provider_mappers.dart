@@ -21,6 +21,7 @@ extension ProviderServiceDtoMapper on ProviderServiceDto {
       location: location ?? '',
       description: description ?? '',
       availability: availability ?? [],
+      placeId: placeId ?? '',
     );
   }
 }

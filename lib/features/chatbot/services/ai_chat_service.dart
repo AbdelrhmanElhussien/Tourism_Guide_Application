@@ -1,98 +1,65 @@
-import 'dart:async';
-import 'dart:math';
+import 'package:google_generative_ai/google_generative_ai.dart';
 
 class AIChatService {
-  // Pre-defined rich responses for Egypt travel
-  final Map<String, String> _quickActionResponses = {
-    'Recommend Places': 'Here are some top recommended places in Egypt! 🇪🇬\n\n'
-        '1. **Giza Pyramids & Sphinx** (Cairo): The ultimate ancient wonder of the world.\n'
-        '2. **Karnak & Luxor Temples** (Luxor): The largest open-air museum and religious site in history.\n'
-        '3. **Valley of the Kings** (Luxor): Royal tombs carved deep into the desert hills.\n'
-        '4. **Abu Simbel Temples** (Aswan): Magnificent temples built by King Ramesses II.\n'
-        '5. **Khan El-Khalili** (Cairo): Vibrant historic bazaar filled with spices, perfume, and local souvenirs.',
+  static const String _apiKey = 'AQ.Ab8RN6JMRARtkiVesPgBWE34TjIxD9yP6JGRAeBSlsfbIA8NWg';
 
-    'Find Hotels': 'I can help you find the best places to stay in Egypt! 🏨\n\n'
-        '- **Cairo**: Marriott Mena House (Pyramids view) or The Nile Ritz-Carlton (Nile view).\n'
-        '- **Luxor**: Sofitel Winter Palace (Historic, elegant, and hosted royalty).\n'
-        '- **Aswan**: Sofitel Legend Old Cataract (Iconic heritage hotel overlooking the Nile).\n'
-        '- **Red Sea (Hurghada/Sharm)**: Rixos Premium or Steigenberger resorts for luxury beach relaxation.\n\n'
-        'Would you like to search for budget, mid-range, or luxury accommodations in a specific city?',
+  static const String _systemPrompt = '''
+You are "Nefertiti AI", a friendly and expert Egypt tourism assistant inside the "Egypt Tourism Guide" mobile app.
 
-    'Find Guides': 'Egypt is rich in history, and a certified Egyptologist guide will make your trip unforgettable! 🤠\n\n'
-        'I can recommend top-rated local guides in Cairo, Luxor, and Aswan who speak English, Arabic, Spanish, French, German, or Chinese.\n\n'
-        'They will explain the hieroglyphs, handle ticketing, and guide you away from tourist crowds. Would you like me to find a guide for a specific city?',
+Your role is to help tourists explore Egypt by:
+- Recommending amazing places to visit (pyramids, temples, museums, beaches, etc.)
+- Suggesting the best hotels and accommodation options
+- Planning detailed itineraries
+- Explaining Egyptian history and culture in an engaging way
+- Recommending local food and restaurants
+- Providing transportation advice (trains, flights, Uber, feluccas)
+- Answering safety and travel tips
+- Finding local certified guides
 
-    'Transportation Options': 'Here are the best ways to get around Egypt! 🚆🚕✈️\n\n'
-        '- **Between Cities**: Domestic flights (EgyptAir) are fast. The Sleeper Train from Cairo to Luxor/Aswan is a classic experience. For budget travel, Go Bus offers reliable AC coaches.\n'
-        '- **Within Cities**: Uber is highly recommended in Cairo and Alexandria—it is safe, tracked, and cheap. The Cairo Metro is excellent to avoid traffic.\n'
-        '- **Nile Crossings**: Feluccas (traditional sailboats) or motorboats are perfect and scenic in Luxor and Aswan.',
+Rules:
+- Always respond in the SAME language the user writes in (Arabic or English).
+- Keep responses concise, friendly, and helpful — suitable for a mobile chat interface.
+- Use relevant emojis to make responses feel warm and engaging 🇪🇬.
+- Format lists using dashes or numbers for readability.
+- Use **bold** for important names and places.
+- Never go off-topic from Egypt tourism. If asked about unrelated topics, politely redirect.
+- When recommending places, always mention the city they are in.
+''';
 
-    'Plan My Trip': 'Let\'s design a perfect Egyptian adventure! 🗓️ Here is a classic 7-day itinerary:\n\n'
-        '- **Days 1-2**: Cairo (Pyramids of Giza, Egyptian Museum, NMEC, and Khan El-Khalili).\n'
-        '- **Days 3-5**: Luxor (Fly or take train to Luxor. Visit Valley of the Kings, Karnak, and Luxor Temples. Highly recommend a sunrise hot air balloon!)\n'
-        '- **Days 6-7**: Aswan (Visit Philae Temple, High Dam, and a day trip to Abu Simbel before returning to Cairo).\n\n'
-        'Would you like to customize this to include a Nile Cruise or Red Sea beach relaxation?',
+  late final GenerativeModel _model;
+  late ChatSession _chat;
 
-    'Nearby Attractions': 'Based on popular destinations, here are must-see nearby attractions! 📍\n\n'
-        '- **Near Cairo Pyramids**: The Grand Egyptian Museum (GEM) and the Sphinx.\n'
-        '- **Near Cairo Downtown**: Coptic Cairo, Islamic Cairo, and Al-Azhar Park (great sunset view).\n'
-        '- **Near Luxor West Bank**: Hatshepsut Temple, Colossi of Memnon, and Medinet Habu.\n'
-        '- **Near Aswan**: Elephantine Island and the Nubian Village.\n\n'
-        'Which city are you currently exploring or planning to visit?'
-  };
+  AIChatService() {
+    _model = GenerativeModel(
+      model: 'gemini-2.0-flash',
+      apiKey: _apiKey,
+      systemInstruction: Content.system(_systemPrompt),
+      generationConfig: GenerationConfig(
+        temperature: 0.7,
+        maxOutputTokens: 1024,
+      ),
+    );
+    _chat = _model.startChat();
+  }
 
-  final List<String> _generalResponses = [
-    'That is a great question! Egypt is full of wonders. Is there a specific city (Cairo, Luxor, Aswan, Sharm El-Sheikh) you want to ask about?',
-    'Fascinating choice! Egypt is rich in culture. Don\'t forget to try traditional foods like Koshary, Falafel, and Molokhia during your stay! 🍲',
-    'I\'d love to help you with that! Safety tip: Egypt is very welcoming to tourists, but it is always good practice to use registered transport (like Uber) and hire licensed guides.',
-    'Egypt has great weather! The best time to visit historical sites is from October to April when the weather is cooler. Summer is perfect for Red Sea diving! ☀️🏖️',
-    'Interesting! Are you interested in ancient history, modern local experiences, or beautiful beach resorts?'
-  ];
-
-  Future<String> getResponse(String userMessage) {
-    // Artificial delay to simulate thinking/typing
-    final completer = Completer<String>();
-    
-    Timer(const Duration(milliseconds: 1500), () {
-      // Check if message matches quick actions
-      String normalized = userMessage.trim();
-      
-      // Exact or case-insensitive match for quick actions
-      for (var entry in _quickActionResponses.entries) {
-        if (entry.key.toLowerCase() == normalized.toLowerCase()) {
-          completer.complete(entry.value);
-          return;
-        }
+  Future<String> getResponse(String userMessage) async {
+    try {
+      final response = await _chat.sendMessage(
+        Content.text(userMessage),
+      );
+      return response.text ?? 'Sorry, I could not generate a response. Please try again. 😕';
+    } on GenerativeAIException catch (e) {
+      if (e.message.contains('API_KEY')) {
+        return 'API Key error. Please check the configuration. 🔑';
       }
+      return 'An error occurred: ${e.message}. Please try again. 😕';
+    } catch (e) {
+      return 'Something went wrong. Please check your internet connection and try again. 🌐';
+    }
+  }
 
-      // Keyword matching
-      final msg = normalized.toLowerCase();
-      if (msg.contains('pyramid') || msg.contains('giza') || msg.contains('sphinx')) {
-        completer.complete('The Giza Pyramids and Sphinx are open daily from 8 AM to 5 PM. I recommend visiting early in the morning to beat the heat and crowds. Don\'t miss the Sound & Light show in the evening! 🌅');
-      } else if (msg.contains('hotel') || msg.contains('stay') || msg.contains('room')) {
-        completer.complete(_quickActionResponses['Find Hotels']!);
-      } else if (msg.contains('guide') || msg.contains('tourist') || msg.contains('egyptologist')) {
-        completer.complete(_quickActionResponses['Find Guides']!);
-      } else if (msg.contains('transport') || msg.contains('train') || msg.contains('bus') || msg.contains('uber') || msg.contains('taxi')) {
-        completer.complete(_quickActionResponses['Transportation Options']!);
-      } else if (msg.contains('itinerary') || msg.contains('plan') || msg.contains('trip')) {
-        completer.complete(_quickActionResponses['Plan My Trip']!);
-      } else if (msg.contains('food') || msg.contains('eat') || msg.contains('restaurant') || msg.contains('koshary')) {
-        completer.complete('You must try Egyptian cuisine! 🍲\n'
-            '- **Koshary**: Egypt\'s national dish (pasta, rice, lentils, chickpeas, onions, and spicy tomato sauce).\n'
-            '- **Ta\'ameya**: Egyptian falafel made with fava beans (fluffy and delicious).\n'
-            '- **Ful Medames**: Slow-cooked fava beans, a breakfast staple.\n'
-            '- **Molokhia**: A green leafy soup served with rice and chicken.\n\n'
-            'Let me know if you want recommendations for top-rated restaurants!');
-      } else if (msg.contains('safety') || msg.contains('safe')) {
-        completer.complete('Egypt is generally very safe for tourists. Major tourist sites, hotels, and airports have strong security measures. Just use common sense, avoid unlicensed street vendors, and use official ride-hailing apps like Uber.');
-      } else {
-        // Return a random response from general responses
-        final random = Random();
-        completer.complete(_generalResponses[random.nextInt(_generalResponses.length)]);
-      }
-    });
-
-    return completer.future;
+  /// Resets conversation history (used when user clears chat)
+  void resetConversation() {
+    _chat = _model.startChat();
   }
 }

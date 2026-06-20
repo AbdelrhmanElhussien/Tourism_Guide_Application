@@ -51,6 +51,7 @@ class ProviderServicesCubit extends Cubit<ProviderServicesState> {
     required String location,
     required String category,
     required List<String> availability,
+    String? placeId,
   }) async {
     try {
       emit(ProviderServicesLoading());
@@ -62,6 +63,7 @@ class ProviderServicesCubit extends Cubit<ProviderServicesState> {
         location,
         category,
         availability,
+        placeId: placeId,
       );
       emit(ProviderServiceActionSuccess(message: "Service created successfully!"));
       await fetchServices();
@@ -79,6 +81,7 @@ class ProviderServicesCubit extends Cubit<ProviderServicesState> {
     required String location,
     required String category,
     required List<String> availability,
+    String? placeId,
   }) async {
     try {
       emit(ProviderServicesLoading());
@@ -91,6 +94,7 @@ class ProviderServicesCubit extends Cubit<ProviderServicesState> {
         location,
         category,
         availability,
+        placeId: placeId,
       );
       emit(ProviderServiceActionSuccess(message: "Service updated successfully!"));
       await fetchServices();

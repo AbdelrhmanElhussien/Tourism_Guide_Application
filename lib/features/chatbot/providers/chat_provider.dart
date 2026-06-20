@@ -78,6 +78,7 @@ class ChatProvider extends ChangeNotifier {
 
   void clearChat() {
     _messages.clear();
+    _chatService.resetConversation();
     _addInitialGreeting();
     _isTyping = false;
     notifyListeners();

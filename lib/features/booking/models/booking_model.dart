@@ -23,7 +23,7 @@ class BookingModel {
     final idVal = json['id'] ?? json['Id'] ?? json['bookingId'] ?? json['BookingId'] ?? json['bookingID'];
     final userIdVal = json['userId'] ?? json['UserId'] ?? json['userID'] ?? json['UserID'];
     final itemIdVal = json['itemId'] ?? json['ItemId'] ?? json['itemID'] ?? json['ItemID'];
-    final itemTypeVal = json['itemType'] ?? json['ItemType'];
+    final itemTypeVal = json['itemType'] ?? json['ItemType'] ?? json['category'] ?? json['Category'] ?? json['type'] ?? json['Type'] ?? json['item_type'] ?? json['bookingType'] ?? json['booking_type'];
     final itemNameVal = json['itemName'] ?? json['ItemName'] ?? json['title'] ?? json['Title'] ?? json['name'] ?? json['Name'];
     final statusVal = json['status'] ?? json['Status'];
     final dateVal = json['date'] ?? json['Date'] ?? json['bookingDate'] ?? json['BookingDate'] ?? json['createdAt'] ?? json['CreatedAt'] ?? json['bookingDateTime'];

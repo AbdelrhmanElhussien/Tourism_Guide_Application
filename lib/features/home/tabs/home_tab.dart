@@ -230,12 +230,6 @@ class _HomeTabState extends State<HomeTab> {
                     ? AppStyles.lightYellow24semiBold
                     : AppStyles.primary24semiBold,
               ),
-              GestureDetector(
-                onTap: () {
-                  Navigator.pushNamed(context, AppRoutes.savedPlacesRouteName);
-                },
-                child: Text('see_all'.tr(), style: AppStyles.yellow14mediume),
-              ),
             ],
           ),
 

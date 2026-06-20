@@ -12,6 +12,7 @@ class AppRoutes {
   static const String savedPlacesRouteName = 'savedPlaces';
   static const String addServiceRouteName = 'addService';
   static const String earningsRouteName = 'earnings';
+  static const String becomeProviderRouteName = 'becomeProvider';
   static const String messagesListRouteName = 'MessagesListScreen';
   static const String chatRoomRouteName = 'ChatRoomScreen';
 }

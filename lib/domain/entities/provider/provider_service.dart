@@ -10,6 +10,7 @@ class ProviderService {
   final String location;
   final String description;
   final List<String> availability;
+  final String placeId;
 
   ProviderService({
     required this.id,
@@ -23,5 +24,6 @@ class ProviderService {
     required this.location,
     required this.description,
     required this.availability,
+    required this.placeId,
   });
 }

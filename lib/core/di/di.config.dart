@@ -63,6 +63,7 @@ import '../../domain/use_cases/trips/update_trip_use_case.dart' as _i211;
 import '../../features/auth/login/cubit/login_view_model.dart' as _i959;
 import '../../features/auth/signup/cubit/register_view_model.dart' as _i369;
 import '../../features/profile/cubit/profile_cubit.dart' as _i271;
+import '../../features/profile/cubit/provider_request_cubit.dart' as _i1030;
 import '../../features/profile/cubit/trips_cubit.dart' as _i1035;
 import '../../features/profile/service_provider/cubits/provider_bookings_cubit.dart'
     as _i408;
@@ -246,6 +247,12 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i959.Loginviewmodel>(
       () => _i959.Loginviewmodel(gh<_i175.LoginInUseCase>()),
+    );
+    gh.factory<_i1030.ProviderRequestCubit>(
+      () => _i1030.ProviderRequestCubit(
+        gh<_i517.GetMyProviderRequestUseCase>(),
+        gh<_i517.SubmitProviderRequestUseCase>(),
+      ),
     );
     gh.factory<_i743.ProviderServicesCubit>(
       () => _i743.ProviderServicesCubit(
