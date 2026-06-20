@@ -16,4 +16,5 @@ class AppRoutes {
   static const String becomeProviderRouteName = 'becomeProvider';
   static const String messagesListRouteName = 'MessagesListScreen';
   static const String chatRoomRouteName = 'ChatRoomScreen';
+  static const String changePasswordRouteName = 'ChangePasswordScreen';
 }

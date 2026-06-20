@@ -37,6 +37,7 @@ import 'package:tourist_app/features/chat/bloc/chat_bloc.dart';
 import 'package:tourist_app/features/chat/screens/messages_list_screen.dart';
 import 'package:tourist_app/features/chat/screens/chat_room_screen.dart';
 import 'package:tourist_app/features/auth/reset_password/screens/reset_password_screen.dart';
+import 'package:tourist_app/features/profile/screens/change_password_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -120,6 +121,8 @@ class MyApp extends StatelessWidget {
             AppRoutes.messagesListRouteName: (context) =>
                 const MessagesListScreen(),
             AppRoutes.chatRoomRouteName: (context) => const ChatRoomScreen(),
+            AppRoutes.changePasswordRouteName: (context) =>
+                const ChangePasswordScreen(),
           },
           initialRoute: AppRoutes.loginRouteName,
           theme: AppTheme.lightTheme,
