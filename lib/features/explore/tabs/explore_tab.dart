@@ -11,6 +11,7 @@ import 'package:tourist_app/features/booking/provider/booking_provider.dart';
 import 'package:tourist_app/core/utils/dialoge_utils.dart';
 import 'package:tourist_app/core/utils/app_routes.dart';
 import 'package:tourist_app/features/home/screens/detailed_screen.dart';
+import 'package:tourist_app/features/booking/presentation/widgets/book_hotel_bottom_sheet.dart';
 
 class ExploreTab extends StatefulWidget {
   final int initialSegment;
@@ -770,16 +771,8 @@ class _ExploreTabState extends State<ExploreTab> {
                             image: item.imageUrl,
                             buttonText: 'book'.tr(),
                             isDark: isDark,
-                            onBook: () async {
-                              try {
-                                DialogeUtils.showLoading(context: context, text: "loading_msg".tr());
-                                await context.read<BookingProvider>().bookItem('hotel', item.id);
-                                DialogeUtils.hideLoading(context: context);
-                                DialogeUtils.showMassage(context: context, masseage: 'Booking Successful', title: 'Success', posActionName: 'OK');
-                              } catch (e) {
-                                DialogeUtils.hideLoading(context: context);
-                                DialogeUtils.showMassage(context: context, masseage: e.toString(), title: 'Error', posActionName: 'OK');
-                              }
+                            onBook: () {
+                              BookHotelBottomSheet.show(context, item.id, item.name);
                             },
                           );
                         },

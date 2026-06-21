@@ -23,8 +23,9 @@ import 'package:tourist_app/domain/use_cases/profile/get_visited_places_use_case
 import 'package:tourist_app/domain/use_cases/profile/visit_place_use_case.dart';
 import 'dart:convert';
 import 'package:tourist_app/core/utils/cache_helper.dart';
-import 'package:tourist_app/features/profile/cubit/profile_cubit.dart';
 import 'package:tourist_app/features/profile/cubit/profile_states.dart';
+import 'package:tourist_app/features/booking/presentation/widgets/book_guide_bottom_sheet.dart';
+import 'package:tourist_app/features/booking/presentation/widgets/book_hotel_bottom_sheet.dart';
 
 enum DetailType { place, hotel, transport, guide, program }
 
@@ -1462,13 +1463,19 @@ class _DetailScreenState extends State<DetailScreen> {
               height: 52,
               child: ElevatedButton(
                 onPressed: () {
-                  // Trigger booking success dialog
-                  DialogeUtils.showMassage(
-                    context: context,
-                    title: "success_title".tr(),
-                    masseage: "booking_success_msg".tr(),
-                    posActionName: "ok_action".tr(),
-                  );
+                  if (args.type == DetailType.guide && args.id != null) {
+                    BookGuideBottomSheet.show(context, args.id!, args.title);
+                  } else if (args.type == DetailType.hotel && args.id != null) {
+                    BookHotelBottomSheet.show(context, args.id!, args.title);
+                  } else {
+                    // Trigger booking success dialog
+                    DialogeUtils.showMassage(
+                      context: context,
+                      title: "success_title".tr(),
+                      masseage: "booking_success_msg".tr(),
+                      posActionName: "ok_action".tr(),
+                    );
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.yellowColor,

@@ -75,13 +75,13 @@ class BookingProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> bookItem(String type, String id) async {
+  Future<void> bookItem(String type, String id, {Map<String, dynamic>? data}) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      await _bookingService.bookItem(type, id);
+      await _bookingService.bookItem(type, id, data: data);
       // Auto refresh my bookings after successful book
       await fetchMyBookings(forceRefresh: true);
     } catch (e) {
