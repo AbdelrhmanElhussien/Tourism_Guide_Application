@@ -60,9 +60,15 @@ class GuideProvider extends ChangeNotifier {
       if (newItems.isEmpty) {
         _hasMore = false;
       } else {
-        _guides.addAll(newItems);
-        if (newItems.length < _limit) {
+        final existingIds = _guides.map((item) => item.id).toSet();
+        final uniqueNewItems = newItems.where((item) => !existingIds.contains(item.id)).toList();
+        if (uniqueNewItems.isEmpty) {
           _hasMore = false;
+        } else {
+          _guides.addAll(uniqueNewItems);
+          if (newItems.length < _limit) {
+            _hasMore = false;
+          }
         }
       }
     } catch (e) {

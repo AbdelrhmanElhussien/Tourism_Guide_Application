@@ -46,19 +46,19 @@ class _ExploreTabState extends State<ExploreTab> {
     _selectedSegmentIndex = widget.initialSegment;
 
     _hotelScrollController.addListener(() {
-      if (_hotelScrollController.position.pixels >= _hotelScrollController.position.maxScrollExtent - 200) {
+      if (_searchQuery.isEmpty && _hotelScrollController.position.pixels >= _hotelScrollController.position.maxScrollExtent - 200) {
         context.read<HotelProvider>().fetchMoreHotels();
       }
     });
 
     _transportScrollController.addListener(() {
-      if (_transportScrollController.position.pixels >= _transportScrollController.position.maxScrollExtent - 200) {
+      if (_searchQuery.isEmpty && _transportScrollController.position.pixels >= _transportScrollController.position.maxScrollExtent - 200) {
         context.read<TransportProvider>().fetchMoreTransports();
       }
     });
 
     _programScrollController.addListener(() {
-      if (_programScrollController.position.pixels >= _programScrollController.position.maxScrollExtent - 200) {
+      if (_searchQuery.isEmpty && _programScrollController.position.pixels >= _programScrollController.position.maxScrollExtent - 200) {
         context.read<ProgramProvider>().fetchMorePrograms();
       }
     });
