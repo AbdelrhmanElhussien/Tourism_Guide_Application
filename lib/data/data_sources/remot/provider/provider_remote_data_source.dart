@@ -10,10 +10,6 @@ import 'package:tourist_app/api/model/response/provider/provider_request_respons
 abstract class ProviderRemoteDataSource {
   Future<ProviderDashboardDto> getProviderDashboard();
   Future<List<ProviderServiceDto>> getProviderServices();
-  Future<ProviderServiceDto> createProviderService(
-    CreateServiceRequestDto request,
-  );
-  Future<ProviderServiceDto> getProviderServiceById(String id);
   Future<ProviderServiceDto> updateProviderService(
     String id,
     String category,

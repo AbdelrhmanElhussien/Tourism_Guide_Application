@@ -10,13 +10,11 @@ import 'provider_services_states.dart';
 @injectable
 class ProviderServicesCubit extends Cubit<ProviderServicesState> {
   final GetProviderServicesUseCase _getServicesUseCase;
-  final CreateServiceUseCase _createServiceUseCase;
   final UpdateServiceUseCase _updateServiceUseCase;
   final DeleteServiceUseCase _deleteServiceUseCase;
 
   ProviderServicesCubit(
     this._getServicesUseCase,
-    this._createServiceUseCase,
     this._updateServiceUseCase,
     this._deleteServiceUseCase,
   ) : super(ProviderServicesInitial());
@@ -40,35 +38,6 @@ class ProviderServicesCubit extends Cubit<ProviderServicesState> {
       emit(ProviderServicesLoading());
       final services = await _getServicesUseCase.invoke();
       emit(ProviderServicesSuccess(services: services));
-    } catch (e) {
-      emit(ProviderServicesError(errorMsg: _getErrorMessage(e)));
-    }
-  }
-
-  Future<void> createService({
-    required String title,
-    required String description,
-    required double price,
-    required String duration,
-    required String location,
-    required String category,
-    required List<String> availability,
-    String? placeId,
-  }) async {
-    try {
-      emit(ProviderServicesLoading());
-      await _createServiceUseCase.invoke(
-        title,
-        description,
-        price,
-        duration,
-        location,
-        category,
-        availability,
-        placeId: placeId,
-      );
-      emit(ProviderServiceActionSuccess(message: "Service created successfully!"));
-      await fetchServices();
     } catch (e) {
       emit(ProviderServicesError(errorMsg: _getErrorMessage(e)));
     }

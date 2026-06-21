@@ -79,17 +79,6 @@ class ProviderRemoteDataSourceImpl implements ProviderRemoteDataSource {
     return allServices;
   }
 
-  @override
-  Future<ProviderServiceDto> createProviderService(
-    CreateServiceRequestDto request,
-  ) async {
-    return await _apiServices.createProviderService(request);
-  }
-
-  @override
-  Future<ProviderServiceDto> getProviderServiceById(String id) async {
-    return await _apiServices.getProviderServiceById(id);
-  }
 
   @override
   Future<ProviderServiceDto> updateProviderService(

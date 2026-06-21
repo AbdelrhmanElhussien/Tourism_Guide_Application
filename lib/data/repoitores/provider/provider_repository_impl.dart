@@ -30,39 +30,6 @@ class ProviderRepositoryImpl implements ProviderRepoContract {
     return list.map((dto) => dto.toProviderService()).toList();
   }
 
-  @override
-  Future<ProviderService> createProviderService(
-    String title,
-    String description,
-    double price,
-    String duration,
-    String location,
-    String category,
-    List<String> availability, {
-    String? placeId,
-  }) async {
-    final dto = await _remoteDataSource.createProviderService(CreateServiceRequestDto(
-      placeId: placeId ?? "4cddac58-d326-420b-3a43-08deca6f1a42",
-      title: title,
-      description: description,
-      price: price,
-      duration: duration,
-      locationName: location,
-      category: category,
-      availability: availability.join(', '),
-      currency: "EGP",
-      isActive: true,
-      imageUrl: "https://images.unsplash.com/photo-1539650116574-75c0c6d73f6e",
-      rating: 4.9,
-    ));
-    return dto.toProviderService();
-  }
-
-  @override
-  Future<ProviderService> getProviderServiceById(String id) async {
-    final dto = await _remoteDataSource.getProviderServiceById(id);
-    return dto.toProviderService();
-  }
 
   @override
   Future<ProviderService> updateProviderService(

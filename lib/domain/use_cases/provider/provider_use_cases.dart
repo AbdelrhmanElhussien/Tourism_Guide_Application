@@ -16,43 +16,6 @@ class GetProviderServicesUseCase {
   }
 }
 
-@injectable
-class CreateServiceUseCase {
-  final ProviderRepoContract _repository;
-  CreateServiceUseCase(this._repository);
-
-  Future<ProviderService> invoke(
-    String title,
-    String description,
-    double price,
-    String duration,
-    String location,
-    String category,
-    List<String> availability, {
-    String? placeId,
-  }) {
-    return _repository.createProviderService(
-      title,
-      description,
-      price,
-      duration,
-      location,
-      category,
-      availability,
-      placeId: placeId,
-    );
-  }
-}
-
-@injectable
-class GetProviderServiceByIdUseCase {
-  final ProviderRepoContract _repository;
-  GetProviderServiceByIdUseCase(this._repository);
-
-  Future<ProviderService> invoke(String id) {
-    return _repository.getProviderServiceById(id);
-  }
-}
 
 @injectable
 class UpdateServiceUseCase {

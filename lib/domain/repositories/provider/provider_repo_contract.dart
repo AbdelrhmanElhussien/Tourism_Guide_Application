@@ -8,17 +8,6 @@ import 'package:tourist_app/api/model/response/provider/provider_request_respons
 abstract class ProviderRepoContract {
   Future<ProviderDashboard> getProviderDashboard();
   Future<List<ProviderService>> getProviderServices();
-  Future<ProviderService> createProviderService(
-    String title,
-    String description,
-    double price,
-    String duration,
-    String location,
-    String category,
-    List<String> availability, {
-    String? placeId,
-  });
-  Future<ProviderService> getProviderServiceById(String id);
   Future<ProviderService> updateProviderService(
     String id,
     String title,

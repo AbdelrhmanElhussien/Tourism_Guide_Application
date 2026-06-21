@@ -21,6 +21,7 @@ ProviderServiceDto _$ProviderServiceDtoFromJson(Map<String, dynamic> json) =>
       availability: (json['availability'] as List<dynamic>?)
           ?.map((e) => e as String)
           .toList(),
+      placeId: json['placeId'] as String?,
     );
 
 Map<String, dynamic> _$ProviderServiceDtoToJson(ProviderServiceDto instance) =>
@@ -36,4 +37,5 @@ Map<String, dynamic> _$ProviderServiceDtoToJson(ProviderServiceDto instance) =>
       'location': instance.location,
       'description': instance.description,
       'availability': instance.availability,
+      'placeId': instance.placeId,
     };

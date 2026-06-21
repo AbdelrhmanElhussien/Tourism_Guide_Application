@@ -91,26 +91,6 @@ abstract class ApiServices {
   @GET('provider/dashboard')
   Future<ProviderDashboardDto> getProviderDashboard();
 
-  @GET('provider/services')
-  Future<List<ProviderServiceDto>> getProviderServices();
-
-  @POST('provider/Addservices')
-  Future<ProviderServiceDto> createProviderService(
-    @Body() CreateServiceRequestDto request,
-  );
-
-  @GET('provider/services/{id}')
-  Future<ProviderServiceDto> getProviderServiceById(@Path('id') String id);
-
-  @PUT('provider/services/{id}')
-  Future<ProviderServiceDto> updateProviderService(
-    @Path('id') String id,
-    @Body() UpdateServiceRequestDto request,
-  );
-
-  @DELETE('provider/services/{id}')
-  Future<void> deleteProviderService(@Path('id') String id);
-
   @GET('provider/bookings')
   Future<List<ProviderBookingDto>> getProviderBookings();
 

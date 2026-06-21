@@ -140,13 +140,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i517.GetProviderServicesUseCase>(
       () => _i517.GetProviderServicesUseCase(gh<_i869.ProviderRepoContract>()),
     );
-    gh.factory<_i517.CreateServiceUseCase>(
-      () => _i517.CreateServiceUseCase(gh<_i869.ProviderRepoContract>()),
-    );
-    gh.factory<_i517.GetProviderServiceByIdUseCase>(
-      () =>
-          _i517.GetProviderServiceByIdUseCase(gh<_i869.ProviderRepoContract>()),
-    );
     gh.factory<_i517.UpdateServiceUseCase>(
       () => _i517.UpdateServiceUseCase(gh<_i869.ProviderRepoContract>()),
     );
@@ -245,6 +238,13 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i517.GetProviderEarningsUseCase>(),
       ),
     );
+    gh.factory<_i743.ProviderServicesCubit>(
+      () => _i743.ProviderServicesCubit(
+        gh<_i517.GetProviderServicesUseCase>(),
+        gh<_i517.UpdateServiceUseCase>(),
+        gh<_i517.DeleteServiceUseCase>(),
+      ),
+    );
     gh.factory<_i959.Loginviewmodel>(
       () => _i959.Loginviewmodel(gh<_i175.LoginInUseCase>()),
     );
@@ -252,14 +252,6 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i1030.ProviderRequestCubit(
         gh<_i517.GetMyProviderRequestUseCase>(),
         gh<_i517.SubmitProviderRequestUseCase>(),
-      ),
-    );
-    gh.factory<_i743.ProviderServicesCubit>(
-      () => _i743.ProviderServicesCubit(
-        gh<_i517.GetProviderServicesUseCase>(),
-        gh<_i517.CreateServiceUseCase>(),
-        gh<_i517.UpdateServiceUseCase>(),
-        gh<_i517.DeleteServiceUseCase>(),
       ),
     );
     return this;
