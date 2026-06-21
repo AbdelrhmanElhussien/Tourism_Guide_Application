@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
@@ -29,6 +30,7 @@ import 'package:tourist_app/features/explore/provider/program_provider.dart';
 import 'package:tourist_app/features/booking/provider/booking_provider.dart';
 import 'package:tourist_app/features/home/provider/place_provider.dart';
 import 'package:tourist_app/features/profile/screens/become_provider_screen.dart';
+import 'package:tourist_app/features/profile/admin/screens/admin_provider_requests_screen.dart';
 import 'package:tourist_app/features/profile/screens/visited_places_screen.dart';
 import 'package:tourist_app/features/chatbot/providers/chat_provider.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -37,13 +39,15 @@ import 'package:tourist_app/features/chat/presentation/providers/conversations_p
 import 'package:tourist_app/features/chat/presentation/providers/chat_provider.dart' as chat_feature;
 import 'package:tourist_app/features/chat/presentation/screens/conversations_screen.dart';
 import 'package:tourist_app/features/chat/presentation/screens/chat_details_screen.dart';
-import 'package:tourist_app/features/chat/screens/messages_list_screen.dart';
-import 'package:tourist_app/features/chat/screens/chat_room_screen.dart';
 import 'package:tourist_app/features/auth/reset_password/screens/reset_password_screen.dart';
 import 'package:tourist_app/features/profile/screens/change_password_screen.dart';
+import 'package:tourist_app/firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   configureDependencies();
   await EasyLocalization.ensureInitialized();
   await CacheHelper.init();
@@ -115,11 +119,25 @@ class MyApp extends StatelessWidget {
             AppRoutes.savedPlacesRouteName: (context) => const SavedPlacesScreen(),
             AppRoutes.addServiceRouteName: (context) => const AddServiceScreen(),
             AppRoutes.earningsRouteName: (context) => const EarningsScreen(),
+<<<<<<< HEAD
             AppRoutes.becomeProviderRouteName: (context) => const BecomeProviderScreen(),
             AppRoutes.messagesListRouteName: (context) => const MessagesListScreen(),
             AppRoutes.chatRoomRouteName: (context) => const ChatRoomScreen(),
             AppRoutes.visitedPlacesRouteName: (context) => const VisitedPlacesScreen(),
             AppRoutes.changePasswordRouteName: (context) => const ChangePasswordScreen(),
+=======
+            AppRoutes.becomeProviderRouteName: (context) =>
+                const BecomeProviderScreen(),
+            AppRoutes.adminProviderRequestsRouteName: (context) =>
+                const AdminProviderRequestsScreen(),
+            AppRoutes.messagesListRouteName: (context) =>
+                const ConversationsScreen(),
+            AppRoutes.chatRoomRouteName: (context) => const ChatDetailsScreen(),
+            AppRoutes.visitedPlacesRouteName: (context) =>
+                const VisitedPlacesScreen(),
+            AppRoutes.changePasswordRouteName: (context) =>
+                const ChangePasswordScreen(),
+>>>>>>> c07b63fc4f38d0a3db5915a345cdca9e912765b0
           },
           initialRoute: AppRoutes.loginRouteName,
           theme: AppTheme.lightTheme,

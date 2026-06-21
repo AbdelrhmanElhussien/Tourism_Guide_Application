@@ -26,4 +26,8 @@ class ApiConstant {
   static const String placesEndPoint = 'Places';
   static const String recommendedPlacesEndPoint = 'Places/GetRecommendedPlaces';
   static const String placesSummaryEndPoint = 'Places/summary';
+
+  static const String providerRequestEndPoint = 'provider/request';
+  static const String myProviderRequestEndPoint = 'provider/request/my';
+  static const String adminProviderRequestsEndPoint = 'admin/provider-requests';
 }

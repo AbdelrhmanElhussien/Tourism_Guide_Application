@@ -517,7 +517,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   // ── Social Login Buttons ────────────────────────────────
                   SocialButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      viewModel.loginWithGoogle();
+                    },
                     icon: const GoogleIcon(),
                     label: 'Continue with Google',
                   ),
