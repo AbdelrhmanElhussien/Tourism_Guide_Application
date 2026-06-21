@@ -35,6 +35,9 @@ class ProviderRemoteDataSourceImpl implements ProviderRemoteDataSource {
       case 'hotel':
       case 'hotels':
         return 'Hotels';
+      case 'guide':
+      case 'guides':
+        return 'Guides';
       default:
         return 'Services';
     }
@@ -43,7 +46,7 @@ class ProviderRemoteDataSourceImpl implements ProviderRemoteDataSource {
   @override
   Future<List<ProviderServiceDto>> getProviderServices() async {
     final dio = getIt<Dio>();
-    final categories = ['Transport', 'Programs', 'Hotels'];
+    final categories = ['Transport', 'Programs', 'Hotels', 'Guides'];
     final List<ProviderServiceDto> allServices = [];
 
     for (final category in categories) {
@@ -54,19 +57,48 @@ class ProviderRemoteDataSourceImpl implements ProviderRemoteDataSource {
           List<dynamic> itemsList = [];
           if (data is List) {
             itemsList = data;
-          } else if (data is Map<String, dynamic> && data['data'] is List) {
-            itemsList = data['data'];
-          } else if (data is Map<String, dynamic> &&
-              data['success'] == true &&
-              data['data'] is List) {
-            itemsList = data['data'];
+          } else if (data is Map<String, dynamic>) {
+            final dynamic dataField = data['data'];
+            if (dataField != null) {
+              if (dataField is List) {
+                itemsList = dataField;
+              } else if (dataField is Map<String, dynamic>) {
+                itemsList = [dataField];
+              }
+            } else if (data['success'] == true) {
+              // success without data field: empty list
+            } else {
+              itemsList = [data];
+            }
           }
 
           for (final item in itemsList) {
             if (item is Map<String, dynamic>) {
-              final itemCategory = category == 'Transport'
-                  ? 'transportation'
-                  : (category == 'Hotels' ? 'hotel' : 'program');
+              final String itemCategory;
+              if (category == 'Transport') {
+                itemCategory = 'transportation';
+              } else if (category == 'Hotels') {
+                itemCategory = 'hotel';
+              } else if (category == 'Programs') {
+                itemCategory = 'program';
+              } else if (category == 'Guides') {
+                itemCategory = 'guide';
+                // Map Guide fields to ProviderServiceDto fields
+                if (item['title'] == null && item['fullName'] != null) {
+                  item['title'] = item['fullName'];
+                }
+                if (item['price'] == null && item['pricePerDay'] != null) {
+                  item['price'] = item['pricePerDay'];
+                }
+                if (item['location'] == null && item['nationality'] != null) {
+                  item['location'] = item['nationality'];
+                }
+                if (item['availability'] == null && item['languages'] != null) {
+                  item['availability'] = item['languages'];
+                }
+              } else {
+                itemCategory = category.toLowerCase();
+              }
               item['category'] = itemCategory;
               allServices.add(ProviderServiceDto.fromJson(item));
             }
