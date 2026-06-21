@@ -95,4 +95,15 @@ class ProviderServicesCubit extends Cubit<ProviderServicesState> {
       emit(ProviderServicesError(errorMsg: _getErrorMessage(e)));
     }
   }
+
+  Future<void> updateCategorizedService(String id, String category, Map<String, dynamic> data) async {
+    try {
+      emit(ProviderServicesLoading());
+      await getIt<ProviderRepoContract>().updateCategorizedService(id, category, data);
+      emit(ProviderServiceActionSuccess(message: "Service updated successfully!"));
+      await fetchServices();
+    } catch (e) {
+      emit(ProviderServicesError(errorMsg: _getErrorMessage(e)));
+    }
+  }
 }

@@ -54,6 +54,8 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
           _getController('guide_nationality').text = args.location;
           _getController('guide_languages').text = args.availability.join(', ');
           _getController('guide_imageUrl').text = args.imageUrl;
+          _getController('guide_phoneNumber').text = args.contactNumber ?? '';
+          _getController('guide_email').text = args.email ?? '';
         } else if (_selectedCategory == 'hotel') {
           _getController('hotel_name').text = args.title;
           _getController('hotel_description').text = args.description;
@@ -61,8 +63,13 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
           _getController('hotel_location').text = args.location;
           _getController('hotel_amenities').text = args.availability.join(', ');
           _getController('hotel_imageUrl').text = args.imageUrl;
+          _getController('hotel_city').text = args.city ?? '';
+          _getController('hotel_country').text = args.country ?? '';
+          _getController('hotel_availableRooms').text = args.availableRooms?.toString() ?? '10';
+          _getController('hotel_contactNumber').text = args.contactNumber ?? '';
+          _getController('hotel_email').text = args.email ?? '';
           
-          final ratingInt = args.rating.round();
+          final ratingInt = args.starRating ?? args.rating.round();
           if (ratingInt >= 2 && ratingInt <= 5) {
             _selectedHotelStarRating = ratingInt;
           } else {
@@ -72,11 +79,14 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
           _getController('transport_name').text = args.title;
           _getController('transport_description').text = args.description;
           _getController('transport_price').text = args.price.toString();
-          _getController('transport_departureLocation').text = args.location;
-          _getController('transport_arrivalLocation').text = args.availability.join(', ');
+          _getController('transport_departureLocation').text = args.departureLocation ?? args.location;
+          _getController('transport_arrivalLocation').text = args.arrivalLocation ?? args.availability.join(', ');
           _getController('transport_imageUrl').text = args.imageUrl;
+          _getController('transport_departureTime').text = args.departureTime ?? '';
+          _getController('transport_arrivalTime').text = args.arrivalTime ?? '';
+          _getController('transport_totalCapacity').text = args.totalCapacity?.toString() ?? '4';
           
-          final rawType = args.duration.toLowerCase().trim();
+          final rawType = (args.type ?? args.duration).toLowerCase().trim();
           if (rawType == 'cars' || rawType == 'cruises' || rawType == 'carriage' || rawType == 'felucca') {
             _selectedTransportType = rawType;
           } else if (rawType == 'car') {
@@ -92,8 +102,23 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
           _getController('program_price').text = args.price.toString();
           _getController('program_location').text = args.location;
           _getController('program_category').text = args.availability.join(', ');
-          _getController('program_duration').text = args.duration.replaceAll(' days', '').replaceAll(' day', '');
+          _getController('program_duration').text = args.duration.replaceAll(' days', '').replaceAll(' day', '').replaceAll(' hrs', '').replaceAll(' hr', '').replaceAll(' hours', '').replaceAll(' hour', '');
           _getController('program_imageUrl').text = args.imageUrl;
+          _getController('program_city').text = args.city ?? '';
+          _getController('program_country').text = args.country ?? '';
+          _getController('program_maxParticipants').text = args.maxParticipants?.toString() ?? '10';
+          _getController('program_includedServices').text = args.includedServices ?? '';
+          
+          if (args.startDate != null && args.startDate!.isNotEmpty) {
+            try {
+              final parsed = DateTime.parse(args.startDate!);
+              _getController('program_startDate').text = DateFormat('yyyy-MM-dd').format(parsed);
+            } catch (_) {
+              _getController('program_startDate').text = args.startDate!;
+            }
+          } else {
+            _getController('program_startDate').text = '';
+          }
         }
       } else {
         _selectedCategory = 'guide'; // default category
@@ -127,53 +152,81 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
       final category = _selectedCategory!;
       
       if (_editingService != null) {
-        String title = '';
-        String description = '';
-        double price = 0.0;
-        String duration = '';
-        String location = '';
-        List<String> availability = [];
-
+        final Map<String, dynamic> data = {};
+        
         if (category == 'guide') {
-          title = _getController('guide_fullName').text.trim();
-          description = _getController('guide_description').text.trim();
-          price = double.tryParse(_getController('guide_pricePerDay').text.trim()) ?? 0.0;
-          duration = '1 day';
-          location = _getController('guide_nationality').text.trim();
-          availability = [_getController('guide_languages').text.trim()];
+          data['fullName'] = _getController('guide_fullName').text.trim();
+          data['phoneNumber'] = _getController('guide_phoneNumber').text.trim();
+          data['email'] = _getController('guide_email').text.trim();
+          data['description'] = _getController('guide_description').text.trim();
+          data['nationality'] = _getController('guide_nationality').text.trim();
+          data['languages'] = _getController('guide_languages').text.trim();
+          data['specialization'] = _getController('guide_specialization').text.trim();
+          data['imageUrl'] = _getController('guide_imageUrl').text.trim().isNotEmpty 
+              ? _getController('guide_imageUrl').text.trim()
+              : 'https://images.unsplash.com/photo-1539650116574-75c0c6d73f6e';
+          data['bio'] = _getController('guide_bio').text.trim();
+          data['pricePerDay'] = double.tryParse(_getController('guide_pricePerDay').text.trim()) ?? 0.0;
         } else if (category == 'hotel') {
-          title = _getController('hotel_name').text.trim();
-          description = _getController('hotel_description').text.trim();
-          price = double.tryParse(_getController('hotel_pricePerNight').text.trim()) ?? 0.0;
-          duration = '1 night';
-          location = _getController('hotel_location').text.trim();
-          availability = [_getController('hotel_amenities').text.trim()];
+          data['name'] = _getController('hotel_name').text.trim();
+          data['location'] = _getController('hotel_location').text.trim();
+          data['city'] = _getController('hotel_city').text.trim();
+          data['country'] = _getController('hotel_country').text.trim();
+          data['description'] = _getController('hotel_description').text.trim();
+          data['imageUrl'] = _getController('hotel_imageUrl').text.trim().isNotEmpty 
+              ? _getController('hotel_imageUrl').text.trim()
+              : 'https://images.unsplash.com/photo-1539650116574-75c0c6d73f6e';
+          data['starRating'] = _selectedHotelStarRating;
+          data['pricePerNight'] = double.tryParse(_getController('hotel_pricePerNight').text.trim()) ?? 0.0;
+          data['availableRooms'] = int.tryParse(_getController('hotel_availableRooms').text.trim()) ?? 10;
+          data['amenities'] = _getController('hotel_amenities').text.trim();
+          data['contactNumber'] = _getController('hotel_contactNumber').text.trim();
+          data['email'] = _getController('hotel_email').text.trim();
         } else if (category == 'transportation') {
-          title = _getController('transport_name').text.trim();
-          description = _getController('transport_description').text.trim();
-          price = double.tryParse(_getController('transport_price').text.trim()) ?? 0.0;
-          duration = _selectedTransportType;
-          location = _getController('transport_departureLocation').text.trim();
-          availability = [_getController('transport_arrivalLocation').text.trim()];
+          data['name'] = _getController('transport_name').text.trim();
+          data['type'] = _selectedTransportType;
+          data['description'] = _getController('transport_description').text.trim();
+          data['imageUrl'] = _getController('transport_imageUrl').text.trim().isNotEmpty 
+              ? _getController('transport_imageUrl').text.trim()
+              : 'https://images.unsplash.com/photo-1539650116574-75c0c6d73f6e';
+          data['departureLocation'] = _getController('transport_departureLocation').text.trim();
+          data['arrivalLocation'] = _getController('transport_arrivalLocation').text.trim();
+          data['departureTime'] = _getController('transport_departureTime').text.trim();
+          data['arrivalTime'] = _getController('transport_arrivalTime').text.trim();
+          data['price'] = double.tryParse(_getController('transport_price').text.trim()) ?? 0.0;
+          data['totalCapacity'] = int.tryParse(_getController('transport_totalCapacity').text.trim()) ?? 4;
         } else if (category == 'program') {
-          title = _getController('program_name').text.trim();
-          description = _getController('program_description').text.trim();
-          price = double.tryParse(_getController('program_price').text.trim()) ?? 0.0;
-          duration = '${_getController('program_duration').text.trim()} days';
-          location = _getController('program_location').text.trim();
-          availability = [_getController('program_category').text.trim()];
+          data['name'] = _getController('program_name').text.trim();
+          data['description'] = _getController('program_description').text.trim();
+          data['imageUrl'] = _getController('program_imageUrl').text.trim().isNotEmpty 
+              ? _getController('program_imageUrl').text.trim()
+              : 'https://images.unsplash.com/photo-1539650116574-75c0c6d73f6e';
+          data['category'] = _getController('program_category').text.trim();
+          data['location'] = _getController('program_location').text.trim();
+          data['city'] = _getController('program_city').text.trim();
+          data['country'] = _getController('program_country').text.trim();
+          data['price'] = double.tryParse(_getController('program_price').text.trim()) ?? 0.0;
+          data['duration'] = int.tryParse(_getController('program_duration').text.trim()) ?? 1;
+          data['maxParticipants'] = int.tryParse(_getController('program_maxParticipants').text.trim()) ?? 10;
+          data['includedServices'] = _getController('program_includedServices').text.trim();
+          
+          final inputDate = _getController('program_startDate').text.trim();
+          if (inputDate.isNotEmpty) {
+            try {
+              final parsed = DateTime.parse(inputDate);
+              data['startDate'] = parsed.toUtc().toIso8601String();
+            } catch (_) {
+              data['startDate'] = DateTime.now().toUtc().toIso8601String();
+            }
+          } else {
+            data['startDate'] = DateTime.now().toUtc().toIso8601String();
+          }
         }
 
-        context.read<ProviderServicesCubit>().updateService(
-          id: _editingService!.id,
-          title: title,
-          description: description,
-          price: price,
-          duration: duration,
-          location: location,
-          category: category,
-          availability: availability,
-          placeId: _editingService!.placeId,
+        context.read<ProviderServicesCubit>().updateCategorizedService(
+          _editingService!.id,
+          category,
+          data,
         );
       } else {
         final Map<String, dynamic> data = {};
@@ -235,7 +288,16 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
           data['includedServices'] = _getController('program_includedServices').text.trim();
           
           final inputDate = _getController('program_startDate').text.trim();
-          data['startDate'] = inputDate.isNotEmpty ? inputDate : DateTime.now().toIso8601String();
+          if (inputDate.isNotEmpty) {
+            try {
+              final parsed = DateTime.parse(inputDate);
+              data['startDate'] = parsed.toUtc().toIso8601String();
+            } catch (_) {
+              data['startDate'] = DateTime.now().toUtc().toIso8601String();
+            }
+          } else {
+            data['startDate'] = DateTime.now().toUtc().toIso8601String();
+          }
         }
 
         context.read<ProviderServicesCubit>().createCategorizedService(category, data);
@@ -426,12 +488,16 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
     TextInputType keyboardType = TextInputType.text,
     Widget? prefixIcon,
     String? Function(String?)? validator,
+    bool readOnly = false,
+    VoidCallback? onTap,
   }) {
     return TextFormField(
       controller: controller,
       maxLines: maxLines,
       keyboardType: keyboardType,
       validator: validator,
+      readOnly: readOnly,
+      onTap: onTap,
       style: GoogleFonts.inter(
         color: isLight ? Colors.black : Colors.white,
         fontSize: 14,
@@ -907,7 +973,7 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
             _buildLabel('Price (EGP)', isLight),
             _buildTextField(controller: _getController('program_price'), hintText: 'e.g. 1000', isLight: isLight, keyboardType: TextInputType.number),
             const SizedBox(height: 16),
-            _buildLabel('Duration (Days)', isLight),
+            _buildLabel('Duration (Hours)', isLight),
             _buildTextField(controller: _getController('program_duration'), hintText: 'e.g. 3', isLight: isLight, keyboardType: TextInputType.number),
             const SizedBox(height: 16),
             _buildLabel('Max Participants', isLight),
@@ -917,7 +983,36 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
             _buildTextField(controller: _getController('program_includedServices'), hintText: 'e.g. Meals, Guidance, Tickets', isLight: isLight),
             const SizedBox(height: 16),
             _buildLabel('Start Date', isLight),
-            _buildTextField(controller: _getController('program_startDate'), hintText: 'e.g. 2026-06-20T13:59:47Z', isLight: isLight),
+            _buildTextField(
+              controller: _getController('program_startDate'),
+              hintText: 'Select start date',
+              isLight: isLight,
+              readOnly: true,
+              prefixIcon: const Icon(Icons.calendar_today_outlined, size: 20),
+              onTap: () async {
+                final DateTime? pickedDate = await showDatePicker(
+                  context: context,
+                  initialDate: DateTime.now(),
+                  firstDate: DateTime.now(),
+                  lastDate: DateTime.now().add(const Duration(days: 365)),
+                  builder: (context, child) {
+                    return Theme(
+                      data: Theme.of(context).copyWith(
+                        colorScheme: ColorScheme.light(
+                          primary: AppColors.primaryColor,
+                          onPrimary: Colors.white,
+                          onSurface: isLight ? Colors.black87 : Colors.white,
+                        ),
+                      ),
+                      child: child!,
+                    );
+                  },
+                );
+                if (pickedDate != null) {
+                  _getController('program_startDate').text = DateFormat('yyyy-MM-dd').format(pickedDate);
+                }
+              },
+            ),
           ],
         );
       default:

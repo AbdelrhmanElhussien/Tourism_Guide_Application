@@ -22,6 +22,21 @@ extension ProviderServiceDtoMapper on ProviderServiceDto {
       description: description ?? '',
       availability: availability ?? [],
       placeId: placeId ?? '',
+      city: city,
+      country: country,
+      starRating: starRating,
+      availableRooms: availableRooms,
+      contactNumber: contactNumber,
+      email: email,
+      type: type,
+      departureLocation: departureLocation,
+      arrivalLocation: arrivalLocation,
+      departureTime: departureTime,
+      arrivalTime: arrivalTime,
+      totalCapacity: totalCapacity,
+      maxParticipants: maxParticipants,
+      includedServices: includedServices,
+      startDate: startDate,
     );
   }
 }

@@ -31,7 +31,7 @@ class _GuideTabState extends State<GuideTab> {
   void initState() {
     super.initState();
     _scrollController.addListener(() {
-      if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+      if (_searchQuery.isEmpty && _scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
         context.read<GuideProvider>().fetchMoreGuides();
       }
     });

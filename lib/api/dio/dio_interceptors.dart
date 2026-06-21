@@ -28,7 +28,12 @@ import 'package:tourist_app/core/utils/cache_helper.dart';
 class DioInterceptor implements Interceptor {
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
-    // TODO: implement onError
+    // Print request and response logs to console for debugging
+    print('Dio Error Request URI: ${err.requestOptions.uri}');
+    print('Dio Error Request Data: ${err.requestOptions.data}');
+    print('Dio Error Response Data: ${err.response?.data}');
+    print('Dio Error Response Status Code: ${err.response?.statusCode}');
+
     AppException _exception;
 
     final responseData = err.response?.data;

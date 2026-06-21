@@ -10,6 +10,7 @@ import 'package:tourist_app/core/utils/app_routes.dart';
 import 'package:tourist_app/domain/entities/provider/provider_service.dart';
 import 'package:tourist_app/features/profile/service_provider/cubits/provider_services_cubit.dart';
 import 'package:tourist_app/features/profile/service_provider/cubits/provider_services_states.dart';
+import 'package:tourist_app/features/home/screens/detailed_screen.dart';
 
 class MyServicesScreen extends StatefulWidget {
   const MyServicesScreen({super.key});
@@ -311,126 +312,160 @@ class _MyServicesScreenState extends State<MyServicesScreen> {
       child: Column(
         children: [
           // Top Section
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Image
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: SizedBox(
-                    width: 80,
-                    height: 80,
-                    child: service.imageUrl.isNotEmpty
-                        ? Image.network(
-                            service.imageUrl,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Container(
-                                color: isLight ? const Color(0xFFF1F3F6) : Colors.white12,
-                                alignment: Alignment.center,
-                                child: Icon(
-                                  Icons.image_not_supported_outlined,
-                                  color: isLight ? AppColors.lightGrayColor : AppColors.blueColor,
-                                  size: 20,
+          GestureDetector(
+            onTap: () {
+              final category = service.category.toLowerCase().trim();
+              DetailType detailType;
+              if (category == 'hotel' || category == 'hotels') {
+                detailType = DetailType.hotel;
+              } else if (category == 'transport' || category == 'transportation') {
+                detailType = DetailType.transport;
+              } else if (category == 'program' || category == 'programs') {
+                detailType = DetailType.program;
+              } else if (category == 'guide' || category == 'guides') {
+                detailType = DetailType.guide;
+              } else {
+                detailType = DetailType.place;
+              }
+
+              Navigator.pushNamed(
+                context,
+                AppRoutes.DetailScreenRouteName,
+                arguments: DetailArgs(
+                  id: service.id,
+                  type: detailType,
+                  title: service.title,
+                  location: service.location.isNotEmpty ? service.location : "Egypt",
+                  rating: service.rating,
+                  reviewsCount: service.bookingsCount,
+                  networkImage: service.imageUrl.isNotEmpty ? service.imageUrl : null,
+                  about: service.description.isNotEmpty ? service.description : "No description provided.",
+                  price: service.category == 'hotel' ? "\$${service.price.toStringAsFixed(0)}/night" : "\$${service.price.toStringAsFixed(0)}",
+                  duration: service.duration,
+                ),
+              );
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Image
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: SizedBox(
+                      width: 80,
+                      height: 80,
+                      child: service.imageUrl.isNotEmpty
+                          ? Image.network(
+                              service.imageUrl,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Container(
+                                  color: isLight ? const Color(0xFFF1F3F6) : Colors.white12,
+                                  alignment: Alignment.center,
+                                  child: Icon(
+                                    Icons.image_not_supported_outlined,
+                                    color: isLight ? AppColors.lightGrayColor : AppColors.blueColor,
+                                    size: 20,
+                                  ),
+                                );
+                              },
+                            )
+                          : Container(
+                              color: isLight ? const Color(0xFFF1F3F6) : Colors.white12,
+                              alignment: Alignment.center,
+                              child: Icon(
+                                Icons.image,
+                                color: isLight ? AppColors.lightGrayColor : AppColors.blueColor,
+                                size: 20,
+                              ),
+                            ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  // Details
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                service.title,
+                                style: GoogleFonts.inter(
+                                  color: isLight ? AppColors.primaryColor : AppColors.whiteColor,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
                                 ),
-                              );
-                            },
-                          )
-                        : Container(
-                            color: isLight ? const Color(0xFFF1F3F6) : Colors.white12,
-                            alignment: Alignment.center,
-                            child: Icon(
-                              Icons.image,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            Icon(
+                              Icons.more_vert,
                               color: isLight ? AppColors.lightGrayColor : AppColors.blueColor,
                               size: 20,
                             ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          service.category.tr(),
+                          style: GoogleFonts.inter(
+                            color: isLight ? AppColors.lightGrayColor : AppColors.blueColor,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w400,
                           ),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                // Details
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              service.title,
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            Text(
+                              "${service.price.toInt()} EGP",
                               style: GoogleFonts.inter(
-                                color: isLight ? AppColors.primaryColor : AppColors.whiteColor,
-                                fontSize: 16,
+                                color: AppColors.yellowColor,
+                                fontSize: 14,
                                 fontWeight: FontWeight.bold,
                               ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
                             ),
-                          ),
-                          Icon(
-                            Icons.more_vert,
-                            color: isLight ? AppColors.lightGrayColor : AppColors.blueColor,
-                            size: 20,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        service.category.tr(),
-                        style: GoogleFonts.inter(
-                          color: isLight ? AppColors.lightGrayColor : AppColors.blueColor,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        children: [
-                          Text(
-                            "${service.price.toInt()} EGP",
-                            style: GoogleFonts.inter(
+                            const SizedBox(width: 12),
+                            Flexible(
+                              child: Text(
+                                "${service.bookingsCount} ${"bookings".tr()}",
+                                style: GoogleFonts.inter(
+                                  color: isLight ? AppColors.lightGrayColor : AppColors.blueColor,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                              ),
+                            ),
+                            const Spacer(),
+                            const Icon(
+                              Icons.star,
                               color: AppColors.yellowColor,
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
+                              size: 16,
                             ),
-                          ),
-                          const SizedBox(width: 12),
-                          Flexible(
-                            child: Text(
-                              "${service.bookingsCount} ${"bookings".tr()}",
+                            const SizedBox(width: 4),
+                            Text(
+                              service.rating.toString(),
                               style: GoogleFonts.inter(
                                 color: isLight ? AppColors.lightGrayColor : AppColors.blueColor,
                                 fontSize: 13,
-                                fontWeight: FontWeight.w400,
+                                fontWeight: FontWeight.w500,
                               ),
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
                             ),
-                          ),
-                          const Spacer(),
-                          const Icon(
-                            Icons.star,
-                            color: AppColors.yellowColor,
-                            size: 16,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            service.rating.toString(),
-                            style: GoogleFonts.inter(
-                              color: isLight ? AppColors.lightGrayColor : AppColors.blueColor,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           // Divider
