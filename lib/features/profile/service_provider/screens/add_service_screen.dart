@@ -51,6 +51,7 @@ class _AddServiceScreenState extends State<AddServiceScreen> {
           _getController('guide_pricePerDay').text = args.price.toString();
           _getController('guide_bio').text = args.description;
           _getController('guide_specialization').text = args.location;
+          _getController('guide_nationality').text = args.location;
           _getController('guide_languages').text = args.availability.join(', ');
           _getController('guide_imageUrl').text = args.imageUrl;
         } else if (_selectedCategory == 'hotel') {

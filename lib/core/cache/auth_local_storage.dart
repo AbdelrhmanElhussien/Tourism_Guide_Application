@@ -10,19 +10,21 @@ class AuthLocalStorage {
   static Future<void> saveAuthResponse(Auth_response authResponse) async {
     final prefs = await SharedPreferences.getInstance();
     final token = authResponse.token;
-    final user = authResponse.user;
+    final email = authResponse.email;
+    final userName = authResponse.userName;
+    final role = authResponse.role;
 
     if (token != null && token.isNotEmpty) {
       await prefs.setString(tokenKey, token);
     }
-    if (user?.email != null && user!.email!.isNotEmpty) {
-      await prefs.setString(emailKey, user.email!);
+    if (email != null && email.isNotEmpty) {
+      await prefs.setString(emailKey, email);
     }
-    if (user?.userName != null && user!.userName!.isNotEmpty) {
-      await prefs.setString(userNameKey, user.userName!);
+    if (userName != null && userName.isNotEmpty) {
+      await prefs.setString(userNameKey, userName);
     }
-    if (user?.role != null && user!.role!.isNotEmpty) {
-      await prefs.setString(roleKey, user.role!);
+    if (role != null && role.isNotEmpty) {
+      await prefs.setString(roleKey, role);
     }
   }
 
