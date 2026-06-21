@@ -64,6 +64,7 @@ dependencies:
   flutter_screenutil: ^5.9.3
   google_generative_ai: ^0.4.6
   signalr_netcore: ^1.4.4
+  firebase_core: ^4.11.0
 
 dev_dependencies:
   flutter_test:
