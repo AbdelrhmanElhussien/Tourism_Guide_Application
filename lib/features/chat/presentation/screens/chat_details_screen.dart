@@ -7,6 +7,7 @@ import 'package:tourist_app/features/chat/presentation/providers/chat_provider.d
 import 'package:tourist_app/features/chat/presentation/providers/conversations_provider.dart';
 import 'package:tourist_app/features/chat/presentation/widgets/chat_bubble_widget.dart';
 import 'package:tourist_app/features/chat/data/repositories/chat_repository.dart';
+import 'package:tourist_app/features/chat/models/chat_room.dart';
 
 class ChatDetailsScreen extends StatefulWidget {
   const ChatDetailsScreen({super.key});
@@ -35,6 +36,10 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
         _guideId = args['guideId']?.toString();
         _guideName = args['guideName']?.toString();
         _guideImageUrl = args['guideImageUrl']?.toString();
+      } else if (args is ChatRoom) {
+        _guideId = args.guideId;
+        _guideName = args.guideName;
+        _guideImageUrl = args.guideImageUrl;
       }
 
       _guideName ??= 'Tour Guide';

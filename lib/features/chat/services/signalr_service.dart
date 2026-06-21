@@ -28,7 +28,7 @@ class SignalRService {
       return;
     }
 
-    const hubUrl = 'https://tourismapi.runasp.net/hubs/chat/';
+    const hubUrl = 'https://tourismapi.runasp.net/hubs/chat';
 
     final httpOptions = HttpConnectionOptions(
       accessTokenFactory: () async {
