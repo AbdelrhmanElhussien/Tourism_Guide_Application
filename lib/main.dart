@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
@@ -40,9 +41,13 @@ import 'package:tourist_app/features/chat/presentation/screens/conversations_scr
 import 'package:tourist_app/features/chat/presentation/screens/chat_details_screen.dart';
 import 'package:tourist_app/features/auth/reset_password/screens/reset_password_screen.dart';
 import 'package:tourist_app/features/profile/screens/change_password_screen.dart';
+import 'package:tourist_app/firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   configureDependencies();
   await EasyLocalization.ensureInitialized();
   await CacheHelper.init();

@@ -65,6 +65,7 @@ dependencies:
   google_generative_ai: ^0.4.6
   signalr_netcore: ^1.4.4
   firebase_core: ^4.11.0
+  firebase_auth: ^6.5.3
 
 dev_dependencies:
   flutter_test:
