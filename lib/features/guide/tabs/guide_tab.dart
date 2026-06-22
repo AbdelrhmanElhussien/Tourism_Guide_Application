@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:tourist_app/core/provider/themeProvider.dart';
 import 'package:tourist_app/core/utils/app_theme.dart';
@@ -657,6 +658,392 @@ class _GuideTabState extends State<GuideTab> {
       child: Text(
         'no_guides_found'.tr(),
         style: const TextStyle(color: Colors.grey, fontSize: 14),
+      ),
+    );
+  }
+}
+
+class GuideBookingBottomSheet extends StatefulWidget {
+  final String guideName;
+  final double pricePerDay;
+  final bool isDark;
+  final Function(Map<String, dynamic> bookingData) onSubmit;
+
+  const GuideBookingBottomSheet({
+    super.key,
+    required this.guideName,
+    required this.pricePerDay,
+    required this.isDark,
+    required this.onSubmit,
+  });
+
+  @override
+  State<GuideBookingBottomSheet> createState() => _GuideBookingBottomSheetState();
+}
+
+class _GuideBookingBottomSheetState extends State<GuideBookingBottomSheet> {
+  DateTime? _startDate;
+  DateTime? _endDate;
+  int _numberOfPeople = 1;
+  final _specialRequestsController = TextEditingController();
+
+  final _formKey = GlobalKey<FormState>();
+
+  Future<void> _selectDate(BuildContext context, bool isStart) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: isStart 
+          ? DateTime.now().add(const Duration(days: 1)) 
+          : (_startDate ?? DateTime.now()).add(const Duration(days: 1)),
+      firstDate: isStart ? DateTime.now() : (_startDate ?? DateTime.now()),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
+      builder: (context, child) {
+        return Theme(
+          data: widget.isDark
+              ? ThemeData.dark().copyWith(
+                  colorScheme: const ColorScheme.dark(
+                    primary: AppColors.yellowColor,
+                    onPrimary: Colors.black,
+                    surface: AppColors.darkBlueColor,
+                    onSurface: Colors.white,
+                  ),
+                )
+              : ThemeData.light().copyWith(
+                  colorScheme: const ColorScheme.light(
+                    primary: AppColors.primaryColor,
+                    onPrimary: Colors.white,
+                    surface: Colors.white,
+                    onSurface: Colors.black,
+                  ),
+                ),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null) {
+      setState(() {
+        if (isStart) {
+          _startDate = picked;
+          if (_endDate != null && _endDate!.isBefore(picked)) {
+            _endDate = null;
+          }
+        } else {
+          _endDate = picked;
+        }
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _specialRequestsController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final mediaQuery = MediaQuery.of(context);
+    final cardColor = widget.isDark ? AppColors.bottomNavigationColor : Colors.white;
+    final textColor = widget.isDark ? Colors.white : AppColors.primaryColor;
+
+    return Padding(
+      padding: mediaQuery.viewInsets,
+      child: Container(
+        decoration: BoxDecoration(
+          color: cardColor,
+          borderRadius: const BorderRadius.vertical(
+            top: Radius.circular(28),
+          ),
+        ),
+        padding: const EdgeInsets.fromLTRB(24, 20, 24, 32),
+        child: SingleChildScrollView(
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Center(
+                  child: Container(
+                    width: 48,
+                    height: 5,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.withOpacity(0.3),
+                      borderRadius: BorderRadius.circular(2.5),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  'Book Guide'.tr() == 'Book Guide' ? 'Book Guide' : 'Book Guide'.tr(),
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: textColor,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  widget.guideName,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    color: AppColors.yellowColor,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Start Date'.tr() == 'Start Date' ? 'Start Date' : 'Start Date'.tr(),
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: textColor,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          InkWell(
+                            onTap: () => _selectDate(context, true),
+                            borderRadius: BorderRadius.circular(12),
+                            child: Container(
+                              height: 48,
+                              padding: const EdgeInsets.symmetric(horizontal: 12),
+                              decoration: BoxDecoration(
+                                color: widget.isDark ? const Color(0xFF101E2E) : const Color(0xFFFAFAFB),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: widget.isDark ? AppColors.blueColor.withOpacity(0.18) : Colors.grey.withOpacity(0.2),
+                                ),
+                              ),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.calendar_month_outlined, color: AppColors.yellowColor, size: 18),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      _startDate == null
+                                          ? 'Select Date'.tr() == 'Select Date' ? 'Select Date' : 'Select Date'.tr()
+                                          : DateFormat('yyyy-MM-dd').format(_startDate!),
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: _startDate == null ? Colors.grey : textColor,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'End Date'.tr() == 'End Date' ? 'End Date' : 'End Date'.tr(),
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: textColor,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          InkWell(
+                            onTap: () => _selectDate(context, false),
+                            borderRadius: BorderRadius.circular(12),
+                            child: Container(
+                              height: 48,
+                              padding: const EdgeInsets.symmetric(horizontal: 12),
+                              decoration: BoxDecoration(
+                                color: widget.isDark ? const Color(0xFF101E2E) : const Color(0xFFFAFAFB),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: widget.isDark ? AppColors.blueColor.withOpacity(0.18) : Colors.grey.withOpacity(0.2),
+                                ),
+                              ),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.calendar_month_outlined, color: AppColors.yellowColor, size: 18),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      _endDate == null
+                                          ? 'Select Date'.tr() == 'Select Date' ? 'Select Date' : 'Select Date'.tr()
+                                          : DateFormat('yyyy-MM-dd').format(_endDate!),
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        color: _endDate == null ? Colors.grey : textColor,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Number of People'.tr() == 'Number of People' ? 'Number of People' : 'Number of People'.tr(),
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: textColor,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      height: 48,
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      decoration: BoxDecoration(
+                        color: widget.isDark ? const Color(0xFF101E2E) : const Color(0xFFFAFAFB),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: widget.isDark ? AppColors.blueColor.withOpacity(0.18) : Colors.grey.withOpacity(0.2),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.remove, size: 18),
+                            color: AppColors.yellowColor,
+                            onPressed: () {
+                              if (_numberOfPeople > 1) {
+                                setState(() => _numberOfPeople--);
+                              }
+                            },
+                          ),
+                          Text(
+                            '$_numberOfPeople',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: textColor,
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.add, size: 18),
+                            color: AppColors.yellowColor,
+                            onPressed: () {
+                              setState(() => _numberOfPeople++);
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  'Special Requests'.tr() == 'Special Requests' ? 'Special Requests' : 'Special Requests'.tr(),
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: textColor,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                TextFormField(
+                  controller: _specialRequestsController,
+                  maxLines: 2,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: textColor,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: 'Any special request (languages, destinations, preferences etc)...'.tr() == 'Any special request (languages, destinations, preferences etc)...' ? 'Any special request (languages, destinations, preferences etc)...' : 'Any special request (languages, destinations, preferences etc)...'.tr(),
+                    hintStyle: TextStyle(
+                      fontSize: 13,
+                      color: Colors.grey.withOpacity(0.6),
+                    ),
+                    filled: true,
+                    fillColor: widget.isDark ? const Color(0xFF101E2E) : const Color(0xFFFAFAFB),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: widget.isDark ? AppColors.blueColor.withOpacity(0.18) : Colors.grey.withOpacity(0.2),
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(
+                        color: AppColors.yellowColor,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 28),
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      if (_startDate == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Please select start date'.tr() == 'Please select start date' ? 'Please select start date' : 'Please select start date'.tr()),
+                            backgroundColor: Colors.redAccent,
+                          ),
+                        );
+                        return;
+                      }
+                      if (_endDate == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Please select end date'.tr() == 'Please select end date' ? 'Please select end date' : 'Please select end date'.tr()),
+                            backgroundColor: Colors.redAccent,
+                          ),
+                        );
+                        return;
+                      }
+                      Navigator.pop(context);
+                      final DateFormat isoFormat = DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+                      widget.onSubmit({
+                        "startDate": isoFormat.format(_startDate!.toUtc()),
+                        "endDate": isoFormat.format(_endDate!.toUtc()),
+                        "numberOfPeople": _numberOfPeople,
+                        "specialRequests": _specialRequestsController.text.trim().isEmpty 
+                            ? "none" 
+                            : _specialRequestsController.text.trim(),
+                      });
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.yellowColor,
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: Text(
+                      'Confirm Booking'.tr() == 'Confirm Booking' ? 'Confirm Booking' : 'Confirm Booking'.tr(),
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

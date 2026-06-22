@@ -46,7 +46,6 @@ class BookingService {
       rethrow;
     }
   }
-
   Future<void> bookItem(String type, String id, {Map<String, dynamic>? data}) async {
     String endpoint;
     switch (type.toLowerCase()) {

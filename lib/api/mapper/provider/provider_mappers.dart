@@ -43,13 +43,28 @@ extension ProviderServiceDtoMapper on ProviderServiceDto {
 
 extension ProviderBookingDtoMapper on ProviderBookingDto {
   ProviderBooking toProviderBooking() {
+    String normStatus = 'pending';
+    if (status != null) {
+      final s = status!.trim().toLowerCase();
+      if (s == 'confirm' || s == 'confirmed') {
+        normStatus = 'confirmed';
+      } else if (s == 'decline' || s == 'declined') {
+        normStatus = 'declined';
+      } else if (s == 'completed' || s == 'complete') {
+        normStatus = 'completed';
+      } else if (s == 'pending') {
+        normStatus = 'pending';
+      } else {
+        normStatus = s;
+      }
+    }
     return ProviderBooking(
       id: id ?? '',
       title: title ?? '',
       customerName: customerName ?? '',
       date: date ?? '',
       price: price ?? 0.0,
-      status: status ?? 'pending',
+      status: normStatus,
     );
   }
 }

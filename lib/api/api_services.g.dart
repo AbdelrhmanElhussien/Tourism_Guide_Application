@@ -463,7 +463,7 @@ class _ApiServices implements ApiServices {
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            'provider/bookings',
+            'Bookings/my',
             queryParameters: queryParameters,
             data: _data,
           )
@@ -486,7 +486,7 @@ class _ApiServices implements ApiServices {
   }
 
   @override
-  Future<ProviderBookingDto> updateBookingStatus(
+  Future<dynamic> updateBookingStatus(
     String id,
     Map<String, dynamic> body,
   ) async {
@@ -495,7 +495,7 @@ class _ApiServices implements ApiServices {
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
     _data.addAll(body);
-    final _options = _setStreamType<ProviderBookingDto>(
+    final _options = _setStreamType<dynamic>(
       Options(method: 'PUT', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
@@ -505,14 +505,8 @@ class _ApiServices implements ApiServices {
           )
           .copyWith(baseUrl: _combineBaseUrls(_dio.options.baseUrl, baseUrl)),
     );
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late ProviderBookingDto _value;
-    try {
-      _value = ProviderBookingDto.fromJson(_result.data!);
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options, response: _result);
-      rethrow;
-    }
+    final _result = await _dio.fetch(_options);
+    final _value = _result.data;
     return _value;
   }
 
