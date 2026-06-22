@@ -41,6 +41,7 @@ class MapProvider extends ChangeNotifier {
   List<PlaceModel> filteredPlaces = [];
   PlaceModel? selectedPlace;
   String selectedCategory = 'All';
+  int? lastFocusTimestamp;
 
   // Real-time Search Predictions from Google Places
   List<PlacePredictionModel> searchPredictions = [];
@@ -475,6 +476,29 @@ class MapProvider extends ChangeNotifier {
         ),
       );
     }
+
+    // Add selectedPlace marker if not already in filteredPlaces to avoid duplicates
+    if (selectedPlace != null && !filteredPlaces.any((place) => place.id == selectedPlace!.id)) {
+      markers.add(
+        Marker(
+          markerId: MarkerId(selectedPlace!.id),
+          position: selectedPlace!.location,
+          infoWindow: InfoWindow(
+            title: selectedPlace!.name,
+            snippet: selectedPlace!.description.isNotEmpty 
+                ? selectedPlace!.description 
+                : '${selectedPlace!.category} • ⭐ ${selectedPlace!.rating}',
+            onTap: () {
+              selectPlace(selectedPlace!);
+            },
+          ),
+          icon: BitmapDescriptor.defaultMarkerWithHue(
+            _getMarkerHue(selectedPlace!.category),
+          ),
+        ),
+      );
+    }
+
     notifyListeners();
   }
 
@@ -515,6 +539,80 @@ class MapProvider extends ChangeNotifier {
     routeDistance = null;
     routeDuration = null;
     markers.removeWhere((m) => m.markerId.value == 'searchResult');
+    _updateMarkers();
+    notifyListeners();
+  }
+
+  // Set selected place
+  void setSelectedPlace(PlaceModel? place) {
+    selectedPlace = place;
+    _updateMarkers();
+    notifyListeners();
+  }
+
+  // Focuses the selected place on the map by animating camera (zoom between 15 and 17)
+  void focusSelectedPlaceOnMap() {
+    if (selectedPlace != null) {
+      cameraPosition = CameraPosition(
+        target: selectedPlace!.location,
+        zoom: 16.0,
+      );
+      _animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
+    }
+  }
+
+  // Updates the marker list
+  void updateMarkerList() {
+    _updateMarkers();
+  }
+
+  // Focuses a place on the map from arguments
+  void focusPlaceOnMap({
+    required String placeId,
+    required String placeName,
+    required double latitude,
+    required double longitude,
+    String? category,
+    String? description,
+    String? image,
+    String? address,
+  }) {
+    // Coordinate validation
+    if (latitude < -90.0 || latitude > 90.0 || longitude < -180.0 || longitude > 180.0 || (latitude == 0.0 && longitude == 0.0)) {
+      throw ArgumentError('Invalid coordinates');
+    }
+
+    final targetLocation = LatLng(latitude, longitude);
+
+    final newPlace = PlaceModel(
+      id: placeId,
+      name: placeName,
+      description: description ?? '',
+      location: targetLocation,
+      category: category ?? 'Place',
+      rating: 4.5,
+      image: image ?? '',
+      address: address ?? '',
+    );
+
+    selectedPlace = newPlace;
+
+    cameraPosition = CameraPosition(
+      target: targetLocation,
+      zoom: 16.0,
+    );
+    _animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
+
+    _updateMarkers();
+
+    if (currentUserLocation != null) {
+      final userLatLng = LatLng(
+        currentUserLocation!.latitude ?? 0,
+        currentUserLocation!.longitude ?? 0,
+      );
+      drawRoute(userLatLng, targetLocation);
+    }
+
     notifyListeners();
   }
 

@@ -14,6 +14,7 @@ import 'package:tourist_app/features/home/screens/detailed_screen.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tourist_app/features/chat/bloc/chat_bloc.dart';
 import 'package:tourist_app/features/chat/models/chat_room.dart';
+import 'package:tourist_app/features/booking/presentation/widgets/book_guide_bottom_sheet.dart';
 
 class GuideTab extends StatefulWidget {
   const GuideTab({super.key});
@@ -578,44 +579,7 @@ class _GuideTabState extends State<GuideTab> {
                         height: 40,
                         child: ElevatedButton(
                           onPressed: () {
-                            showModalBottomSheet(
-                              context: context,
-                              isScrollControlled: true,
-                              backgroundColor: Colors.transparent,
-                              builder: (bottomSheetContext) => GuideBookingBottomSheet(
-                                guideName: guide.fullName,
-                                pricePerDay: guide.pricePerDay,
-                                isDark: isDark,
-                                onSubmit: (bookingData) async {
-                                  try {
-                                    DialogeUtils.showLoading(
-                                      context: context,
-                                      text: "loading_msg".tr(),
-                                    );
-                                    await context.read<BookingProvider>().bookItem(
-                                      'guide',
-                                      guide.id,
-                                      data: bookingData,
-                                    );
-                                    DialogeUtils.hideLoading(context: context);
-                                    DialogeUtils.showMassage(
-                                      context: context,
-                                      masseage: 'Booking Successful',
-                                      title: 'Success',
-                                      posActionName: 'OK',
-                                    );
-                                  } catch (e) {
-                                    DialogeUtils.hideLoading(context: context);
-                                    DialogeUtils.showMassage(
-                                      context: context,
-                                      masseage: e.toString(),
-                                      title: 'Error',
-                                      posActionName: 'OK',
-                                    );
-                                  }
-                                },
-                              ),
-                            );
+                            BookGuideBottomSheet.show(context, guide.id, guide.fullName);
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: isDark ? const Color(0xFF1E3A5F) : AppColors.primaryColor.withOpacity(0.09),

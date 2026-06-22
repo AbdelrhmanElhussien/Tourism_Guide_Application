@@ -12,6 +12,7 @@ import 'package:tourist_app/features/booking/provider/booking_provider.dart';
 import 'package:tourist_app/core/utils/dialoge_utils.dart';
 import 'package:tourist_app/core/utils/app_routes.dart';
 import 'package:tourist_app/features/home/screens/detailed_screen.dart';
+import 'package:tourist_app/features/booking/presentation/widgets/book_hotel_bottom_sheet.dart';
 
 class ExploreTab extends StatefulWidget {
   final int initialSegment;
@@ -870,44 +871,7 @@ class _ExploreTabState extends State<ExploreTab> {
                             buttonText: 'book'.tr(),
                             isDark: isDark,
                             onBook: () {
-                              showModalBottomSheet(
-                                context: context,
-                                isScrollControlled: true,
-                                backgroundColor: Colors.transparent,
-                                builder: (bottomSheetContext) => HotelBookingBottomSheet(
-                                  hotelName: item.name,
-                                  pricePerNight: item.pricePerNight,
-                                  isDark: isDark,
-                                  onSubmit: (bookingData) async {
-                                    try {
-                                      DialogeUtils.showLoading(
-                                        context: context,
-                                        text: "loading_msg".tr(),
-                                      );
-                                      await context.read<BookingProvider>().bookItem(
-                                        'hotel',
-                                        item.id,
-                                        data: bookingData,
-                                      );
-                                      DialogeUtils.hideLoading(context: context);
-                                      DialogeUtils.showMassage(
-                                        context: context,
-                                        masseage: 'Booking Successful',
-                                        title: 'Success',
-                                        posActionName: 'OK',
-                                      );
-                                    } catch (e) {
-                                      DialogeUtils.hideLoading(context: context);
-                                      DialogeUtils.showMassage(
-                                        context: context,
-                                        masseage: e.toString(),
-                                        title: 'Error',
-                                        posActionName: 'OK',
-                                      );
-                                    }
-                                  },
-                                ),
-                              );
+                              BookHotelBottomSheet.show(context, item.id, item.name);
                             },
                           );
                         },
