@@ -112,6 +112,8 @@
   "cancel_booking_confirm": "هل أنت متأكد من رغبتك في إلغاء هذا الحجز؟",
   "cancel_booking": "إلغاء الحجز",
   "cancelled": "ملغى",
+  "you_cancelled_it": "لقد قمت بإلغائه",
+  "declined": "تم الرفض",
   "add_activity": "إضافة نشاط",
   "create_new_trip": "إنشاء رحلة جديدة",
   "add_service_title": "إضافة خدمة",

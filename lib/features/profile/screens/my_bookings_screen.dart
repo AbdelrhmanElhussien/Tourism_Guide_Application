@@ -284,8 +284,13 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
         break;
       case 'cancel':
       case 'cancelled':
+      case 'cancelled_by_user':
         statusColor = Colors.redAccent;
-        statusText = 'cancelled'.tr() == 'cancelled' ? 'Cancelled' : 'cancelled'.tr();
+        statusText = 'you_cancelled_it'.tr();
+        break;
+      case 'declined':
+        statusColor = Colors.redAccent;
+        statusText = 'declined'.tr();
         break;
     }
 
@@ -421,7 +426,11 @@ class _MyBookingsScreenState extends State<MyBookingsScreen> {
                         )
                       else
                         const SizedBox.shrink(),
-                      if (booking.status?.toLowerCase() != 'cancel' && booking.status?.toLowerCase() != 'cancelled')
+                      if (booking.status?.toLowerCase() != 'cancel' && 
+                          booking.status?.toLowerCase() != 'cancelled' && 
+                          booking.status?.toLowerCase() != 'cancelled_by_user' && 
+                          booking.status?.toLowerCase() != 'declined' && 
+                          booking.status?.toLowerCase() != 'completed')
                         IconButton(
                           icon: const Icon(Icons.delete_forever_outlined, color: Colors.redAccent, size: 22),
                           padding: EdgeInsets.zero,

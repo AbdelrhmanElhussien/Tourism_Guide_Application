@@ -111,6 +111,8 @@
   "cancel_booking_confirm": "Are you sure you want to cancel this booking?",
   "cancel_booking": "Cancel Booking",
   "cancelled": "Cancelled",
+  "you_cancelled_it": "You cancelled it",
+  "declined": "Declined",
   "add_activity": "Add Activity",
   "create_new_trip": "Create New Trip",
   "add_service_title": "Add Service",

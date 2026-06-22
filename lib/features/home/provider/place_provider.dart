@@ -93,9 +93,15 @@ class PlaceProvider extends ChangeNotifier {
       if (items.isEmpty) {
         _hasMorePlaces = false;
       } else {
-        _places.addAll(items);
-        if (items.length < _limit) {
+        final existingIds = _places.map((item) => item.id).toSet();
+        final uniqueNewItems = items.where((item) => !existingIds.contains(item.id)).toList();
+        if (uniqueNewItems.isEmpty) {
           _hasMorePlaces = false;
+        } else {
+          _places.addAll(uniqueNewItems);
+          if (items.length < _limit) {
+            _hasMorePlaces = false;
+          }
         }
       }
     } catch (e) {

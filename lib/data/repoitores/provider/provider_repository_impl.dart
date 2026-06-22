@@ -71,6 +71,11 @@ class ProviderRepositoryImpl implements ProviderRepoContract {
   }
 
   @override
+  Future<void> updateCategorizedService(String id, String category, Map<String, dynamic> data) async {
+    await _remoteDataSource.updateCategorizedService(id, category, data);
+  }
+
+  @override
   Future<List<ProviderBooking>> getProviderBookings() async {
     final list = await _remoteDataSource.getProviderBookings();
     return list.map((dto) => dto.toProviderBooking()).toList();

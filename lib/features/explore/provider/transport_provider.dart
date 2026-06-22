@@ -60,9 +60,15 @@ class TransportProvider extends ChangeNotifier {
       if (newItems.isEmpty) {
         _hasMore = false;
       } else {
-        _transports.addAll(newItems);
-        if (newItems.length < _limit) {
+        final existingIds = _transports.map((item) => item.id).toSet();
+        final uniqueNewItems = newItems.where((item) => !existingIds.contains(item.id)).toList();
+        if (uniqueNewItems.isEmpty) {
           _hasMore = false;
+        } else {
+          _transports.addAll(uniqueNewItems);
+          if (newItems.length < _limit) {
+            _hasMore = false;
+          }
         }
       }
     } catch (e) {

@@ -75,13 +75,13 @@ class ProviderRemoteDataSourceImpl implements ProviderRemoteDataSource {
           for (final item in itemsList) {
             if (item is Map<String, dynamic>) {
               final String itemCategory;
-              if (category == 'Transport') {
+              if (category.toLowerCase() == 'transport') {
                 itemCategory = 'transportation';
-              } else if (category == 'Hotels') {
+              } else if (category.toLowerCase() == 'hotels') {
                 itemCategory = 'hotel';
-              } else if (category == 'Programs') {
+              } else if (category.toLowerCase() == 'programs') {
                 itemCategory = 'program';
-              } else if (category == 'Guides') {
+              } else if (category.toLowerCase() == 'guides') {
                 itemCategory = 'guide';
                 // Map Guide fields to ProviderServiceDto fields
                 if (item['title'] == null && item['fullName'] != null) {
@@ -185,6 +185,47 @@ class ProviderRemoteDataSourceImpl implements ProviderRemoteDataSource {
         response.statusCode != 201 &&
         response.statusCode != 204) {
       throw Exception('Failed to add service (Status: ${response.statusCode})');
+    }
+  }
+
+  @override
+  Future<void> updateCategorizedService(
+    String id,
+    String category,
+    Map<String, dynamic> data,
+  ) async {
+    final dio = getIt<Dio>();
+    String endpoint;
+    switch (category.toLowerCase()) {
+      case 'guide':
+        endpoint = 'Guides';
+        break;
+      case 'hotel':
+      case 'hotels':
+        endpoint = 'Hotels';
+        break;
+      case 'transport':
+      case 'transportation':
+        endpoint = 'Transport';
+        break;
+      case 'program':
+      case 'programs':
+        endpoint = 'Programs';
+        break;
+      default:
+        throw Exception('Unknown category: $category');
+    }
+
+    final response = await dio.put(
+      '$endpoint/$id',
+      data: data,
+      options: Options(headers: {'Content-Type': 'application/json'}),
+    );
+
+    if (response.statusCode != 200 &&
+        response.statusCode != 201 &&
+        response.statusCode != 204) {
+      throw Exception('Failed to update service (Status: ${response.statusCode})');
     }
   }
 

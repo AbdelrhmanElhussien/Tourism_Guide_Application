@@ -20,6 +20,11 @@ abstract class ProviderRemoteDataSource {
     String category,
     Map<String, dynamic> data,
   );
+  Future<void> updateCategorizedService(
+    String id,
+    String category,
+    Map<String, dynamic> data,
+  );
   Future<List<ProviderBookingDto>> getProviderBookings();
   Future<ProviderBookingDto> updateBookingStatus(String id, String status);
   Future<void> submitProviderRequest(ProviderRequestDto request);
