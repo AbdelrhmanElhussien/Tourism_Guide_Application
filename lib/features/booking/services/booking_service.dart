@@ -47,7 +47,7 @@ class BookingService {
     }
   }
 
-  Future<void> bookItem(String type, String id) async {
+  Future<void> bookItem(String type, String id, {Map<String, dynamic>? data}) async {
     String endpoint;
     switch (type.toLowerCase()) {
       case 'guide':
@@ -72,7 +72,7 @@ class BookingService {
     try {
       final response = await _dio.post(
         endpoint,
-        data: {},
+        data: data ?? {},
         options: Options(
           headers: {'Content-Type': 'application/json'},
         ),

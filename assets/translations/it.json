@@ -180,5 +180,6 @@
   "continue_facebook": "Continua con Facebook",
   "already_have_account": "Hai già un account?",
   "waiting_msg": "Registrazione utente...",
-  "signin_success_msg": "Registrato con successo!"
+  "signin_success_msg": "Registrato con successo!",
+  "view_on_map": "Visualizza sulla mappa"
 }

@@ -13,6 +13,7 @@ import 'package:tourist_app/features/home/screens/detailed_screen.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tourist_app/features/chat/bloc/chat_bloc.dart';
 import 'package:tourist_app/features/chat/models/chat_room.dart';
+import 'package:tourist_app/features/booking/presentation/widgets/book_guide_bottom_sheet.dart';
 
 class GuideTab extends StatefulWidget {
   const GuideTab({super.key});
@@ -576,16 +577,8 @@ class _GuideTabState extends State<GuideTab> {
                       child: SizedBox(
                         height: 40,
                         child: ElevatedButton(
-                          onPressed: () async {
-                            try {
-                              DialogeUtils.showLoading(context: context, text: "loading_msg".tr());
-                              await context.read<BookingProvider>().bookItem('guide', guide.id);
-                              DialogeUtils.hideLoading(context: context);
-                              DialogeUtils.showMassage(context: context, masseage: 'Booking Successful', title: 'Success', posActionName: 'OK');
-                            } catch (e) {
-                              DialogeUtils.hideLoading(context: context);
-                              DialogeUtils.showMassage(context: context, masseage: e.toString(), title: 'Error', posActionName: 'OK');
-                            }
+                          onPressed: () {
+                            BookGuideBottomSheet.show(context, guide.id, guide.fullName);
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: isDark ? const Color(0xFF1E3A5F) : AppColors.primaryColor.withOpacity(0.09),

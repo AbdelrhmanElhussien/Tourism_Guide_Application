@@ -18,6 +18,19 @@ class _HomescreenState extends State<Homescreen> {
   int selectedIndex = 0;
   int selectedExploreSegment = 0; // 0: Transport, 1: Hotels, 2: Programs
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final args = ModalRoute.of(context)?.settings.arguments;
+    if (args is int) {
+      selectedIndex = args;
+    } else if (args is Map<String, dynamic>) {
+      if (args.containsKey('tabIndex')) {
+        selectedIndex = args['tabIndex'] as int;
+      }
+    }
+  }
+
   void _handleCategorySelection(String category) {
     if (category == 'transport') {
       setState(() {
