@@ -44,8 +44,15 @@ class PlaceModel {
   });
 
   factory PlaceModel.fromJson(Map<String, dynamic> json) {
+    double parseCoordinate(dynamic val) {
+      if (val == null) return 0.0;
+      if (val is num) return val.toDouble();
+      if (val is String) return double.tryParse(val) ?? 0.0;
+      return 0.0;
+    }
+
     return PlaceModel(
-      id: json['id'] as String? ?? '',
+      id: json['id']?.toString() ?? '',
       name: json['name'] as String? ?? '',
       category: json['category'] as String? ?? '',
       locationName: json['locationName'] as String? ?? '',
@@ -58,8 +65,8 @@ class PlaceModel {
       reviewCount: (json['reviewCount'] as num?)?.toInt() ?? 0,
       priceFrom: (json['priceFrom'] as num?)?.toDouble() ?? 0.0,
       distanceKm: (json['distanceKm'] as num?)?.toDouble() ?? 0.0,
-      latitude: (json['latitude'] as num?)?.toDouble() ?? 0.0,
-      longitude: (json['longitude'] as num?)?.toDouble() ?? 0.0,
+      latitude: parseCoordinate(json['latitude']),
+      longitude: parseCoordinate(json['longitude']),
       isRecommended: json['isRecommended'] as bool? ?? false,
       isPopular: json['isPopular'] as bool? ?? false,
       services: (json['services'] as List?)

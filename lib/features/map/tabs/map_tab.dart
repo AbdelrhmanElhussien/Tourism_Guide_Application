@@ -15,6 +15,37 @@ class MapTap extends StatelessWidget {
     var themeProvider = Provider.of<Themeprovider>(context);
     bool isDark = themeProvider.apptheme == ThemeMode.dark;
 
+    final routeArgs = ModalRoute.of(context)?.settings.arguments;
+    if (routeArgs is Map<String, dynamic>) {
+      final int? timestamp = routeArgs['timestamp'] as int?;
+      final mapProvider = Provider.of<MapProvider>(context, listen: false);
+      if (timestamp != null && mapProvider.lastFocusTimestamp != timestamp) {
+        mapProvider.lastFocusTimestamp = timestamp;
+        final String? placeId = routeArgs['placeId']?.toString();
+        final String? placeName = routeArgs['placeName'] as String?;
+        final double? latitude = routeArgs['latitude'] as double?;
+        final double? longitude = routeArgs['longitude'] as double?;
+        
+        if (placeId != null && placeName != null && latitude != null && longitude != null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            try {
+              mapProvider.focusPlaceOnMap(
+                placeId: placeId,
+                placeName: placeName,
+                latitude: latitude,
+                longitude: longitude,
+                description: routeArgs['description'] as String?,
+                image: routeArgs['image'] as String?,
+                address: routeArgs['address'] as String?,
+              );
+            } catch (e) {
+              debugPrint("Failed to focus place on map: $e");
+            }
+          });
+        }
+      }
+    }
+
     return Consumer<MapProvider>(
       builder: (context, mapProvider, child) {
         WidgetsBinding.instance.addPostFrameCallback((_) {

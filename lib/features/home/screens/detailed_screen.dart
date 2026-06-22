@@ -10,6 +10,7 @@ import 'package:tourist_app/core/utils/app_routes.dart';
 import 'package:tourist_app/core/utils/dialoge_utils.dart';
 import 'package:tourist_app/features/home/widgets/top_circular_button.dart';
 import 'package:tourist_app/features/home/provider/place_provider.dart';
+import 'package:tourist_app/features/map/provider/map_provider.dart';
 import 'package:tourist_app/features/guide/provider/guide_provider.dart';
 import 'package:tourist_app/features/explore/provider/hotel_provider.dart';
 import 'package:tourist_app/features/explore/provider/transport_provider.dart';
@@ -51,6 +52,10 @@ class DetailArgs {
   final String? capacity; // Transport capacity: "4 Seats"
   final String? transportType; // Transport type: "Car", "Felucca"
 
+  // Coordinates
+  final double? latitude;
+  final double? longitude;
+
   const DetailArgs({
     this.id,
     required this.type,
@@ -70,6 +75,8 @@ class DetailArgs {
     this.hotelStars,
     this.capacity,
     this.transportType,
+    this.latitude,
+    this.longitude,
   });
 
   // Default fallback args (Giza Pyramids) if none passed
@@ -86,6 +93,8 @@ class DetailArgs {
     hours: "8:00 AM - 5:00 PM",
     price: "200 EGP",
     distance: "15 km from Cairo",
+    latitude: 29.9792,
+    longitude: 31.1342,
   );
 }
 
@@ -256,6 +265,8 @@ class _DetailScreenState extends State<DetailScreen> {
               price: place.priceFrom > 0 ? "${place.priceFrom.toStringAsFixed(0)} EGP" : "Free",
               hours: place.openingHours,
               distance: "${place.distanceKm.toStringAsFixed(1)} km",
+              latitude: place.latitude,
+              longitude: place.longitude,
             );
           }
           break;
@@ -1064,68 +1075,127 @@ class _DetailScreenState extends State<DetailScreen> {
     );
   }
 
+  void _navigateToMap(DetailArgs args) {
+    final double? lat = args.latitude;
+    final double? lng = args.longitude;
+
+    if (lat == null || lng == null || (lat == 0.0 && lng == 0.0) || lat < -90.0 || lat > 90.0 || lng < -180.0 || lng > 180.0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("invalid_coordinates".tr().contains("invalid_coordinates") 
+              ? "Invalid or missing coordinates for this location." 
+              : "invalid_coordinates".tr()),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    final mapArgs = {
+      'placeId': args.id ?? '',
+      'placeName': args.title,
+      'latitude': lat,
+      'longitude': lng,
+      'tabIndex': 2,
+      'description': args.about,
+      'image': args.networkImage ?? args.assetImage,
+      'address': args.location,
+      'timestamp': DateTime.now().millisecondsSinceEpoch,
+    };
+
+    // Pre-populate/Focus in provider as well to guarantee immediate reactivity
+    final mapProvider = Provider.of<MapProvider>(context, listen: false);
+    try {
+      mapProvider.focusPlaceOnMap(
+        placeId: args.id ?? '',
+        placeName: args.title,
+        latitude: lat,
+        longitude: lng,
+        category: args.type == DetailType.place ? 'Museum' : 'Hotel',
+        description: args.about,
+        image: args.networkImage ?? args.assetImage,
+        address: args.location,
+      );
+      // Synchronize the timestamp in Provider to avoid duplicate processing in MapTab
+      mapProvider.lastFocusTimestamp = mapArgs['timestamp'] as int;
+    } catch (e) {
+      debugPrint("Failed to focus place: $e");
+    }
+
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      AppRoutes.HomeRouteName,
+      (route) => false,
+      arguments: mapArgs,
+    );
+  }
+
   // --- Map Placeholder Widget ---
   Widget _buildMapPlaceholder(DetailArgs args, bool isDark) {
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF101E2E) : Colors.grey.shade50,
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(
-          color: isDark ? AppColors.blueColor : Colors.grey.shade200,
-        ),
-      ),
-      child: Column(
-        children: [
-          const SizedBox(height: 40),
-          Icon(
-            Icons.map_outlined,
-            size: 50,
-            color: isDark ? AppColors.yellowColor : Colors.blueGrey,
+    return InkWell(
+      onTap: () => _navigateToMap(args),
+      borderRadius: BorderRadius.circular(15),
+      child: Container(
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF101E2E) : Colors.grey.shade50,
+          borderRadius: BorderRadius.circular(15),
+          border: Border.all(
+            color: isDark ? AppColors.blueColor : Colors.grey.shade200,
           ),
-          const SizedBox(height: 45),
-          Container(
-            padding: const EdgeInsets.all(12),
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: isDark ? AppColors.bottomNavigationColor : Colors.white,
-              borderRadius: const BorderRadius.vertical(
-                bottom: Radius.circular(15),
+        ),
+        child: Column(
+          children: [
+            const SizedBox(height: 40),
+            Icon(
+              Icons.map_outlined,
+              size: 50,
+              color: isDark ? AppColors.yellowColor : Colors.blueGrey,
+            ),
+            const SizedBox(height: 45),
+            Container(
+              padding: const EdgeInsets.all(12),
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: isDark ? AppColors.bottomNavigationColor : Colors.white,
+                borderRadius: const BorderRadius.vertical(
+                  bottom: Radius.circular(15),
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "view_on_map".tr(),
+                        style: GoogleFonts.inter(
+                          fontWeight: FontWeight.bold,
+                          color: isDark ? AppColors.begiColor : Colors.black,
+                        ),
+                      ),
+                      Text(
+                        args.location,
+                        style: GoogleFonts.inter(
+                          color: Colors.grey,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Icon(
+                    Icons.arrow_forward_ios,
+                    size: 16,
+                    color: isDark
+                        ? AppColors.yellowColor
+                        : AppColors.primaryColor,
+                  ),
+                ],
               ),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "view_on_map".tr(),
-                      style: GoogleFonts.inter(
-                        fontWeight: FontWeight.bold,
-                        color: isDark ? AppColors.begiColor : Colors.black,
-                      ),
-                    ),
-                    Text(
-                      args.location,
-                      style: GoogleFonts.inter(
-                        color: Colors.grey,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ),
-                Icon(
-                  Icons.arrow_forward_ios,
-                  size: 16,
-                  color: isDark
-                      ? AppColors.yellowColor
-                      : AppColors.primaryColor,
-                ),
-              ],
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

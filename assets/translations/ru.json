@@ -180,5 +180,6 @@
   "continue_facebook": "Продолжить через Facebook",
   "already_have_account": "Уже есть аккаунт?",
   "waiting_msg": "Регистрация пользователя...",
-  "signin_success_msg": "Успешно зарегистрировано!"
+  "signin_success_msg": "Успешно зарегистрировано!",
+  "view_on_map": "Показать на карте"
 }

@@ -194,5 +194,6 @@
   "continue_facebook": "المتابعة باستخدام فيسبوك",
   "already_have_account": "لديك حساب بالفعل؟",
   "waiting_msg": "جاري تسجيل المستخدم...",
-  "signin_success_msg": "تم التسجيل بنجاح!"
+  "signin_success_msg": "تم التسجيل بنجاح!",
+  "view_on_map": "عرض على الخريطة"
 }

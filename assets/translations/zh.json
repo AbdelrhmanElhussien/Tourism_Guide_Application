@@ -180,5 +180,6 @@
   "continue_facebook": "使用 Facebook 继续",
   "already_have_account": "已经有账号？",
   "waiting_msg": "正在注册用户...",
-  "signin_success_msg": "注册成功！"
+  "signin_success_msg": "注册成功！",
+  "view_on_map": "在地图上查看"
 }
