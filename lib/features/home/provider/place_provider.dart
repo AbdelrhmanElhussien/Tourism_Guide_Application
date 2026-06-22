@@ -177,7 +177,7 @@ class PlaceProvider extends ChangeNotifier {
       'priceFrom': 180.0,
       'distanceKm': 5.0,
     },
-    '05244510-1845-424a-51d4-08decf833511': {
+    '1d611c7f-bede-4756-51d5-08decf833511': {
       'name': 'Nubian Museum',
       'locationName': 'Aswan, Egypt',
       'city': 'Aswan',
@@ -189,7 +189,7 @@ class PlaceProvider extends ChangeNotifier {
       'priceFrom': 140.0,
       'distanceKm': 2.0,
     },
-    'cd81995f-9e62-43bb-51d5-08decf833511': {
+    'b72bc15c-33a6-4136-51d7-08decf833511': {
       'name': 'Unfinished Obelisk',
       'locationName': 'Aswan, Egypt',
       'city': 'Aswan',
@@ -201,8 +201,8 @@ class PlaceProvider extends ChangeNotifier {
       'priceFrom': 80.0,
       'distanceKm': 2.5,
     },
-    'a4d567ea-9524-4dbd-51d6-08decf833511': {
-      'name': 'High Dam',
+    '1c209c20-ef45-49e0-51d6-08decf833511': {
+      'name': 'Aswan High Dam',
       'locationName': 'Aswan, Egypt',
       'city': 'Aswan',
       'country': 'Egypt',
@@ -225,8 +225,8 @@ class PlaceProvider extends ChangeNotifier {
       'priceFrom': 0.0,
       'distanceKm': 1.0,
     },
-    'b45ef7ea-a524-4dbf-51d7-08decf833511': {
-      'name': 'Botanical Garden',
+    'd05c9a21-5f45-42b5-51d4-08decf833511': {
+      'name': 'Aswan Botanical Garden',
       'locationName': 'El Nabatat Island, Aswan, Egypt',
       'city': 'Aswan',
       'country': 'Egypt',
@@ -237,7 +237,7 @@ class PlaceProvider extends ChangeNotifier {
       'priceFrom': 50.0,
       'distanceKm': 1.5,
     },
-    'cd81995f-9e62-43bb-51d8-08decf833511': {
+    'c2bf0908-70ae-4ccf-51da-08decf833511': {
       'name': 'Monastery of St. Simeon',
       'locationName': 'West Bank, Aswan, Egypt',
       'city': 'Aswan',
@@ -249,8 +249,8 @@ class PlaceProvider extends ChangeNotifier {
       'priceFrom': 60.0,
       'distanceKm': 3.0,
     },
-    'a4d567ea-9524-4dbd-51d9-08decf833511': {
-      'name': 'Tombs of the Nobles',
+    'bd1dcbeb-10a1-4cc0-51d8-08decf833511': {
+      'name': 'Tombs of the Nobles (Qubbet el-Hawa)',
       'locationName': 'West Bank, Aswan, Egypt',
       'city': 'Aswan',
       'country': 'Egypt',
@@ -285,8 +285,8 @@ class PlaceProvider extends ChangeNotifier {
       'priceFrom': 180.0,
       'distanceKm': 105.0,
     },
-    'cd81995f-9e62-43bb-51dc-08decf833511': {
-      'name': 'Nubian Villages',
+    'de633ef3-0f29-4352-51db-08decf833511': {
+      'name': 'Sehel Island Nubian Village',
       'locationName': 'Gharb Soheil, Aswan, Egypt',
       'city': 'Aswan',
       'country': 'Egypt',
@@ -318,21 +318,34 @@ class PlaceProvider extends ChangeNotifier {
       _placeDetailsCache[id] = detail;
       _selectedPlaceDetails = detail;
     } catch (e) {
-      final fallbackData = _fallbackPlacesData[id];
-      if (fallbackData != null) {
-        PlaceModel? existingPlace;
+      PlaceModel? existingPlace;
+      try {
+        existingPlace = _places.firstWhere((p) => p.id == id);
+      } catch (_) {
         try {
-          existingPlace = _places.firstWhere((p) => p.id == id);
+          existingPlace = _recommendedPlaces.firstWhere((p) => p.id == id);
         } catch (_) {
           try {
-            existingPlace = _recommendedPlaces.firstWhere((p) => p.id == id);
-          } catch (_) {
-            try {
-              existingPlace = _summaryPlaces.firstWhere((p) => p.id == id);
-            } catch (_) {}
+            existingPlace = _summaryPlaces.firstWhere((p) => p.id == id);
+          } catch (_) {}
+        }
+      }
+
+      final name = existingPlace?.name;
+      Map<String, dynamic>? fallbackData = _fallbackPlacesData[id];
+
+      if (fallbackData == null && name != null) {
+        final normalizedName = name.toLowerCase().replaceAll(RegExp(r'\s+'), ' ');
+        for (final entry in _fallbackPlacesData.entries) {
+          final fallbackName = entry.value['name'].toString().toLowerCase().replaceAll(RegExp(r'\s+'), ' ');
+          if (normalizedName.contains(fallbackName) || fallbackName.contains(normalizedName)) {
+            fallbackData = entry.value;
+            break;
           }
         }
+      }
 
+      if (fallbackData != null) {
         final enrichedPlace = PlaceModel(
           id: id,
           name: existingPlace?.name ?? fallbackData['name'] as String,

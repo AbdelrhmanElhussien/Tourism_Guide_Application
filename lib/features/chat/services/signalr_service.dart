@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:signalr_netcore/http_connection_options.dart';
 import 'package:signalr_netcore/hub_connection.dart';
 import 'package:signalr_netcore/hub_connection_builder.dart';
@@ -67,10 +69,29 @@ class SignalRService {
       try {
         ChatMessageModel messageModel;
 
-        // Handle different formats: [senderId, messageText] or a single JSON object
+        // Handle different formats: [senderId, messageText], [messageText, senderId] or a single JSON object/string
         if (arguments.length >= 2) {
-          final senderId = arguments[0]?.toString() ?? '';
-          final text = arguments[1]?.toString() ?? '';
+          final arg0 = arguments[0]?.toString() ?? '';
+          final arg1 = arguments[1]?.toString() ?? '';
+
+          final guidRegex = RegExp(
+            r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$',
+          );
+          String senderId = '';
+          String text = '';
+
+          if (guidRegex.hasMatch(arg0)) {
+            senderId = arg0;
+            text = arg1;
+          } else if (guidRegex.hasMatch(arg1)) {
+            senderId = arg1;
+            text = arg0;
+          } else {
+            // Fallback: assume arg0 is senderId and arg1 is text
+            senderId = arg0;
+            text = arg1;
+          }
+
           messageModel = ChatMessageModel(
             text: text,
             sentAt: DateTime.now(),
@@ -80,6 +101,25 @@ class SignalRService {
           final arg = arguments[0];
           if (arg is Map<String, dynamic>) {
             messageModel = ChatMessageModel.fromJson(arg);
+          } else if (arg is String) {
+            try {
+              final decoded = jsonDecode(arg);
+              if (decoded is Map<String, dynamic>) {
+                messageModel = ChatMessageModel.fromJson(decoded);
+              } else {
+                messageModel = ChatMessageModel(
+                  text: arg,
+                  sentAt: DateTime.now(),
+                  senderId: '',
+                );
+              }
+            } catch (_) {
+              messageModel = ChatMessageModel(
+                text: arg,
+                sentAt: DateTime.now(),
+                senderId: '',
+              );
+            }
           } else {
             messageModel = ChatMessageModel(
               text: arg?.toString() ?? '',
@@ -125,7 +165,11 @@ class SignalRService {
       print('Message: $message');
       await _connection!.invoke(
         'SendMessageToUser',
-        args: [targetUserId, message],
+        args: [
+          targetUserId,
+          {'text': message},
+          ?null,
+        ],
       );
       print('After invoke');
     } catch (e, stackTrace) {
