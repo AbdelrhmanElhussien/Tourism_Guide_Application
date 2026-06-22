@@ -52,10 +52,7 @@ class _HomescreenState extends State<Homescreen> {
     ];
 
     return Scaffold(
-      body: IndexedStack(
-        index: selectedIndex,
-        children: tabsList,
-      ),
+      body: IndexedStack(index: selectedIndex, children: tabsList),
       floatingActionButton: const FloatingChatButton(),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       bottomNavigationBar: BottomNavigationBar(

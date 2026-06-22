@@ -91,11 +91,11 @@ abstract class ApiServices {
   @GET('provider/dashboard')
   Future<ProviderDashboardDto> getProviderDashboard();
 
-  @GET('provider/bookings')
+  @GET('Bookings/my')
   Future<List<ProviderBookingDto>> getProviderBookings();
 
   @PUT('provider/bookings/{id}/status')
-  Future<ProviderBookingDto> updateBookingStatus(
+  Future<dynamic> updateBookingStatus(
     @Path('id') String id,
     @Body() Map<String, dynamic> body,
   );

@@ -239,7 +239,11 @@ class ProviderRemoteDataSourceImpl implements ProviderRemoteDataSource {
     String id,
     String status,
   ) async {
-    return await _apiServices.updateBookingStatus(id, {'status': status});
+    final response = await _apiServices.updateBookingStatus(id, {'status': status});
+    if (response is Map<String, dynamic>) {
+      return ProviderBookingDto.fromJson(response);
+    }
+    return ProviderBookingDto(id: id, status: status);
   }
 
   @override
