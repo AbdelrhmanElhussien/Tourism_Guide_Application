@@ -153,7 +153,11 @@ class SignalRService {
     }
   }
 
-  Future<void> sendMessage(String targetUserId, String message) async {
+  Future<void> sendMessage(
+    String targetUserId,
+    String message, {
+    String? conversationKey,
+  }) async {
     if (_connection == null ||
         _connection!.state != HubConnectionState.Connected) {
       throw Exception('SignalR is not connected. Current state: $currentState');
@@ -163,13 +167,18 @@ class SignalRService {
       print('Before invoke');
       print('Target User Id: $targetUserId');
       print('Message: $message');
+      print('Conversation Key: $conversationKey');
+      final List<Object> argsList = [
+        targetUserId,
+        {'text': message},
+      ];
+      if (conversationKey != null) {
+        argsList.add(conversationKey);
+      }
+
       await _connection!.invoke(
         'SendMessageToUser',
-        args: [
-          targetUserId,
-          {'text': message},
-          ?null,
-        ],
+        args: argsList,
       );
       print('After invoke');
     } catch (e, stackTrace) {

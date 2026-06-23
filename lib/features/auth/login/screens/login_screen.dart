@@ -8,6 +8,7 @@ import 'package:tourist_app/core/utils/app_loclization.dart';
 import 'package:tourist_app/core/utils/app_theme.dart';
 import 'package:tourist_app/core/utils/app_routes.dart';
 import 'package:tourist_app/core/utils/dialoge_utils.dart';
+import 'package:tourist_app/core/utils/cache_helper.dart';
 import 'package:tourist_app/features/auth/login/cubit/login_view_model.dart';
 import 'package:tourist_app/features/auth/cubit/auth_states.dart';
 import 'package:tourist_app/features/auth/widgets/google_icon.dart';
@@ -23,8 +24,8 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   bool _obscurePassword = true;
-  final _emailController = TextEditingController(text: 'provider2@example.com');
-  final _passwordController = TextEditingController(text: 'Provider@123456');
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   final Loginviewmodel viewModel = getIt<Loginviewmodel>();
 
@@ -304,15 +305,15 @@ class _LoginScreenState extends State<LoginScreen> {
           );
         } else if (state is AuthSuccessState) {
           DialogeUtils.hideLoading(context: context);
-          DialogeUtils.showMassage(
-            context: context,
-            masseage: "login_success_msg".tr(),
-            posActionName: "ok_action".tr(),
-            title: "success_title".tr(),
-            posFun: () {
-              Navigator.pushReplacementNamed(context, AppRoutes.HomeRouteName);
-            },
-          );
+          final role = (state.authResponse.role ?? CacheHelper.getData(key: 'role') as String? ?? '')
+              .trim()
+              .toLowerCase();
+          if (role.contains('admin')) {
+            Navigator.pushReplacementNamed(context, AppRoutes.HomeRouteName);
+            Navigator.pushNamed(context, AppRoutes.adminProviderRequestsRouteName);
+          } else {
+            Navigator.pushReplacementNamed(context, AppRoutes.HomeRouteName);
+          }
         }
       },
       child: Scaffold(
