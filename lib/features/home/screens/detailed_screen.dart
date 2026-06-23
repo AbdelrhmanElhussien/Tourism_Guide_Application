@@ -1515,7 +1515,7 @@ class _DetailScreenState extends State<DetailScreen> {
                   if (args.id != null) {
                     Navigator.pushNamed(
                       context,
-                      AppRoutes.chatRoomRouteName,
+                      AppRoutes.chatDetailsRouteName,
                       arguments: {
                         'guideId': args.id!,
                         'guideName': args.title,

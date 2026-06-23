@@ -124,6 +124,7 @@ class MyApp extends StatelessWidget {
             AppRoutes.becomeProviderRouteName: (context) => const BecomeProviderScreen(),
             AppRoutes.messagesListRouteName: (context) => const MessagesListScreen(),
             AppRoutes.chatRoomRouteName: (context) => const ChatRoomScreen(),
+            AppRoutes.chatDetailsRouteName: (context) => const ChatDetailsScreen(),
             AppRoutes.visitedPlacesRouteName: (context) => const VisitedPlacesScreen(),
             AppRoutes.changePasswordRouteName: (context) => const ChangePasswordScreen(),
           },
