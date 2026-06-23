@@ -1520,8 +1520,8 @@ class _ExploreTabState extends State<ExploreTab> {
         );
       },
       child: Container(
+        height: 220.h,
         decoration: BoxDecoration(
-          color: isDark ? AppColors.bottomNavigationColor : Colors.white,
           borderRadius: BorderRadius.circular(16.r),
           border: Border.all(
             color: isDark
@@ -1531,169 +1531,188 @@ class _ExploreTabState extends State<ExploreTab> {
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.04),
+              color: Colors.black.withOpacity(0.08),
               blurRadius: 10.r,
               offset: Offset(0, 4.h),
             ),
           ],
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Image with duration badge
-            ClipRRect(
-              borderRadius: BorderRadius.vertical(
-                top: Radius.circular(16.r),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(16.r),
+          child: Stack(
+            children: [
+              // 1. Background Image
+              Positioned.fill(
+                child: image.isNotEmpty
+                    ? CachedNetworkImage(
+                        imageUrl: image,
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) => Container(
+                          color: isDark
+                              ? AppColors.bottomNavigationColor
+                              : Colors.grey[200],
+                          child: const Center(
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: AppColors.yellowColor,
+                            ),
+                          ),
+                        ),
+                        errorWidget: (context, url, error) => Container(
+                          color: Colors.grey[300],
+                          child: const Icon(
+                            Icons.error_outline,
+                            color: Colors.red,
+                          ),
+                        ),
+                      )
+                    : Container(
+                        color: Colors.grey[300],
+                        child: const Icon(
+                          Icons.image_outlined,
+                          color: Colors.grey,
+                        ),
+                      ),
               ),
-              child: SizedBox(
-                height: 150.h,
-                width: double.infinity,
-                child: Stack(
+              // 2. Dark Gradient Overlay
+              Positioned.fill(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.transparent,
+                        Colors.black.withOpacity(0.25),
+                        Colors.black.withOpacity(0.85),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              // 3. Duration Badge (Top Right)
+              Positioned(
+                top: 12.h,
+                right: 12.w,
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 8.w,
+                    vertical: 4.h,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.65),
+                    borderRadius: BorderRadius.circular(10.r),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.access_time,
+                        color: Colors.white,
+                        size: 12.r,
+                      ),
+                      SizedBox(width: 3.w),
+                      Text(
+                        duration,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 11.sp,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              // 4. Details and Booking Button at the Bottom
+              Positioned(
+                bottom: 12.h,
+                left: 12.w,
+                right: 12.w,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    CachedNetworkImage(
-                      imageUrl: image,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => Container(
-                        color: isDark
-                            ? AppColors.bottomNavigationColor
-                            : Colors.grey[200],
-                        child: const Center(
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
+                    // Title and Price
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            title,
+                            style: TextStyle(
+                              fontSize: 15.sp,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        SizedBox(width: 8.w),
+                        Text(
+                          price,
+                          style: TextStyle(
+                            fontSize: 15.sp,
+                            fontWeight: FontWeight.bold,
                             color: AppColors.yellowColor,
                           ),
                         ),
-                      ),
-                      errorWidget: (context, url, error) => Container(
-                        color: Colors.grey[300],
-                        child: const Icon(
-                          Icons.error_outline,
-                          color: Colors.red,
-                        ),
-                      ),
+                      ],
                     ),
-                    Positioned(
-                      top: 10.h,
-                      right: 10.w,
-                      child: Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 8.w,
-                          vertical: 4.h,
+                    SizedBox(height: 6.h),
+                    // Rating and Reviews
+                    Row(
+                      children: [
+                        Icon(Icons.star, color: Colors.amber, size: 14.r),
+                        SizedBox(width: 4.w),
+                        Text(
+                          rating,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            fontSize: 12.sp,
+                          ),
                         ),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.65),
-                          borderRadius: BorderRadius.circular(10.r),
+                        SizedBox(width: 4.w),
+                        Text(
+                          '($reviews)',
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 11.sp,
+                          ),
                         ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.access_time,
-                              color: Colors.white,
-                              size: 12.r,
-                            ),
-                            SizedBox(width: 3.w),
-                            Text(
-                              duration,
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 11.sp,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
+                      ],
+                    ),
+                    SizedBox(height: 12.h),
+                    // Book Program Button
+                    SizedBox(
+                      width: double.infinity,
+                      height: 38.h,
+                      child: ElevatedButton(
+                        onPressed: onBook ?? () {},
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.yellowColor,
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.r),
+                          ),
+                        ),
+                        child: Text(
+                          buttonText,
+                          style: TextStyle(
+                            fontSize: 13.sp,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
                   ],
                 ),
               ),
-            ),
-            // Details
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          title,
-                          style: TextStyle(
-                            fontSize: 15.sp,
-                            fontWeight: FontWeight.bold,
-                            color: isDark
-                                ? Colors.white
-                                : AppColors.primaryColor,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      SizedBox(width: 8.w),
-                      Text(
-                        price,
-                        style: TextStyle(
-                          fontSize: 15.sp,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.yellowColor,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 6.h),
-                  Row(
-                    children: [
-                      Icon(Icons.star, color: Colors.amber, size: 14.r),
-                      SizedBox(width: 4.w),
-                      Text(
-                        rating,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: isDark ? Colors.white70 : Colors.black87,
-                          fontSize: 12.sp,
-                        ),
-                      ),
-                      SizedBox(width: 4.w),
-                      Text(
-                        '($reviews)',
-                        style: TextStyle(
-                          color: Colors.grey,
-                          fontSize: 11.sp,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 14.h),
-                  // Filled button
-                  SizedBox(
-                    width: double.infinity,
-                    height: 38.h,
-                    child: ElevatedButton(
-                      onPressed: onBook ?? () {},
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.yellowColor,
-                        foregroundColor: Colors.white,
-                        elevation: 0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.r),
-                        ),
-                      ),
-                      child: Text(
-                        buttonText,
-                        style: TextStyle(
-                          fontSize: 13.sp,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

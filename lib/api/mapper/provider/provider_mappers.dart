@@ -65,6 +65,8 @@ extension ProviderBookingDtoMapper on ProviderBookingDto {
       date: date ?? '',
       price: price ?? 0.0,
       status: normStatus,
+      guests: guests ?? 1,
+      imageUrl: imageUrl ?? '',
     );
   }
 }

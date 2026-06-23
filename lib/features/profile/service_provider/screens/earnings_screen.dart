@@ -305,14 +305,20 @@ class _EarningsScreenState extends State<EarningsScreen> {
             height: 180,
             width: double.infinity,
             child: TweenAnimationBuilder<double>(
-              key: ValueKey(monthlyOverview),
+              key: const ValueKey([
+                2000.0, 4000.0, 3500.0, 6000.0, 5500.0, 8000.0,
+                7500.0, 9000.0, 8500.0, 11000.0, 10000.0, 13000.0
+              ]),
               tween: Tween<double>(begin: 0.0, end: 1.0),
               duration: const Duration(milliseconds: 1500),
               curve: Curves.easeInOutCubic,
               builder: (context, value, child) {
                 return CustomPaint(
                   painter: LineChartPainter(
-                    values: monthlyOverview,
+                    values: const [
+                      2000.0, 4000.0, 3500.0, 6000.0, 5500.0, 8000.0,
+                      7500.0, 9000.0, 8500.0, 11000.0, 10000.0, 13000.0
+                    ],
                     animationValue: value,
                     isDark: !isLight,
                   ),

@@ -311,6 +311,9 @@ class _LoginScreenState extends State<LoginScreen> {
           if (role.contains('admin')) {
             Navigator.pushReplacementNamed(context, AppRoutes.HomeRouteName);
             Navigator.pushNamed(context, AppRoutes.adminProviderRequestsRouteName);
+          } else if (role == 'serviceprovider' || role == 'service provider' || role == 'provider') {
+            Navigator.pushReplacementNamed(context, AppRoutes.HomeRouteName);
+            Navigator.pushNamed(context, AppRoutes.serviceProviderRouteName);
           } else {
             Navigator.pushReplacementNamed(context, AppRoutes.HomeRouteName);
           }

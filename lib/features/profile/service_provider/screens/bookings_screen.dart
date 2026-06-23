@@ -9,7 +9,8 @@ import 'package:tourist_app/core/utils/app_theme.dart';
 import 'package:tourist_app/domain/entities/provider/provider_booking.dart';
 import 'package:tourist_app/features/profile/service_provider/cubits/provider_bookings_cubit.dart';
 import 'package:tourist_app/features/profile/service_provider/cubits/provider_bookings_states.dart';
-
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:intl/intl.dart';
 import 'package:tourist_app/core/utils/dialoge_utils.dart';
 
 class BookingsScreen extends StatefulWidget {
@@ -282,6 +283,8 @@ class _BookingsScreenState extends State<BookingsScreen> {
                 status: b.status,
                 isLight: isLight,
                 showActions: true,
+                guests: b.guests,
+                imageUrl: b.imageUrl,
                 action1Text: "contact".tr(),
                 action2Text: "complete".tr(),
                 onAction1: () {
@@ -355,6 +358,8 @@ class _BookingsScreenState extends State<BookingsScreen> {
                 status: b.status,
                 isLight: isLight,
                 showActions: true,
+                guests: b.guests,
+                imageUrl: b.imageUrl,
                 action1Text: "decline".tr(),
                 action2Text: "confirm".tr(),
                 onAction1: () {
@@ -372,12 +377,23 @@ class _BookingsScreenState extends State<BookingsScreen> {
                 price: "${b.price.toInt()} EGP",
                 status: b.status,
                 isLight: isLight,
+                guests: b.guests,
+                imageUrl: b.imageUrl,
                 showActions: false,
               );
             }
           },
         ),
       );
+    }
+  }
+
+  String _formatDate(String rawDate) {
+    try {
+      final parsed = DateTime.parse(rawDate);
+      return DateFormat('dd MMM yyyy, hh:mm a').format(parsed);
+    } catch (_) {
+      return rawDate;
     }
   }
 
@@ -389,6 +405,8 @@ class _BookingsScreenState extends State<BookingsScreen> {
     required String status,
     required bool isLight,
     required bool showActions,
+    required int guests,
+    required String imageUrl,
     String? action1Text,
     String? action2Text,
     VoidCallback? onAction1,
@@ -434,12 +452,57 @@ class _BookingsScreenState extends State<BookingsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Top: Booking Image Banner
+          ClipRRect(
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(16),
+              topRight: Radius.circular(16),
+            ),
+            child: SizedBox(
+              width: double.infinity,
+              height: 140,
+              child: imageUrl.isNotEmpty
+                  ? CachedNetworkImage(
+                      imageUrl: imageUrl,
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) => Container(
+                        color: isLight ? Colors.grey[100] : const Color(0xFF101E2E),
+                        child: const Center(
+                          child: SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: AppColors.yellowColor,
+                            ),
+                          ),
+                        ),
+                      ),
+                      errorWidget: (context, url, error) => Container(
+                        color: isLight ? Colors.grey[100] : const Color(0xFF101E2E),
+                        child: const Icon(
+                          Icons.image_outlined,
+                          color: Colors.grey,
+                          size: 32,
+                        ),
+                      ),
+                    )
+                  : Container(
+                      color: isLight ? Colors.grey[100] : const Color(0xFF101E2E),
+                      child: const Icon(
+                        Icons.image_outlined,
+                        color: Colors.grey,
+                        size: 32,
+                      ),
+                    ),
+            ),
+          ),
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Title and Badge
+                // Title and Status Badge Row
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -455,11 +518,12 @@ class _BookingsScreenState extends State<BookingsScreen> {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
+                    const SizedBox(width: 8),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
                         color: badgeBgColor,
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
                         status.tr(),
@@ -472,48 +536,63 @@ class _BookingsScreenState extends State<BookingsScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
 
-                // Customer Info Row
+                // Details Row: Customer Name & Guests
                 Row(
                   children: [
                     Icon(
                       Icons.person_outline,
                       color: isLight ? AppColors.lightGrayColor : AppColors.blueColor,
-                      size: 18,
+                      size: 16,
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 6),
                     Expanded(
                       child: Text(
-                        customer,
+                        customer.isEmpty ? "customer".tr() : customer,
                         style: GoogleFonts.inter(
                           color: isLight ? const Color(0xFF64748B) : AppColors.blueColor,
-                          fontSize: 14,
+                          fontSize: 13,
                           fontWeight: FontWeight.w400,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
+                    const SizedBox(width: 16),
+                    Icon(
+                      Icons.people_outline,
+                      color: isLight ? AppColors.lightGrayColor : AppColors.blueColor,
+                      size: 16,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      "$guests ${guests == 1 ? 'person'.tr() == 'person' ? 'person' : 'person'.tr() : 'people'.tr() == 'people' ? 'people' : 'people'.tr()}",
+                      style: GoogleFonts.inter(
+                        color: isLight ? const Color(0xFF64748B) : AppColors.blueColor,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 8),
 
-                // Date Info Row
+                // Date Row
                 Row(
                   children: [
                     Icon(
                       Icons.calendar_month_outlined,
                       color: isLight ? AppColors.lightGrayColor : AppColors.blueColor,
-                      size: 18,
+                      size: 16,
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 6),
                     Expanded(
                       child: Text(
-                        date,
+                        date.isEmpty ? "No Date" : _formatDate(date),
                         style: GoogleFonts.inter(
                           color: isLight ? const Color(0xFF64748B) : AppColors.blueColor,
-                          fontSize: 14,
+                          fontSize: 13,
                           fontWeight: FontWeight.w400,
                         ),
                         maxLines: 1,
@@ -522,28 +601,32 @@ class _BookingsScreenState extends State<BookingsScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 12),
 
-                // Price Info Row
+                // Divider and Price Row
+                Divider(
+                  height: 1,
+                  thickness: 0.5,
+                  color: isLight ? Colors.black.withOpacity(0.05) : Colors.white.withOpacity(0.05),
+                ),
+                const SizedBox(height: 12),
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      r"$",
+                      "price".tr() == "price" ? "Price" : "price".tr(),
                       style: GoogleFonts.inter(
                         color: isLight ? AppColors.lightGrayColor : AppColors.blueColor,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        price,
-                        style: GoogleFonts.inter(
-                          color: isLight ? AppColors.primaryColor : Colors.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                        ),
+                    Text(
+                      price,
+                      style: GoogleFonts.inter(
+                        color: isLight ? AppColors.primaryColor : Colors.white,
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ],

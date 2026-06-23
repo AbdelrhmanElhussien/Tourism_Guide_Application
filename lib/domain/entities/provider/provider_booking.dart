@@ -5,6 +5,8 @@ class ProviderBooking {
   final String date;
   final double price;
   final String status;
+  final int guests;
+  final String imageUrl;
 
   ProviderBooking({
     required this.id,
@@ -13,5 +15,7 @@ class ProviderBooking {
     required this.date,
     required this.price,
     required this.status,
+    required this.guests,
+    required this.imageUrl,
   });
 }
