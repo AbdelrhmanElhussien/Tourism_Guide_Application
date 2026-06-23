@@ -202,7 +202,7 @@ class _ConversationsScreenState extends State<ConversationsScreen> {
             // Navigate passing map arguments containing the guideId and profile details
             Navigator.pushNamed(
               context,
-              AppRoutes.chatRoomRouteName,
+              AppRoutes.chatDetailsRouteName,
               arguments: {
                 'guideId': conversation.otherUserId,
                 'guideName': conversation.otherUserName ?? 'Tour Guide',

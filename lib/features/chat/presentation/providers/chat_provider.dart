@@ -128,6 +128,15 @@ class ChatProvider extends ChangeNotifier {
   void _subscribeToMessages() {
     _messageSubscription?.cancel();
     _messageSubscription = _signalRService.messageStream.listen((message) {
+      // Skip echo of our own sent messages — they are already in the list
+      // (added optimistically in sendMessage). The server echoes back the
+      // sender's own message via ReceiveMessage, so we filter it out.
+      final isMine = message.senderId?.toLowerCase() == _currentUserId?.toLowerCase();
+      if (isMine) {
+        print('ChatProvider: Skipping echo of own message.');
+        return;
+      }
+
       // Check if this incoming message belongs to this active conversation
       final otherSide = message.senderId?.toLowerCase() == _currentUserId?.toLowerCase()
           ? message.recipientId
@@ -139,11 +148,7 @@ class ChatProvider extends ChangeNotifier {
           message.recipientId?.toLowerCase() == _guideId?.toLowerCase();
 
       if (isMessageForCurrentChat) {
-        // Build message with senderId
-        final formattedMessage = message.copyWith(
-          senderId: message.senderId ?? _guideId,
-        );
-        _messages.add(formattedMessage);
+        _messages.add(message);
         notifyListeners();
 
         // Update the conversations list item
@@ -164,6 +169,17 @@ class ChatProvider extends ChangeNotifier {
       return;
     }
 
+    // 1. Optimistically add the message to the UI immediately
+    final optimisticMessage = ChatMessageModel(
+      text: text,
+      sentAt: DateTime.now(),
+      senderId: _currentUserId,
+      recipientId: _guideId,
+      conversationKey: _guideId,
+    );
+    _messages.add(optimisticMessage);
+    notifyListeners();
+
     // 2. Send via SignalR
     try {
       print('ChatProvider: Sending message via SignalR to ${_guideId!}...');
@@ -171,7 +187,7 @@ class ChatProvider extends ChangeNotifier {
       // Determine conversationKey from message history if available
       String? convKey;
       for (final msg in _messages) {
-        if (msg.conversationKey != null && msg.conversationKey!.isNotEmpty) {
+        if (msg.conversationKey != null && msg.conversationKey!.isNotEmpty && msg.conversationKey != _guideId) {
           convKey = msg.conversationKey;
           break;
         }
@@ -188,6 +204,8 @@ class ChatProvider extends ChangeNotifier {
       print('ChatProvider: Message sent successfully via SignalR with convKey: $convKey');
     } catch (e) {
       print('ChatProvider: Failed to send message via SignalR: $e');
+      // Remove the optimistic message on failure
+      _messages.remove(optimisticMessage);
       _errorMessage = 'Failed to send message: ${e.toString()}';
       notifyListeners();
     }

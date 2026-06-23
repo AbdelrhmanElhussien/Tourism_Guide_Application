@@ -67,71 +67,49 @@ class SignalRService {
       if (arguments == null || arguments.isEmpty) return;
 
       try {
-        ChatMessageModel messageModel;
+        ChatMessageModel? messageModel;
 
-        // Handle different formats: [senderId, messageText], [messageText, senderId] or a single JSON object/string
-        if (arguments.length >= 2) {
-          final arg0 = arguments[0]?.toString() ?? '';
-          final arg1 = arguments[1]?.toString() ?? '';
-
-          final guidRegex = RegExp(
-            r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$',
-          );
-          String senderId = '';
-          String text = '';
-
-          if (guidRegex.hasMatch(arg0)) {
-            senderId = arg0;
-            text = arg1;
-          } else if (guidRegex.hasMatch(arg1)) {
-            senderId = arg1;
-            text = arg0;
-          } else {
-            // Fallback: assume arg0 is senderId and arg1 is text
-            senderId = arg0;
-            text = arg1;
-          }
-
-          messageModel = ChatMessageModel(
-            text: text,
-            sentAt: DateTime.now(),
-            senderId: senderId,
-          );
+        // The server sends a single Map object as the first argument.
+        // Try to parse it directly first before trying other formats.
+        if (arguments.isNotEmpty && arguments[0] is Map<String, dynamic>) {
+          messageModel = ChatMessageModel.fromJson(arguments[0] as Map<String, dynamic>);
         } else if (arguments.length == 1) {
           final arg = arguments[0];
-          if (arg is Map<String, dynamic>) {
-            messageModel = ChatMessageModel.fromJson(arg);
-          } else if (arg is String) {
+          if (arg is String) {
             try {
               final decoded = jsonDecode(arg);
               if (decoded is Map<String, dynamic>) {
                 messageModel = ChatMessageModel.fromJson(decoded);
               } else {
-                messageModel = ChatMessageModel(
-                  text: arg,
-                  sentAt: DateTime.now(),
-                  senderId: '',
-                );
+                messageModel = ChatMessageModel(text: arg, sentAt: DateTime.now(), senderId: '');
               }
             } catch (_) {
-              messageModel = ChatMessageModel(
-                text: arg,
-                sentAt: DateTime.now(),
-                senderId: '',
-              );
+              messageModel = ChatMessageModel(text: arg, sentAt: DateTime.now(), senderId: '');
             }
           } else {
-            messageModel = ChatMessageModel(
-              text: arg?.toString() ?? '',
-              sentAt: DateTime.now(),
-              senderId: '',
-            );
+            messageModel = ChatMessageModel(text: arg?.toString() ?? '', sentAt: DateTime.now(), senderId: '');
           }
-        } else {
-          return;
+        } else if (arguments.length >= 2) {
+          // Fallback: legacy [senderId, text] or [text, senderId] format
+          final guidRegex = RegExp(
+            r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$',
+          );
+          final arg0 = arguments[0]?.toString() ?? '';
+          final arg1 = arguments[1]?.toString() ?? '';
+          String senderId;
+          String text;
+          if (guidRegex.hasMatch(arg0)) {
+            senderId = arg0; text = arg1;
+          } else {
+            senderId = arg1; text = arg0;
+          }
+          messageModel = ChatMessageModel(text: text, sentAt: DateTime.now(), senderId: senderId);
         }
 
-        _messageStreamController.add(messageModel);
+        if (messageModel != null) {
+          print('SignalR: Parsed message - senderId: ${messageModel.senderId}, text: ${messageModel.text}');
+          _messageStreamController.add(messageModel);
+        }
       } catch (e) {
         print('SignalR: Error parsing received message: $e');
       }
