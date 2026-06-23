@@ -164,16 +164,30 @@ class ChatProvider extends ChangeNotifier {
       return;
     }
 
-    final now = DateTime.now();
-
     // 2. Send via SignalR
     try {
       print('ChatProvider: Sending message via SignalR to ${_guideId!}...');
-      await _signalRService.sendMessage(_guideId!, text);
-      print('ChatProvider: Message sent successfully via SignalR');
+      
+      // Determine conversationKey from message history if available
+      String? convKey;
+      for (final msg in _messages) {
+        if (msg.conversationKey != null && msg.conversationKey!.isNotEmpty) {
+          convKey = msg.conversationKey;
+          break;
+        }
+      }
+      
+      // If we don't have it in history but the current user is a customer, the guideId itself is the conversationKey.
+      final role = (CacheHelper.getData(key: 'role') as String? ?? '').toLowerCase();
+      final isProvider = role == 'provider' || role == 'serviceprovider' || role == 'service provider';
+      if (!isProvider && convKey == null) {
+        convKey = _guideId;
+      }
+      
+      await _signalRService.sendMessage(_guideId!, text, conversationKey: convKey);
+      print('ChatProvider: Message sent successfully via SignalR with convKey: $convKey');
     } catch (e) {
       print('ChatProvider: Failed to send message via SignalR: $e');
-      // In case of error, we can mark or handle message sending failure if needed
       _errorMessage = 'Failed to send message: ${e.toString()}';
       notifyListeners();
     }

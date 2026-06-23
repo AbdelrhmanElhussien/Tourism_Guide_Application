@@ -13,6 +13,7 @@ import 'package:tourist_app/features/home/provider/place_provider.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tourist_app/features/chat/bloc/chat_bloc.dart';
 import 'package:tourist_app/features/chat/bloc/chat_state.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class HomeTab extends StatefulWidget {
   final Function(String) onCategorySelected;
@@ -41,11 +42,10 @@ class _HomeTabState extends State<HomeTab> {
     final _ = context.locale;
     var themeProvider = Provider.of<Themeprovider>(context);
     final isDark = themeProvider.apptheme == ThemeMode.dark;
-    final size = MediaQuery.of(context).size;
-    final horizontalPadding = (size.width * 0.05).clamp(16.0, 24.0);
-    final sectionSpacing = (size.height * 0.018).clamp(12.0, 18.0);
-    final recommendedHeight = (size.width * 0.64).clamp(220.0, 270.0);
-    final listGap = (size.width * 0.04).clamp(12.0, 18.0);
+    final horizontalPadding = 18.w;
+    final sectionSpacing = 14.h;
+    final recommendedHeight = 270.h;
+    final listGap = 14.w;
 
     final userName = CacheHelper.getData(key: 'userName') as String? ?? 'Explorer';
 
@@ -53,35 +53,35 @@ class _HomeTabState extends State<HomeTab> {
       appBar: AppBar(
         backgroundColor: AppColors.primaryColor,
         elevation: 0,
-        toolbarHeight: 75,
-        shape: const RoundedRectangleBorder(
+        toolbarHeight: 90.h,
+        shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
-            bottomLeft: Radius.circular(20),
-            bottomRight: Radius.circular(20),
+            bottomLeft: Radius.circular(20.r),
+            bottomRight: Radius.circular(20.r),
           ),
         ),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 8),
+            SizedBox(height: 12.h),
             Text(
               'welcome_back_with_spark'.tr(),
               style: GoogleFonts.inter(
                 color: Colors.white.withOpacity(0.8),
-                fontSize: 14,
+                fontSize: 13.sp,
                 fontWeight: FontWeight.w400,
               ),
             ),
-            const SizedBox(height: 2),
+            SizedBox(height: 2.h),
             Text(
               userName,
               style: GoogleFonts.inter(
                 color: Colors.white,
-                fontSize: 22,
+                fontSize: 20.sp,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 10),
+            SizedBox(height: 12.h),
           ],
         ),
         actions: [
@@ -93,22 +93,22 @@ class _HomeTabState extends State<HomeTab> {
                   : themeProvider.changeTheme(ThemeMode.dark);
             },
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
+              padding: EdgeInsets.symmetric(horizontal: 8.w),
               alignment: Alignment.center,
               child: themeProvider.apptheme == ThemeMode.dark
-                  ? const Icon(
+                  ? Icon(
                       Icons.wb_sunny_outlined,
                       color: Colors.white,
-                      size: 24,
+                      size: 24.r,
                     )
-                  : const Icon(
+                  : Icon(
                       Icons.nightlight_round_outlined,
                       color: Colors.white,
-                      size: 24,
+                      size: 24.r,
                     ),
             ),
           ),
-          const SizedBox(width: 4),
+          SizedBox(width: 4.w),
           // Chat Icon Button with Unread Badge
           BlocBuilder<ChatBloc, ChatState>(
             builder: (context, state) {
@@ -118,36 +118,36 @@ class _HomeTabState extends State<HomeTab> {
                   Navigator.pushNamed(context, AppRoutes.messagesListRouteName);
                 },
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  padding: EdgeInsets.symmetric(horizontal: 8.w),
                   alignment: Alignment.center,
                   child: Stack(
                     clipBehavior: Clip.none,
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.chat_bubble_outline,
                         color: Colors.white,
-                        size: 24,
+                        size: 24.r,
                       ),
                       if (totalUnread > 0)
                         Positioned(
-                          right: -4,
-                          top: -4,
+                          right: -4.w,
+                          top: -4.h,
                           child: Container(
-                            padding: const EdgeInsets.all(3),
+                            padding: EdgeInsets.all(3.r),
                             decoration: const BoxDecoration(
                               color: AppColors.yellowColor,
                               shape: BoxShape.circle,
                             ),
-                            constraints: const BoxConstraints(
-                              minWidth: 16,
-                              minHeight: 16,
+                            constraints: BoxConstraints(
+                              minWidth: 16.r,
+                              minHeight: 16.r,
                             ),
                             child: Center(
                               child: Text(
                                 '$totalUnread',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 8,
+                                  fontSize: 8.sp,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -160,7 +160,7 @@ class _HomeTabState extends State<HomeTab> {
               );
             },
           ),
-          SizedBox(width: size.width * 0.03),
+          SizedBox(width: 16.w),
         ],
       ),
       body: ListView(
@@ -177,11 +177,11 @@ class _HomeTabState extends State<HomeTab> {
             children: [
               Text(
                 'recommended'.tr(),
-                style: isDark
+                style: (isDark
                     ? AppStyles.lightYellow24semiBold
-                    : AppStyles.primary24semiBold,
+                    : AppStyles.primary24semiBold).copyWith(fontSize: 22.sp),
               ),
-              Text('see_all'.tr(), style: AppStyles.yellow14mediume),
+              Text('see_all'.tr(), style: AppStyles.yellow14mediume.copyWith(fontSize: 13.sp)),
             ],
           ),
           SizedBox(height: sectionSpacing),
@@ -218,7 +218,7 @@ class _HomeTabState extends State<HomeTab> {
             ),
           ),
 
-          SizedBox(height: sectionSpacing + 4),
+          SizedBox(height: sectionSpacing + 4.h),
 
           // Popular places header
           Row(
@@ -226,9 +226,9 @@ class _HomeTabState extends State<HomeTab> {
             children: [
               Text(
                 'popular_places'.tr(),
-                style: isDark
+                style: (isDark
                     ? AppStyles.lightYellow24semiBold
-                    : AppStyles.primary24semiBold,
+                    : AppStyles.primary24semiBold).copyWith(fontSize: 22.sp),
               ),
             ],
           ),

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tourist_app/core/provider/themeProvider.dart';
 import 'package:tourist_app/core/utils/app_theme.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CategoriesSection extends StatelessWidget {
   final Function(String) onCategoryTap;
@@ -34,17 +35,14 @@ class CategoriesSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    final itemGap = (size.width * 0.025).clamp(8.0, 12.0);
-    final verticalPadding = (size.height * 0.018).clamp(12.0, 16.0);
-    final horizontalPadding = (size.width * 0.018).clamp(6.0, 10.0);
+    final itemGap = 8.w;
+    final verticalPadding = 12.h;
+    final horizontalPadding = 4.w;
     var themeProvider = Provider.of<Themeprovider>(context);
     final isDark = themeProvider.apptheme == ThemeMode.dark;
 
     return Padding(
-      padding: EdgeInsets.symmetric(
-        vertical: (size.height * 0.012).clamp(8.0, 14.0),
-      ),
+      padding: EdgeInsets.symmetric(vertical: 10.h),
       child: Row(
         children: List.generate(_categories.length, (index) {
           final item = _categories[index];
@@ -65,16 +63,16 @@ class CategoriesSection extends StatelessWidget {
                     color: isDark
                         ? AppColors.primaryColor.withOpacity(0.2)
                         : AppColors.primaryColor.withOpacity(0.06),
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(16.r),
                     border: Border.all(
                       color: isDark ? Colors.white.withOpacity(0.05) : Colors.black.withOpacity(0.03),
-                      width: 1.5,
+                      width: 1.5.w,
                     ),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withOpacity(0.04),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
+                        blurRadius: 10.r,
+                        offset: Offset(0, 4.h),
                       ),
                     ],
                   ),
@@ -84,9 +82,9 @@ class CategoriesSection extends StatelessWidget {
                       Icon(
                         item.icon,
                         color: AppColors.yellowColor,
-                        size: 28,
+                        size: 24.r,
                       ),
-                      SizedBox(height: (size.height * 0.008).clamp(5.0, 8.0)),
+                      SizedBox(height: 6.h),
                       Text(
                         item.labelKey.tr(),
                         maxLines: 1,
@@ -94,7 +92,7 @@ class CategoriesSection extends StatelessWidget {
                         style: TextStyle(
                           color: isDark ? Colors.white : AppColors.blackColor,
                           fontWeight: FontWeight.w600,
-                          fontSize: 12,
+                          fontSize: 11.sp,
                         ),
                         textAlign: TextAlign.center,
                       ),

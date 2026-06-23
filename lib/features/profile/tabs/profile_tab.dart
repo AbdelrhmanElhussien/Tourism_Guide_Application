@@ -2,12 +2,12 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tourist_app/core/di/di.dart';
 import 'package:tourist_app/core/provider/themeProvider.dart';
 import 'package:tourist_app/core/utils/app_theme.dart';
 import 'package:tourist_app/core/utils/app_routes.dart';
-import 'package:tourist_app/core/utils/dialoge_utils.dart';
 import 'package:tourist_app/core/utils/cache_helper.dart';
 import 'package:tourist_app/features/profile/cubit/profile_cubit.dart';
 import 'package:tourist_app/features/profile/cubit/profile_states.dart';
@@ -74,8 +74,7 @@ class ProfileTab extends StatelessWidget {
               final bool showServiceProvider =
                   role == 'serviceprovider' ||
                   role == 'service provider' ||
-                  role == 'provider' ||
-                  isAdmin;
+                  role == 'provider';
 
               return RefreshIndicator(
                 onRefresh: () =>
@@ -310,64 +309,54 @@ class ProfileTab extends StatelessWidget {
                                   title: 'sign_out'.tr(),
                                   isLight: isLight,
                                   trailing: const SizedBox.shrink(),
-                                  onTap: () {
-                                    DialogeUtils.showMassage(
-                                      context: context,
-                                      title: 'sign_out'.tr(),
-                                      masseage: 'are_you_sure_to_logout'.tr(),
-                                      posActionName: 'yes_action'.tr(),
-                                      posFun: () async {
-                                        // 1. Clear caches of all providers
-                                        try {
-                                          Provider.of<PlaceProvider>(
-                                            context,
-                                            listen: false,
-                                          ).clearCache();
-                                        } catch (_) {}
-                                        try {
-                                          Provider.of<GuideProvider>(
-                                            context,
-                                            listen: false,
-                                          ).clearCache();
-                                        } catch (_) {}
-                                        try {
-                                          Provider.of<HotelProvider>(
-                                            context,
-                                            listen: false,
-                                          ).clearCache();
-                                        } catch (_) {}
-                                        try {
-                                          Provider.of<TransportProvider>(
-                                            context,
-                                            listen: false,
-                                          ).clearCache();
-                                        } catch (_) {}
-                                        try {
-                                          Provider.of<ProgramProvider>(
-                                            context,
-                                            listen: false,
-                                          ).clearCache();
-                                        } catch (_) {}
-                                        try {
-                                          Provider.of<BookingProvider>(
-                                            context,
-                                            listen: false,
-                                          ).clearCache();
-                                        } catch (_) {}
+                                  onTap: () async {
+                                    // 1. Clear caches of all providers
+                                    try {
+                                      Provider.of<PlaceProvider>(
+                                        context,
+                                        listen: false,
+                                      ).clearCache();
+                                    } catch (_) {}
+                                    try {
+                                      Provider.of<GuideProvider>(
+                                        context,
+                                        listen: false,
+                                      ).clearCache();
+                                    } catch (_) {}
+                                    try {
+                                      Provider.of<HotelProvider>(
+                                        context,
+                                        listen: false,
+                                      ).clearCache();
+                                    } catch (_) {}
+                                    try {
+                                      Provider.of<TransportProvider>(
+                                        context,
+                                        listen: false,
+                                      ).clearCache();
+                                    } catch (_) {}
+                                    try {
+                                      Provider.of<ProgramProvider>(
+                                        context,
+                                        listen: false,
+                                      ).clearCache();
+                                    } catch (_) {}
+                                    try {
+                                      Provider.of<BookingProvider>(
+                                        context,
+                                        listen: false,
+                                      ).clearCache();
+                                    } catch (_) {}
 
-                                        // 2. Clear credentials from CacheHelper
-                                        await CacheHelper.clearData();
+                                    // 2. Clear credentials from CacheHelper
+                                    await CacheHelper.clearData();
 
-                                        if (context.mounted) {
-                                          Navigator.pushReplacementNamed(
-                                            context,
-                                            AppRoutes.loginRouteName,
-                                          );
-                                        }
-                                      },
-                                      negActionName: 'cancel_action'.tr(),
-                                      negFun: () {},
-                                    );
+                                    if (context.mounted) {
+                                      Navigator.pushReplacementNamed(
+                                        context,
+                                        AppRoutes.loginRouteName,
+                                      );
+                                    }
                                   },
                                 ),
                               ],
@@ -408,12 +397,12 @@ class ProfileTab extends StatelessWidget {
   }) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.fromLTRB(20, size.height * 0.07, 20, 24),
-      decoration: const BoxDecoration(
+      padding: EdgeInsets.fromLTRB(20.w, size.height * 0.07, 20.w, 24.h),
+      decoration: BoxDecoration(
         color: AppColors.primaryColor,
         borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(24),
-          bottomRight: Radius.circular(24),
+          bottomLeft: Radius.circular(24.r),
+          bottomRight: Radius.circular(24.r),
         ),
       ),
       child: Column(
@@ -422,8 +411,8 @@ class ProfileTab extends StatelessWidget {
             children: [
               // Circular avatar
               Container(
-                width: 70,
-                height: 70,
+                width: 70.w,
+                height: 70.w,
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.15),
                   shape: BoxShape.circle,
@@ -433,12 +422,12 @@ class ProfileTab extends StatelessWidget {
                   _getInitials(userName),
                   style: GoogleFonts.inter(
                     color: Colors.white,
-                    fontSize: 24,
+                    fontSize: 24.sp,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
-              const SizedBox(width: 16),
+              SizedBox(width: 16.w),
               // User info
               Expanded(
                 child: Column(
@@ -448,16 +437,16 @@ class ProfileTab extends StatelessWidget {
                       userName,
                       style: GoogleFonts.inter(
                         color: Colors.white,
-                        fontSize: 22,
+                        fontSize: 22.sp,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4.h),
                     Text(
                       email,
                       style: GoogleFonts.inter(
                         color: Colors.white.withOpacity(0.7),
-                        fontSize: 14,
+                        fontSize: 14.sp,
                         fontWeight: FontWeight.w400,
                       ),
                     ),
@@ -466,16 +455,16 @@ class ProfileTab extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24.h),
           // Stats Card
           Container(
-            padding: const EdgeInsets.symmetric(vertical: 16),
+            padding: EdgeInsets.symmetric(vertical: 16.h),
             decoration: BoxDecoration(
               color: AppColors.whiteColor.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(16.r),
               border: Border.all(
                 color: Colors.white.withOpacity(0.1),
-                width: 1,
+                width: 1.w,
               ),
             ),
             child: Row(
@@ -483,8 +472,8 @@ class ProfileTab extends StatelessWidget {
               children: [
                 _buildStatItem(visitedCount.toString(), 'visited_count'.tr()),
                 Container(
-                  height: 30,
-                  width: 1,
+                  height: 30.h,
+                  width: 1.w,
                   color: Colors.white.withOpacity(0.2),
                 ),
                 _buildStatItem(
@@ -492,8 +481,8 @@ class ProfileTab extends StatelessWidget {
                   'trips_count'.tr(),
                 ),
                 Container(
-                  height: 30,
-                  width: 1,
+                  height: 30.h,
+                  width: 1.w,
                   color: Colors.white.withOpacity(0.2),
                 ),
                 _buildStatItem(savedCount.toString(), 'saved_count'.tr()),
@@ -513,16 +502,16 @@ class ProfileTab extends StatelessWidget {
             count,
             style: GoogleFonts.inter(
               color: Colors.white,
-              fontSize: 18,
+              fontSize: 18.sp,
               fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: 4.h),
           Text(
             label,
             style: GoogleFonts.inter(
               color: Colors.white.withOpacity(0.8),
-              fontSize: 12,
+              fontSize: 12.sp,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -542,10 +531,10 @@ class ProfileTab extends StatelessWidget {
       if (i < children.length - 1) {
         childrenWithDividers.add(
           Divider(
-            height: 1,
-            thickness: 0.5,
-            indent: 68,
-            endIndent: 16,
+            height: 1.h,
+            thickness: 0.5.h,
+            indent: 68.w,
+            endIndent: 16.w,
             color: isLight ? const Color(0xFFEEEEEE) : Colors.white12,
           ),
         );
@@ -553,15 +542,15 @@ class ProfileTab extends StatelessWidget {
     }
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: EdgeInsets.only(bottom: 16.h),
       decoration: BoxDecoration(
         color: cardColor,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.03),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            blurRadius: 10.r,
+            offset: Offset(0, 4.h),
           ),
         ],
       ),
@@ -586,10 +575,10 @@ class ProfileTab extends StatelessWidget {
     }
 
     return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
       leading: Container(
-        width: 40,
-        height: 40,
+        width: 40.w,
+        height: 40.w,
         decoration: BoxDecoration(
           color: isLight ? iconBgColor : iconColor.withOpacity(0.15),
           shape: BoxShape.circle,
@@ -597,13 +586,13 @@ class ProfileTab extends StatelessWidget {
         child: Icon(
           icon,
           color: isLight ? iconColor : iconColor.withOpacity(0.85),
-          size: 20,
+          size: 20.w,
         ),
       ),
       title: Text(
         title,
         style: GoogleFonts.inter(
-          fontSize: 15,
+          fontSize: 15.sp,
           fontWeight: FontWeight.w500,
           color: activeTitleColor,
         ),
@@ -612,7 +601,7 @@ class ProfileTab extends StatelessWidget {
           trailing ??
           Icon(
             Icons.arrow_forward_ios,
-            size: 14,
+            size: 14.w,
             color: isLight ? AppColors.lightGrayColor : AppColors.blueColor,
           ),
       onTap: onTap,
@@ -639,11 +628,11 @@ class ProfileTab extends StatelessWidget {
               ? AppColors.bottomNavigationColor
               : Colors.white,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(16.r),
           ),
           title: Text(
             'select_language'.tr(),
-            style: TextStyle(color: isDark ? Colors.white : Colors.black),
+            style: TextStyle(color: isDark ? Colors.white : Colors.black, fontSize: 18.sp),
           ),
           content: SizedBox(
             width: double.maxFinite,
@@ -659,10 +648,11 @@ class ProfileTab extends StatelessWidget {
                       fontWeight: isSelected
                           ? FontWeight.bold
                           : FontWeight.normal,
+                      fontSize: 14.sp,
                     ),
                   ),
                   trailing: isSelected
-                      ? const Icon(Icons.check, color: AppColors.yellowColor)
+                      ? Icon(Icons.check, color: AppColors.yellowColor, size: 20.w)
                       : null,
                   onTap: () {
                     context.setLocale(Locale(entry.key));

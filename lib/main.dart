@@ -101,7 +101,7 @@ class MyApp extends StatelessWidget {
     return ScreenUtilInit(
       designSize: const Size(375, 812), //  (iPhone 13 مثلاً)
       minTextAdapt: true,
-      builder: (context, child) {
+      builder: (builderContext, child) {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
           scrollBehavior: const _AppScrollBehavior(),

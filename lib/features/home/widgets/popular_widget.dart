@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:tourist_app/core/provider/themeProvider.dart';
 import 'package:tourist_app/core/utils/app_theme.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:tourist_app/core/utils/app_routes.dart';
 import 'package:tourist_app/features/home/screens/detailed_screen.dart';
@@ -15,8 +16,7 @@ class PopularWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    final contentPadding = (size.width * 0.035).clamp(12.0, 16.0);
+    final contentPadding = 12.w;
     var themeProvider = Provider.of<Themeprovider>(context);
     final isDark = themeProvider.apptheme == ThemeMode.dark;
 
@@ -46,24 +46,24 @@ class PopularWidget extends StatelessWidget {
           color: isDark
               ? AppColors.bottomNavigationColor
               : AppColors.whiteColor,
-          borderRadius: BorderRadius.circular(15),
+          borderRadius: BorderRadius.circular(15.r),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.08),
-              blurRadius: 12,
-              offset: const Offset(2, 5),
+              blurRadius: 12.r,
+              offset: Offset(2.w, 5.h),
             ),
           ],
-          border: Border.all(color: Colors.black.withOpacity(0.05), width: 1.5),
+          border: Border.all(color: Colors.black.withOpacity(0.05), width: 1.5.w),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ClipRRect(
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(15),
-                topRight: Radius.circular(15),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(15.r),
+                topRight: Radius.circular(15.r),
               ),
               child: AspectRatio(
                 aspectRatio: 16 / 8.5,
@@ -100,45 +100,45 @@ class PopularWidget extends StatelessWidget {
                 children: [
                   Text(
                     place.name,
-                    style: isDark
+                    style: (isDark
                         ? AppStyles.lightYellow18Medium
-                        : AppStyles.primary18Medium,
+                        : AppStyles.primary18Medium).copyWith(fontSize: 16.sp),
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4.h),
                   Row(
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.location_on_outlined,
                         color: AppColors.lightGrayColor,
-                        size: 16,
+                        size: 15.r,
                       ),
-                      const SizedBox(width: 4),
+                      SizedBox(width: 4.w),
                       Expanded(
                         child: Text(
                           place.locationName,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: isDark
+                          style: (isDark
                               ? AppStyles.blue14mediume
-                              : AppStyles.black14mediume,
+                              : AppStyles.black14mediume).copyWith(fontSize: 12.sp),
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: 4.h),
                   Row(
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.star,
                         color: AppColors.yellowColor,
-                        size: 16,
+                        size: 15.r,
                       ),
-                      const SizedBox(width: 4),
+                      SizedBox(width: 4.w),
                       Text(
                         '${place.rating.toStringAsFixed(1)} (${place.reviewCount})',
-                        style: isDark
+                        style: (isDark
                             ? AppStyles.blue14mediume
-                            : AppStyles.black14mediume,
+                            : AppStyles.black14mediume).copyWith(fontSize: 12.sp),
                       ),
                     ],
                   ),

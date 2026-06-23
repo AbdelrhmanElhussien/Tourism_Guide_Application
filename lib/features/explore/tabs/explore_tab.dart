@@ -13,6 +13,7 @@ import 'package:tourist_app/core/utils/dialoge_utils.dart';
 import 'package:tourist_app/core/utils/app_routes.dart';
 import 'package:tourist_app/features/home/screens/detailed_screen.dart';
 import 'package:tourist_app/features/booking/presentation/widgets/book_hotel_bottom_sheet.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ExploreTab extends StatefulWidget {
   final int initialSegment;
@@ -300,15 +301,15 @@ class _ExploreTabState extends State<ExploreTab> {
                         color: isDark
                             ? AppColors.begiColor
                             : const Color(0xFF1E3A5F),
-                        fontSize: 24,
+                        fontSize: 22.sp,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: 12.h),
                     _buildSearchAndFilterRow(isDark),
-                    const SizedBox(height: 20),
+                    SizedBox(height: 16.h),
                     _buildSegmentSelector(isDark),
-                    const SizedBox(height: 16),
+                    SizedBox(height: 12.h),
                   ],
                 ),
               ),
@@ -343,40 +344,40 @@ class _ExploreTabState extends State<ExploreTab> {
             },
             style: AppStyles.primary12Medium.copyWith(
               color: isDark ? AppColors.begiColor : AppColors.primaryColor,
-              fontSize: 13,
+              fontSize: 13.sp,
             ),
             decoration: InputDecoration(
               hintText: 'search_hint'.tr(),
               hintStyle: AppStyles.lightGray14Regular.copyWith(
                 color: isDark ? AppColors.blueColor : AppColors.lightGrayColor,
-                fontSize: 13,
+                fontSize: 13.sp,
               ),
               prefixIcon: Icon(Icons.search, color: iconColor),
               filled: true,
               fillColor: fieldColor,
-              contentPadding: const EdgeInsets.symmetric(vertical: 15),
+              contentPadding: EdgeInsets.symmetric(vertical: 12.h),
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(14.r),
                 borderSide: BorderSide(color: borderColor),
               ),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(14.r),
                 borderSide: BorderSide(color: borderColor),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(14.r),
                 borderSide: const BorderSide(color: AppColors.primaryColor),
               ),
             ),
           ),
         ),
-        const SizedBox(width: 12),
+        SizedBox(width: 12.w),
         SizedBox.square(
-          dimension: 46,
+          dimension: 44.r,
           child: DecoratedBox(
             decoration: BoxDecoration(
               color: fieldColor,
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: BorderRadius.circular(14.r),
               border: Border.all(
                 color: isDark
                     ? AppColors.blueColor.withOpacity(0.18)
@@ -388,7 +389,7 @@ class _ExploreTabState extends State<ExploreTab> {
               icon: Icon(
                 Icons.tune,
                 color: isDark ? AppColors.begiColor : AppColors.primaryColor,
-                size: 21,
+                size: 20.r,
               ),
               tooltip: 'Filter'.tr(),
             ),
@@ -416,18 +417,18 @@ class _ExploreTabState extends State<ExploreTab> {
     final segments = ['transport', 'hotels', 'programs'];
 
     return Container(
-      height: 44,
-      padding: const EdgeInsets.all(2),
+      height: 40.h,
+      padding: EdgeInsets.all(2.r),
       decoration: BoxDecoration(
         color: backgroundColor,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(14.r),
       ),
       child: Row(
         children: List.generate(segments.length, (index) {
           final selected = _selectedSegmentIndex == index;
           return Expanded(
             child: InkWell(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(12.r),
               onTap: () {
                 setState(() {
                   _selectedSegmentIndex = index;
@@ -438,7 +439,7 @@ class _ExploreTabState extends State<ExploreTab> {
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                   color: selected ? selectedColor : Colors.transparent,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(12.r),
                   border: selected ? Border.all(color: selectedBorder) : null,
                 ),
                 child: Text(
@@ -448,6 +449,7 @@ class _ExploreTabState extends State<ExploreTab> {
                   style: AppStyles.primary12Medium.copyWith(
                     color: selected ? selectedLabelColor : labelColor,
                     fontWeight: FontWeight.w700,
+                    fontSize: 12.sp,
                   ),
                 ),
               ),
@@ -558,12 +560,12 @@ class _ExploreTabState extends State<ExploreTab> {
         return Column(
           children: [
             SizedBox(
-              height: 38,
+              height: 36.h,
               child: ListView.separated(
                 padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
                 scrollDirection: Axis.horizontal,
                 itemCount: subcatKeys.length,
-                separatorBuilder: (_, __) => const SizedBox(width: 10),
+                separatorBuilder: (_, __) => SizedBox(width: 8.w),
                 itemBuilder: (context, index) {
                   final selected = _selectedTransportSubcat == index;
                   return ChoiceChip(
@@ -571,14 +573,14 @@ class _ExploreTabState extends State<ExploreTab> {
                       children: [
                         Icon(
                           subcatIcons[index],
-                          size: 16,
+                          size: 14.r,
                           color: selected
                               ? Colors.white
                               : (isDark
                                     ? AppColors.blueColor
                                     : AppColors.primaryColor),
                         ),
-                        const SizedBox(width: 6),
+                        SizedBox(width: 6.w),
                         Text(subcatKeys[index].tr()),
                       ],
                     ),
@@ -601,15 +603,16 @@ class _ExploreTabState extends State<ExploreTab> {
                                 ? AppColors.blueColor
                                 : AppColors.primaryColor),
                       fontWeight: FontWeight.w700,
+                      fontSize: 12.sp,
                     ),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(18),
+                      borderRadius: BorderRadius.circular(18.r),
                     ),
                   );
                 },
               ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 12.h),
             Expanded(
               child: filteredList.isEmpty
                   ? _buildEmptyState()
@@ -621,12 +624,12 @@ class _ExploreTabState extends State<ExploreTab> {
                         controller: _transportScrollController,
                         padding: EdgeInsets.symmetric(
                           horizontal: horizontalPadding,
-                          vertical: 10,
+                          vertical: 10.h,
                         ),
                         itemCount:
-                            filteredList.length +
+                           filteredList.length +
                             (transportProvider.isFetchingMore ? 1 : 0),
-                        separatorBuilder: (_, __) => const SizedBox(height: 16),
+                        separatorBuilder: (_, __) => SizedBox(height: 14.h),
                         itemBuilder: (context, index) {
                           if (index == filteredList.length) {
                             return const Padding(
@@ -1136,18 +1139,18 @@ class _ExploreTabState extends State<ExploreTab> {
       child: Container(
         decoration: BoxDecoration(
           color: isDark ? AppColors.bottomNavigationColor : Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(16.r),
           border: Border.all(
             color: isDark
                 ? Colors.white.withOpacity(0.06)
                 : Colors.black.withOpacity(0.04),
-            width: 1.5,
+            width: 1.5.w,
           ),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.04),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
+              blurRadius: 10.r,
+              offset: Offset(0, 4.h),
             ),
           ],
         ),
@@ -1156,11 +1159,11 @@ class _ExploreTabState extends State<ExploreTab> {
           children: [
             // Image
             ClipRRect(
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(16),
+              borderRadius: BorderRadius.vertical(
+                top: Radius.circular(16.r),
               ),
               child: SizedBox(
-                height: 160,
+                height: 150.h,
                 width: double.infinity,
                 child: CachedNetworkImage(
                   imageUrl: image,
@@ -1185,7 +1188,7 @@ class _ExploreTabState extends State<ExploreTab> {
             ),
             // Details
             Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -1196,7 +1199,7 @@ class _ExploreTabState extends State<ExploreTab> {
                         child: Text(
                           title,
                           style: TextStyle(
-                            fontSize: 17,
+                            fontSize: 15.sp,
                             fontWeight: FontWeight.bold,
                             color: isDark
                                 ? Colors.white
@@ -1206,32 +1209,32 @@ class _ExploreTabState extends State<ExploreTab> {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      const SizedBox(width: 8),
+                      SizedBox(width: 8.w),
                       Text(
                         price,
-                        style: const TextStyle(
-                          fontSize: 16,
+                        style: TextStyle(
+                          fontSize: 15.sp,
                           fontWeight: FontWeight.bold,
                           color: AppColors.yellowColor,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 6),
+                  SizedBox(height: 6.h),
                   Row(
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.location_on_outlined,
                         color: Colors.grey,
-                        size: 15,
+                        size: 14.r,
                       ),
-                      const SizedBox(width: 4),
+                      SizedBox(width: 4.w),
                       Expanded(
                         child: Text(
                           location,
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: Colors.grey,
-                            fontSize: 13,
+                            fontSize: 12.sp,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -1239,53 +1242,53 @@ class _ExploreTabState extends State<ExploreTab> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 6),
+                  SizedBox(height: 6.h),
                   Row(
                     children: [
-                      const Icon(Icons.star, color: Colors.amber, size: 16),
-                      const SizedBox(width: 4),
+                      Icon(Icons.star, color: Colors.amber, size: 14.r),
+                      SizedBox(width: 4.w),
                       Text(
                         rating,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: isDark ? Colors.white70 : Colors.black87,
-                          fontSize: 13,
+                          fontSize: 12.sp,
                         ),
                       ),
-                      const SizedBox(width: 4),
+                      SizedBox(width: 4.w),
                       Text(
                         '($reviews)',
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Colors.grey,
-                          fontSize: 12,
+                          fontSize: 11.sp,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 14),
+                  SizedBox(height: 14.h),
                   // Outlined full width button
                   SizedBox(
                     width: double.infinity,
-                    height: 42,
+                    height: 38.h,
                     child: OutlinedButton(
                       onPressed: onBook ?? () {},
                       style: OutlinedButton.styleFrom(
-                        side: const BorderSide(
+                        side: BorderSide(
                           color: AppColors.yellowColor,
-                          width: 1.5,
+                          width: 1.5.w,
                         ),
                         backgroundColor: isDark
                             ? const Color(0xFF0B1825)
                             : Colors.white,
                         foregroundColor: AppColors.yellowColor,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(10.r),
                         ),
                       ),
                       child: Text(
                         buttonText,
-                        style: const TextStyle(
-                          fontSize: 14,
+                        style: TextStyle(
+                          fontSize: 13.sp,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -1333,27 +1336,27 @@ class _ExploreTabState extends State<ExploreTab> {
         );
       },
       child: Container(
-        height: 124,
+        height: 126.h,
         decoration: BoxDecoration(
           color: isDark ? AppColors.bottomNavigationColor : Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(16.r),
           border: Border.all(
             color: isDark
                 ? Colors.white.withOpacity(0.06)
                 : Colors.black.withOpacity(0.04),
-            width: 1.5,
+            width: 1.5.w,
           ),
         ),
         child: Row(
           children: [
             // Image
             Padding(
-              padding: const EdgeInsets.all(10.0),
+              padding: EdgeInsets.all(8.w),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(12.r),
                 child: SizedBox(
-                  width: 104,
-                  height: 104,
+                  width: 96.w,
+                  height: 96.h,
                   child: CachedNetworkImage(
                     imageUrl: image,
                     fit: BoxFit.cover,
@@ -1379,7 +1382,7 @@ class _ExploreTabState extends State<ExploreTab> {
             // Details
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(2, 10, 12, 10),
+                padding: EdgeInsets.fromLTRB(2.w, 10.h, 12.w, 10.h),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1387,7 +1390,7 @@ class _ExploreTabState extends State<ExploreTab> {
                     Text(
                       title,
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 14.sp,
                         fontWeight: FontWeight.bold,
                         color: isDark ? Colors.white : AppColors.primaryColor,
                       ),
@@ -1396,18 +1399,18 @@ class _ExploreTabState extends State<ExploreTab> {
                     ),
                     Row(
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.location_on_outlined,
                           color: Colors.grey,
-                          size: 14,
+                          size: 13.r,
                         ),
-                        const SizedBox(width: 4),
+                        SizedBox(width: 4.w),
                         Expanded(
                           child: Text(
                             location,
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: Colors.grey,
-                              fontSize: 12,
+                              fontSize: 11.sp,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -1417,22 +1420,22 @@ class _ExploreTabState extends State<ExploreTab> {
                     ),
                     Row(
                       children: [
-                        const Icon(Icons.star, color: Colors.amber, size: 15),
-                        const SizedBox(width: 4),
+                        Icon(Icons.star, color: Colors.amber, size: 13.r),
+                        SizedBox(width: 4.w),
                         Text(
                           rating,
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: isDark ? Colors.white70 : Colors.black87,
-                            fontSize: 12,
+                            fontSize: 11.sp,
                           ),
                         ),
-                        const SizedBox(width: 4),
+                        SizedBox(width: 4.w),
                         Text(
                           '($reviews)',
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: Colors.grey,
-                            fontSize: 11,
+                            fontSize: 10.sp,
                           ),
                         ),
                       ],
@@ -1442,14 +1445,14 @@ class _ExploreTabState extends State<ExploreTab> {
                       children: [
                         Text(
                           price,
-                          style: const TextStyle(
-                            fontSize: 14,
+                          style: TextStyle(
+                            fontSize: 13.sp,
                             fontWeight: FontWeight.bold,
                             color: AppColors.yellowColor,
                           ),
                         ),
                         SizedBox(
-                          height: 28,
+                          height: 26.h,
                           child: ElevatedButton(
                             onPressed: onBook ?? () {},
                             style: ElevatedButton.styleFrom(
@@ -1457,16 +1460,16 @@ class _ExploreTabState extends State<ExploreTab> {
                               foregroundColor: Colors.white,
                               elevation: 0,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
+                                borderRadius: BorderRadius.circular(8.r),
                               ),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 14,
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 12.w,
                               ),
                             ),
                             child: Text(
                               buttonText,
-                              style: const TextStyle(
-                                fontSize: 12,
+                              style: TextStyle(
+                                fontSize: 11.sp,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -1519,18 +1522,18 @@ class _ExploreTabState extends State<ExploreTab> {
       child: Container(
         decoration: BoxDecoration(
           color: isDark ? AppColors.bottomNavigationColor : Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(16.r),
           border: Border.all(
             color: isDark
                 ? Colors.white.withOpacity(0.06)
                 : Colors.black.withOpacity(0.04),
-            width: 1.5,
+            width: 1.5.w,
           ),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.04),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
+              blurRadius: 10.r,
+              offset: Offset(0, 4.h),
             ),
           ],
         ),
@@ -1539,11 +1542,11 @@ class _ExploreTabState extends State<ExploreTab> {
           children: [
             // Image with duration badge
             ClipRRect(
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(16),
+              borderRadius: BorderRadius.vertical(
+                top: Radius.circular(16.r),
               ),
               child: SizedBox(
-                height: 160,
+                height: 150.h,
                 width: double.infinity,
                 child: Stack(
                   children: [
@@ -1570,31 +1573,31 @@ class _ExploreTabState extends State<ExploreTab> {
                       ),
                     ),
                     Positioned(
-                      top: 12,
-                      right: 12,
+                      top: 10.h,
+                      right: 10.w,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 5,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 8.w,
+                          vertical: 4.h,
                         ),
                         decoration: BoxDecoration(
                           color: Colors.black.withOpacity(0.65),
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(10.r),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.access_time,
                               color: Colors.white,
-                              size: 13,
+                              size: 12.r,
                             ),
-                            const SizedBox(width: 4),
+                            SizedBox(width: 3.w),
                             Text(
                               duration,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: Colors.white,
-                                fontSize: 12,
+                                fontSize: 11.sp,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -1608,7 +1611,7 @@ class _ExploreTabState extends State<ExploreTab> {
             ),
             // Details
             Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -1619,7 +1622,7 @@ class _ExploreTabState extends State<ExploreTab> {
                         child: Text(
                           title,
                           style: TextStyle(
-                            fontSize: 17,
+                            fontSize: 15.sp,
                             fontWeight: FontWeight.bold,
                             color: isDark
                                 ? Colors.white
@@ -1629,45 +1632,45 @@ class _ExploreTabState extends State<ExploreTab> {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      const SizedBox(width: 8),
+                      SizedBox(width: 8.w),
                       Text(
                         price,
-                        style: const TextStyle(
-                          fontSize: 16,
+                        style: TextStyle(
+                          fontSize: 15.sp,
                           fontWeight: FontWeight.bold,
                           color: AppColors.yellowColor,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 6),
+                  SizedBox(height: 6.h),
                   Row(
                     children: [
-                      const Icon(Icons.star, color: Colors.amber, size: 16),
-                      const SizedBox(width: 4),
+                      Icon(Icons.star, color: Colors.amber, size: 14.r),
+                      SizedBox(width: 4.w),
                       Text(
                         rating,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: isDark ? Colors.white70 : Colors.black87,
-                          fontSize: 13,
+                          fontSize: 12.sp,
                         ),
                       ),
-                      const SizedBox(width: 4),
+                      SizedBox(width: 4.w),
                       Text(
                         '($reviews)',
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Colors.grey,
-                          fontSize: 12,
+                          fontSize: 11.sp,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 14),
+                  SizedBox(height: 14.h),
                   // Filled button
                   SizedBox(
                     width: double.infinity,
-                    height: 42,
+                    height: 38.h,
                     child: ElevatedButton(
                       onPressed: onBook ?? () {},
                       style: ElevatedButton.styleFrom(
@@ -1675,13 +1678,13 @@ class _ExploreTabState extends State<ExploreTab> {
                         foregroundColor: Colors.white,
                         elevation: 0,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(10.r),
                         ),
                       ),
                       child: Text(
                         buttonText,
-                        style: const TextStyle(
-                          fontSize: 14,
+                        style: TextStyle(
+                          fontSize: 13.sp,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -1700,11 +1703,12 @@ class _ExploreTabState extends State<ExploreTab> {
     return Center(
       child: Text(
         'no_destinations_found'.tr(),
-        style: const TextStyle(color: Colors.grey, fontSize: 14),
+        style: TextStyle(color: Colors.grey, fontSize: 13.sp),
       ),
     );
   }
 }
+
 
 class HotelBookingBottomSheet extends StatefulWidget {
   final String hotelName;
