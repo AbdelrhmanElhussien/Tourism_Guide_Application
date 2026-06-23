@@ -5,6 +5,8 @@ class AppAssets {
   static const String onBoardingImage3 = 'assets/images/onboarding_image3.png';
   static const String onBoardingImage4 = 'assets/images/onboarding_image4.png';
   static const String pyramidsofGiza = 'assets/images/ImagePyramidsofGiza.png';
+  static const String discoverAswanLogo =
+      'assets/images/discover_aswan_logo.png';
 
   /// icons ===================================================================
   static const String arrowIcon = 'assets/images/arrowIcon.png';
