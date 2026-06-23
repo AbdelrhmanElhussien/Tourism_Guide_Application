@@ -1200,7 +1200,7 @@ class _DetailScreenState extends State<DetailScreen> {
     );
   }
 
-  // --- Dynamic Bottom Horizontal List Section ---
+  // --- Dynamic Bottom Horizontal List Section (Real Data) ---
   Widget _buildBottomListSection(DetailArgs args, bool isDark) {
     String sectionTitle = "nearby_places".tr();
     if (args.type == DetailType.guide) {
@@ -1212,7 +1212,6 @@ class _DetailScreenState extends State<DetailScreen> {
     }
 
     final Color textColorPrimary = isDark ? AppColors.begiColor : Colors.black;
-    final Color textColorSec = isDark ? AppColors.blueColor : Colors.blueGrey;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1226,210 +1225,316 @@ class _DetailScreenState extends State<DetailScreen> {
           ),
         ),
         const SizedBox(height: 15),
-
-        // Horizontal List
         SizedBox(
           height: 220,
-          child: ListView(
-            scrollDirection: Axis.horizontal,
-            children: _buildBottomListCards(
-              args.type,
-              textColorPrimary,
-              textColorSec,
-              isDark,
-            ),
-          ),
+          child: _buildRealBottomList(args, isDark, textColorPrimary),
         ),
       ],
     );
   }
 
-  List<Widget> _buildBottomListCards(
-    DetailType type,
-    Color textColorPrimary,
-    Color textColorSec,
-    bool isDark,
-  ) {
-    if (type == DetailType.guide) {
-      return [
-        _buildNearbyCard(
-          "Ahmed Mansour",
-          "Cairo, Egypt",
-          "4.9",
-          "48",
-          "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&q=80",
-          textColorPrimary,
-          textColorSec,
-        ),
-        _buildNearbyCard(
-          "Sarah Ali",
-          "Luxor, Egypt",
-          "4.8",
-          "35",
-          "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&q=80",
-          textColorPrimary,
-          textColorSec,
-        ),
-      ];
-    } else if (type == DetailType.hotel) {
-      return [
-        _buildNearbyCard(
-          "Steigenberger Hotel",
-          "El Gouna, Egypt",
-          "4.8",
-          "1205",
-          "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&q=80",
-          textColorPrimary,
-          textColorSec,
-        ),
-        _buildNearbyCard(
-          "Hilton Luxor",
-          "Luxor, Egypt",
-          "4.7",
-          "854",
-          "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=400&q=80",
-          textColorPrimary,
-          textColorSec,
-        ),
-      ];
-    } else if (type == DetailType.transport) {
-      return [
-        _buildNearbyCard(
-          "Luxury SUV (Hyundai)",
-          "Cairo, Egypt",
-          "4.9",
-          "210",
-          "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=400&q=80",
-          textColorPrimary,
-          textColorSec,
-        ),
-        _buildNearbyCard(
-          "Private Nile Felucca",
-          "Aswan, Egypt",
-          "4.9",
-          "184",
-          "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&q=80",
-          textColorPrimary,
-          textColorSec,
-        ),
-      ];
-    }
+  Widget _buildRealBottomList(DetailArgs args, bool isDark, Color textColorPrimary) {
+    final Color textColorSec = isDark ? AppColors.blueColor : Colors.blueGrey;
 
-    // Default place
-    return [
-      _buildNearbyCard(
-        "Great Sphinx",
-        "Giza, Egypt",
-        "4.8",
-        "9876",
-        "https://images.unsplash.com/photo-1503177119275-0aa32b3a9368",
-        textColorPrimary,
-        textColorSec,
-      ),
-      _buildNearbyCard(
-        "Egyptian Museum",
-        "Cairo, Egypt",
-        "4.7",
-        "5432",
-        "https://images.unsplash.com/photo-1572252009286-268acec5a0af?w=400&q=80",
-        textColorPrimary,
-        textColorSec,
-      ),
-    ];
+    switch (args.type) {
+      case DetailType.guide:
+        final guideProvider = Provider.of<GuideProvider>(context, listen: false);
+        final others = guideProvider.guides
+            .where((g) => g.id != args.id)
+            .take(5)
+            .toList();
+        if (others.isEmpty) return _buildEmptyList(isDark);
+        return ListView.builder(
+          scrollDirection: Axis.horizontal,
+          itemCount: others.length,
+          itemBuilder: (ctx, i) {
+            final g = others[i];
+            return _buildRealCard(
+              id: g.id,
+              title: g.fullName,
+              subtitle: g.nationality.isNotEmpty ? g.nationality : 'Egypt',
+              rating: g.rating.toStringAsFixed(1),
+              reviews: '${g.reviewCount}',
+              imgUrl: g.imageUrl,
+              textColorPrimary: textColorPrimary,
+              textColorSec: textColorSec,
+              isDark: isDark,
+              onTap: () => Navigator.pushReplacementNamed(
+                context,
+                AppRoutes.DetailScreenRouteName,
+                arguments: DetailArgs(
+                  id: g.id,
+                  type: DetailType.guide,
+                  title: g.fullName,
+                  location: g.nationality,
+                  rating: g.rating,
+                  reviewsCount: g.reviewCount,
+                  networkImage: g.imageUrl.isNotEmpty ? g.imageUrl : null,
+                  about: g.bio.isNotEmpty ? g.bio : g.description,
+                  price: '\$${g.pricePerDay.toStringAsFixed(0)}/day',
+                  speciality: g.specialization,
+                  languages: g.languages,
+                ),
+              ),
+            );
+          },
+        );
+
+      case DetailType.hotel:
+        final hotelProvider = Provider.of<HotelProvider>(context, listen: false);
+        final others = hotelProvider.hotels
+            .where((h) => h.id != args.id)
+            .take(5)
+            .toList();
+        if (others.isEmpty) return _buildEmptyList(isDark);
+        return ListView.builder(
+          scrollDirection: Axis.horizontal,
+          itemCount: others.length,
+          itemBuilder: (ctx, i) {
+            final h = others[i];
+            return _buildRealCard(
+              id: h.id,
+              title: h.name,
+              subtitle: h.city.isNotEmpty ? h.city : h.location,
+              rating: h.rating.toStringAsFixed(1),
+              reviews: '${h.reviewCount}',
+              imgUrl: h.imageUrl,
+              textColorPrimary: textColorPrimary,
+              textColorSec: textColorSec,
+              isDark: isDark,
+              onTap: () => Navigator.pushReplacementNamed(
+                context,
+                AppRoutes.DetailScreenRouteName,
+                arguments: DetailArgs(
+                  id: h.id,
+                  type: DetailType.hotel,
+                  title: h.name,
+                  location: h.location,
+                  rating: h.rating,
+                  reviewsCount: h.reviewCount,
+                  networkImage: h.imageUrl.isNotEmpty ? h.imageUrl : null,
+                  about: h.description,
+                  price: '\$${h.pricePerNight.toStringAsFixed(0)}/night',
+                  hotelStars: '${h.starRating} Stars',
+                ),
+              ),
+            );
+          },
+        );
+
+      case DetailType.transport:
+        final transportProvider = Provider.of<TransportProvider>(context, listen: false);
+        final others = transportProvider.transports
+            .where((t) => t.id != args.id)
+            .take(5)
+            .toList();
+        if (others.isEmpty) return _buildEmptyList(isDark);
+        return ListView.builder(
+          scrollDirection: Axis.horizontal,
+          itemCount: others.length,
+          itemBuilder: (ctx, i) {
+            final t = others[i];
+            return _buildRealCard(
+              id: t.id,
+              title: t.name,
+              subtitle: '${t.departureLocation} → ${t.arrivalLocation}',
+              rating: t.rating.toStringAsFixed(1),
+              reviews: '${t.reviewCount}',
+              imgUrl: t.imageUrl,
+              textColorPrimary: textColorPrimary,
+              textColorSec: textColorSec,
+              isDark: isDark,
+              onTap: () => Navigator.pushReplacementNamed(
+                context,
+                AppRoutes.DetailScreenRouteName,
+                arguments: DetailArgs(
+                  id: t.id,
+                  type: DetailType.transport,
+                  title: t.name,
+                  location: '${t.departureLocation} → ${t.arrivalLocation}',
+                  rating: t.rating,
+                  reviewsCount: t.reviewCount,
+                  networkImage: t.imageUrl.isNotEmpty ? t.imageUrl : null,
+                  about: t.description,
+                  price: '\$${t.price.toStringAsFixed(0)}',
+                  capacity: '${t.totalCapacity} Seats',
+                  transportType: t.type,
+                ),
+              ),
+            );
+          },
+        );
+
+      case DetailType.place:
+      case DetailType.program:
+        final placeProvider = Provider.of<PlaceProvider>(context, listen: false);
+        final others = placeProvider.places
+            .where((p) => p.id != args.id)
+            .take(5)
+            .toList();
+        if (others.isEmpty) return _buildEmptyList(isDark);
+        return ListView.builder(
+          scrollDirection: Axis.horizontal,
+          itemCount: others.length,
+          itemBuilder: (ctx, i) {
+            final p = others[i];
+            return _buildRealCard(
+              id: p.id,
+              title: p.name,
+              subtitle: p.locationName,
+              rating: p.rating.toStringAsFixed(1),
+              reviews: '${p.reviewCount}',
+              imgUrl: p.imageUrl,
+              textColorPrimary: textColorPrimary,
+              textColorSec: textColorSec,
+              isDark: isDark,
+              onTap: () => Navigator.pushReplacementNamed(
+                context,
+                AppRoutes.DetailScreenRouteName,
+                arguments: DetailArgs(
+                  id: p.id,
+                  type: DetailType.place,
+                  title: p.name,
+                  location: p.locationName,
+                  rating: p.rating,
+                  reviewsCount: p.reviewCount,
+                  networkImage: p.imageUrl.isNotEmpty ? p.imageUrl : null,
+                  about: p.description,
+                  price: p.priceFrom > 0 ? '${p.priceFrom.toStringAsFixed(0)} EGP' : 'Free',
+                  hours: p.openingHours,
+                  distance: '${p.distanceKm.toStringAsFixed(1)} km',
+                  latitude: p.latitude,
+                  longitude: p.longitude,
+                ),
+              ),
+            );
+          },
+        );
+    }
   }
 
-  // Card Helper
-  Widget _buildNearbyCard(
-    String title,
-    String loc,
-    String rating,
-    String reviews,
-    String imgUrl,
-    Color textColorPrimary,
-    Color textColorSec,
-  ) {
-    return Container(
-      width: 200,
-      margin: const EdgeInsets.only(right: 15),
-      decoration: BoxDecoration(
-        color: Colors.transparent,
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: textColorSec.withOpacity(0.3)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
-            child: Image.network(
-              imgUrl,
-              height: 110,
-              width: double.infinity,
-              fit: BoxFit.cover,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.inter(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                    color: textColorPrimary,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    const Icon(Icons.location_on, size: 12, color: Colors.grey),
-                    const SizedBox(width: 2),
-                    Expanded(
-                      child: Text(
-                        loc,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.inter(
-                          color: Colors.grey,
-                          fontSize: 11,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    const Icon(Icons.star, size: 14, color: Colors.amber),
-                    Text(
-                      " $rating",
-                      style: GoogleFonts.inter(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
-                        color: textColorSec,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      "($reviews)",
-                      style: GoogleFonts.inter(
-                        color: Colors.grey,
-                        fontSize: 11,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
+  Widget _buildEmptyList(bool isDark) {
+    return Center(
+      child: Text(
+        'No similar items found',
+        style: GoogleFonts.inter(
+          color: isDark ? AppColors.blueColor : Colors.grey[500],
+          fontSize: 13,
+        ),
       ),
     );
   }
+
+  Widget _buildRealCard({
+    required String id,
+    required String title,
+    required String subtitle,
+    required String rating,
+    required String reviews,
+    required String imgUrl,
+    required Color textColorPrimary,
+    required Color textColorSec,
+    required bool isDark,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 200,
+        margin: const EdgeInsets.only(right: 15),
+        decoration: BoxDecoration(
+          color: isDark ? AppColors.bottomNavigationColor : Colors.white,
+          borderRadius: BorderRadius.circular(15),
+          border: Border.all(color: textColorSec.withOpacity(0.3)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(14)),
+              child: imgUrl.isNotEmpty
+                  ? Image.network(
+                      imgUrl,
+                      height: 110,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => Container(
+                        height: 110,
+                        color: isDark ? AppColors.darkBlueColor : Colors.grey[200],
+                        child: const Icon(Icons.image_not_supported, color: Colors.grey),
+                      ),
+                    )
+                  : Container(
+                      height: 110,
+                      color: isDark ? AppColors.darkBlueColor : Colors.grey[200],
+                      child: const Icon(Icons.image_not_supported, color: Colors.grey),
+                    ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.inter(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                      color: textColorPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      const Icon(Icons.location_on, size: 12, color: Colors.grey),
+                      const SizedBox(width: 2),
+                      Expanded(
+                        child: Text(
+                          subtitle,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.inter(color: Colors.grey, fontSize: 11),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      const Icon(Icons.star, size: 14, color: Colors.amber),
+                      Text(
+                        ' $rating',
+                        style: GoogleFonts.inter(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                          color: textColorSec,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '($reviews)',
+                        style: GoogleFonts.inter(color: Colors.grey, fontSize: 11),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
 
   // --- Bottom Action Bar Widget ---
   Widget _buildBottomActionBar(
