@@ -129,10 +129,16 @@ class ChatProvider extends ChangeNotifier {
     _messageSubscription?.cancel();
     _messageSubscription = _signalRService.messageStream.listen((message) {
       // Check if this incoming message belongs to this active conversation
-      final fromGuide = message.senderId?.toLowerCase() == _guideId?.toLowerCase();
-      final fromMe = message.senderId?.toLowerCase() == _currentUserId?.toLowerCase();
+      final otherSide = message.senderId?.toLowerCase() == _currentUserId?.toLowerCase()
+          ? message.recipientId
+          : message.senderId;
+      final threadKey = message.conversationKey ?? otherSide;
 
-      if (fromGuide || fromMe) {
+      final isMessageForCurrentChat = (threadKey != null && threadKey.toLowerCase() == _guideId?.toLowerCase()) ||
+          message.senderId?.toLowerCase() == _guideId?.toLowerCase() ||
+          message.recipientId?.toLowerCase() == _guideId?.toLowerCase();
+
+      if (isMessageForCurrentChat) {
         // Build message with senderId
         final formattedMessage = message.copyWith(
           senderId: message.senderId ?? _guideId,
@@ -159,18 +165,6 @@ class ChatProvider extends ChangeNotifier {
     }
 
     final now = DateTime.now();
-    // 1. Optimistic Update (add to UI instantly)
-    final optimisticMessage = ChatMessageModel(
-      text: text,
-      sentAt: now,
-      senderId: _currentUserId,
-    );
-    _messages.add(optimisticMessage);
-    print('ChatProvider: Optimistically added message to UI. Messages count: ${_messages.length}');
-    notifyListeners();
-
-    // Update conversations screen list state
-    _conversationsProvider?.updateLastMessage(_guideId!, text, now);
 
     // 2. Send via SignalR
     try {
